@@ -1,0 +1,42 @@
+
+.checkboxBlock {
+    padding: 12px;
+    border-radius: 8px;
+    transition: all 0.2s;
+
+    &:hover {
+        background-color: var(--background-color-input);
+    }
+
+    & span {
+        margin-left: 12px;
+    }
+
+    & input {
+        cursor: pointer;
+    }
+}
+
+.error {
+    margin: 2px;
+    min-height: 12px;
+    padding: 2px;
+    max-width: 264px;
+
+    & span {
+        color: #ff5c5ce8;
+        font-size: medium;
+    }
+}
+
+.passwordInput {
+    position: relative;
+
+    & svg {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        font-size: 1.2rem;
+    }
+}
+

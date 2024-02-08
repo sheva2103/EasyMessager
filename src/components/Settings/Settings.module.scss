@@ -1,0 +1,54 @@
+.hr {
+    width: 100%;
+    height: 4px;
+    background-color: var(--background-color-content-block);
+    border: none;
+}
+
+.group {
+    padding: 4px 0;
+    display: flex;
+    flex-direction: column;
+
+    .item {
+        padding: 8px 16px;
+    }
+
+    .item:hover {
+        background-color: var(--background-color-input);
+    }
+}
+
+.select {
+    border: 1px solid var(--background-color-input);
+    background-color: var(--background-color-input);
+    border-radius: 8px;
+    padding: 6px 35px 6px 15px;
+    //outline: none;
+    cursor: pointer;
+    color: var(--color);
+}
+
+.select:focus-visible {
+    outline: none;
+    border: 1px solid rgb(135, 116, 225);
+    //box-shadow: 0 0 0 1px #cf690a 0 0 10px #be0514;
+}
+
+.options {
+    background-color: var(--background-color-input);
+}
+
+.langContainer {
+    display: flex;
+    width: 100%;
+    gap: 10px;
+    align-items: center;
+
+    .langItem {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
