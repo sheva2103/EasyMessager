@@ -1,12 +1,10 @@
 import { FC } from "react";
 import styles from './MenuComponent.module.scss'
 import classNames from "classnames";
-import ArrowBackLeft from '../../assets/box-arrow-left.svg'
 import CreateChannelIcon from '../../assets/chat.svg'
 import SettingsIcon from '../../assets/settings.svg'
 import ContactsIcon from '../../assets/contacts.svg'
 import FavoritesIcon from '../../assets/favorites.svg'
-import ToggleTheme from "../TogleTheme/ToggleTheme";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { closeBar, closeMenu } from "../../store/slices/appSlice";
 import { CONTACTS, CREATE_CHANNEL, SETTINGS } from "../../constants/constants";
@@ -44,7 +42,6 @@ const MenuComponent: FC = () => {
                             <ContactsIcon /><span>Контакты</span>
                         </li>
                         <li><FavoritesIcon /><span>Избранное</span></li>
-                        <li><ToggleTheme /></li>
                     </ul>
                 </div>
             </nav>

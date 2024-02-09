@@ -10,7 +10,6 @@ import { openMenu } from '../../store/slices/appSlice';
 const HomaPage = () => {
 
     const dispatch = useAppDispatch()
-    const menuState = useAppSelector(state => state.app.menu)
     const handleClickMenu = () => {
         dispatch(openMenu())
     }
