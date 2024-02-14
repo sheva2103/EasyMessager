@@ -39,16 +39,72 @@
     background-color: var(--background-color-input);
 }
 
-.langContainer {
+.container {
     display: flex;
     width: 100%;
     gap: 10px;
     align-items: center;
+    justify-content: space-between;
 
-    .langItem {
+    .containerItem {
         width: 100%;
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
 }
+
+
+.dropDawn {
+    list-style: none;
+    padding-left: 12px;
+    min-height: 0;
+    font-size: 0;
+    transition: all 0.5s;
+
+    & li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &.show li {
+        padding: 6px;
+        @media (max-width: 468px) {
+            padding: 10px;
+            font-size: 1.2rem;
+        }
+    }
+
+    & li:hover {
+        color: rgb(135, 116, 225);
+        border-bottom: 1px solid rgba(134, 116, 225, 0.363);
+    }
+
+    // &.show svg {
+
+    // }
+}
+
+// .checkMenu:checked ~ .dropDawn {
+//     min-height: 100px;
+//     font-size: inherit;
+// }
+.show {
+    max-height: 200px;
+    font-size: inherit;
+    overflow: auto;
+}
+
+button {
+    width: fit-content;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-left: 16px;
+    font-size: 1.1rem;
+    @media (max-width: 468px) {
+        font-size: 1.2rem;
+    }
+}
+

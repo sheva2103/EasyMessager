@@ -4,8 +4,8 @@ import { CONTACTS, CREATE_CHANNEL, SETTINGS } from "../../constants/constants";
 import CreateChannel from "./CreateChannel";
 import Settings from "../Settings/Settings";
 import Contacts from "./Contacts";
-import UserInfo from "./UserInfo";
 import CloseMenu from "./CloseMenu";
+import styles from './MenuComponent.module.scss'
 
 
 const MenuChild: FC = () => {
@@ -13,7 +13,7 @@ const MenuChild: FC = () => {
     const content = useAppSelector(state => state.app.menu.menuChild)
 
     return (  
-        <div>
+        <div className={styles.barChildContent}>
             <div>
                 <CloseMenu left/>
             </div>

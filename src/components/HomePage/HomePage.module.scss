@@ -28,6 +28,7 @@
                 margin: 16px 0 0 16px;
                 svg:hover {
                     transform: scale(120%, 120%);
+                    transition: all 0.3s;
                 }
             }
 

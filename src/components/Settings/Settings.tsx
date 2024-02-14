@@ -4,6 +4,8 @@ import styles from './Settings.module.scss'
 import ToggleTheme from "../TogleTheme/ToggleTheme";
 import Select from "./Select";
 import LangIcon from '../../assets/translate.svg'
+import BlackList from "./BlackList";
+import ArrowLeft from '../../assets/box-arrow-left.svg'
 
 
 const Settings: FC = () => {
@@ -16,11 +18,11 @@ const Settings: FC = () => {
                     <ToggleTheme />
                 </div>
                 <div className={styles.item}>
-                    <div className={styles.langContainer}>
+                    <div className={styles.container}>
                         <div>
                             <LangIcon fontSize={'1.2rem'}/>
                         </div>
-                        <div className={styles.langItem}>
+                        <div className={styles.containerItem}>
                             <div>
                                 <span>Язык</span>
                             </div>
@@ -30,6 +32,17 @@ const Settings: FC = () => {
                         </div>
                     </div>
                 </div>
+            </div>
+            <hr className={styles.hr}/>
+            <div className={styles.group}>
+                <BlackList />
+            </div>
+            <hr className={styles.hr}/>
+            <div className={styles.group}>
+                <button>
+                    <ArrowLeft />
+                    <span>выйти</span>
+                </button>
             </div>
         </div>
     );
