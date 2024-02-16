@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { useAppSelector } from "../../hooks/hook";
 import { CONTACTS, CREATE_CHANNEL, SETTINGS } from "../../constants/constants";
-import CreateChannel from "./CreateChannel";
+import CreateChannel from "../forms/CreateChannel";
 import Settings from "../Settings/Settings";
 import Contacts from "./Contacts";
 import CloseMenu from "./CloseMenu";

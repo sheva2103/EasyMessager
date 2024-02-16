@@ -11,9 +11,9 @@ input {
     border: 1px solid var(--background-color-input);
     background-color: var(--background-color-input);
     border-radius: 8px;
-    padding: 12px;
+    padding: 8px;
     color: var(--color);
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     transition: background-color 0.5s;
 
     &:focus-visible {

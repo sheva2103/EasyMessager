@@ -4,15 +4,31 @@ import Preloader from '../../assets/preloader.svg'
 type Props = {
     isSubmitting: boolean,
     signIn?: boolean,
-    signUp?: boolean
+    signUp?: boolean,
+    //createChannel?: boolean
 }
 
-const ButtonSubmit: FC<Props> = ({ isSubmitting, signIn, signUp }) => {
+function defineTypeButton(type: Props): string {
+    if(type.signIn) return 'Войти'
+    if(type.signUp) return 'Регистрация'
+    return 'Создать канал'
+}
+
+const ButtonSubmit: FC<Props> = (props) => {
+
+    const { isSubmitting, signIn, signUp } = props
+
     return (
+        // <div>
+        //     <button style={{ width: '100%' }}
+        //         disabled={isSubmitting}>
+        //         {isSubmitting ? <Preloader /> : signUp ? 'регистрация' : 'войти'}
+        //     </button>
+        // </div>
         <div>
             <button style={{ width: '100%' }}
                 disabled={isSubmitting}>
-                {isSubmitting ? <Preloader /> : signUp ? 'регистрация' : 'войти'}
+                {isSubmitting ? <Preloader /> : defineTypeButton(props)}
             </button>
         </div>
     );
