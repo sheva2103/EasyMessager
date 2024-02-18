@@ -16,9 +16,9 @@ function defineTypeChannel(data: Form): boolean {
     return false
 }
 
-//const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-//проверить задержку
+const NAME_REGEXP = /^[a-zA-Z0-9_*-@]{4,20}$/;
 
 const CreateChannel: FC = () => {
 
@@ -29,12 +29,15 @@ const CreateChannel: FC = () => {
         }
     })
 
-    const submit: SubmitHandler<Form> = (data) => {
+    const submit: SubmitHandler<Form> = async(data) => {
 
-        console.log(data)
-        const submitData = {name: data.name, isOpen: defineTypeChannel(data) }
-        console.log(submitData)
-        reset()
+        await sleep(500).then(data1 => {
+            console.log(data)
+            const submitData = {name: data.name, isOpen: defineTypeChannel(data) }
+            console.log(submitData)
+            reset()
+        })
+        
     }
 
     return ( 
@@ -46,7 +49,8 @@ const CreateChannel: FC = () => {
                     {...register('name',
                         {required: { value: true, message: 'обязательное поле' }, 
                         minLength: {value: 4, message: 'минимум 4 символа'},
-                        maxLength: {value: 20, message: 'максимум 20 символов'}
+                        maxLength: {value: 20, message: 'максимум 20 символов'},
+                        pattern: {value: NAME_REGEXP, message: 'цыфры буквы и символы(_*-@)'}
                     })}
                 />
                 <div className={styles.error}>

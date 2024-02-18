@@ -80,10 +80,6 @@
         color: rgb(135, 116, 225);
         border-bottom: 1px solid rgba(134, 116, 225, 0.363);
     }
-
-    // &.show svg {
-
-    // }
 }
 
 // .checkMenu:checked ~ .dropDawn {
@@ -92,8 +88,12 @@
 // }
 .show {
     max-height: 200px;
-    font-size: inherit;
+    font-size: 1.1rem;
     overflow: auto;
+
+    & svg {
+        font-size: 1.2rem;
+    }
 }
 
 button {

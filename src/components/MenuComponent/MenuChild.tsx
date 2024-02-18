@@ -3,7 +3,7 @@ import { useAppSelector } from "../../hooks/hook";
 import { CONTACTS, CREATE_CHANNEL, SETTINGS } from "../../constants/constants";
 import CreateChannel from "../forms/CreateChannel";
 import Settings from "../Settings/Settings";
-import Contacts from "./Contacts";
+import Contacts from "../Contacts/Contacts";
 import CloseMenu from "./CloseMenu";
 import styles from './MenuComponent.module.scss'
 
