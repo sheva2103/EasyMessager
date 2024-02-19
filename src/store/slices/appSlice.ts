@@ -12,7 +12,8 @@ type Menu = {
 
 type AppState = {
     // menuIsOpen: boolean
-    menu: Menu
+    menu: Menu,
+    selectedChat: string | null
 }
 
 const initialState: AppState = {
@@ -20,7 +21,9 @@ const initialState: AppState = {
         cover: false,
         bar: false,
         menuChild: ''
-    }
+    },
+    selectedChat: null
+
 }
 
 export const appSlice = createSlice({
@@ -39,9 +42,12 @@ export const appSlice = createSlice({
         closeBar(state, action: PayloadAction<string>) {
             state.menu.bar = false
             state.menu.menuChild = action.payload
+        },
+        selectChat(state, action: PayloadAction<string>) {
+            state.selectedChat = action.payload
         }
     }
 })
 
-export const {openMenu, closeMenu, closeBar} = appSlice.actions
+export const {openMenu, closeMenu, closeBar, selectChat} = appSlice.actions
 export default appSlice.reducer

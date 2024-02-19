@@ -10,11 +10,32 @@ input {
     margin: 2px;
     border: 1px solid var(--background-color-input);
     background-color: var(--background-color-input);
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 8px;
     color: var(--color);
     font-size: 1.1rem;
     transition: background-color 0.5s;
+
+    &:focus-visible {
+        outline: 1px solid #8774e1;
+        background-color: var(--background-color);
+        color: var(--color);
+    }
+    &:hover {
+        border: 1px solid #8774e1;
+    }
+}
+
+textarea {
+    margin: 2px;
+    border: 1px solid var(--background-color-input);
+    background-color: var(--background-color-input);
+    border-radius: 10px;
+    padding: 8px;
+    color: var(--color);
+    font-size: 1.1rem;
+    transition: background-color 0.5s;
+    resize: none;
 
     &:focus-visible {
         outline: 1px solid #8774e1;

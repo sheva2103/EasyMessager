@@ -10,9 +10,9 @@
         height: 100%;
         overflow: hidden;
 
-        @media (max-width: 768px) {
-            display: block;
-        }
+        // @media (max-width: 768px) {
+        //     display: block;
+        // }
 
         .chatListContainer {
             width: 364px;
@@ -33,13 +33,21 @@
             }
 
 
-            @media (max-width: 768px) {
+            @media (max-width: 576px) {
                 width: 100%;
                 height: 100%;
                 position: absolute;
                 left: 0;
                 transition: all 0.5s;
                 display: flex;
+            }
+
+            @media (min-width: 577px) {
+                width: 280px;
+            }
+
+            @media (min-width: 769px) {
+                width: 364px;
             }
 
             .blockInput {
@@ -63,12 +71,21 @@
             .chatInfo {
                 display: flex;
                 align-items: center;
-                gap: 4px;
+                gap: 6px;
                 padding: 4px 8px;
                 overflow: hidden;
+                cursor: pointer;
 
                 &:hover {
                     background-color: var(--background-color-input);
+                }
+
+                & .selected {
+                    display: block;
+                    width: 6px;
+                    height: 24px;
+                    border-radius: 4px;
+                    background-color: rgb(135, 116, 225);
                 }
 
                 @media (max-width: 282px) {
@@ -107,15 +124,114 @@
             width: 100%;
             height: 100%;
             background-color: var(--background-color-content-block);
-            transition: background-color 0.3s linear;
+            transition: all 0.3s linear;
+
+            display: flex;
+            flex-direction: column;
+            //padding: 16px;
+            //gap: 16px;
+
+            @media (max-width: 576px) {
+                gap: 4px;
+            }
+
+            &>div {
+                padding: 12px 12px 0 12px;
+                font-size: 1.1rem;
+
+                @media (max-width: 576px) {
+                    padding: 0;
+                }
+            }
+
+            &>:last-child {
+                height: 100%;
+                margin-bottom: 4px;
+
+                @media (max-width: 576px) {
+                    margin: 0;
+                }
+            }
             
-            @media (max-width: 768px) {
+            @media (max-width: 576px) {
                 position: absolute;
                 right: -100%;
                 opacity: 0;
                 transition: all 0.5s;
+
+                &.showContent {
+                    right: 0;
+                    opacity: 1;
+                }
+            }
+
+            header {
+                display: flex;
+                align-items: center;
+                background-color: var(--background-color-chatlist);
+                border-radius: 12px;
+
+                @media (max-width: 576px) {
+                    border-radius: 0;
+                }
+
+                &>div {
+                    display: flex;
+                    padding: 8px;
+                }
+
+                .closeIcon {
+                    @media (min-width: 577px) {
+                        display: none;
+                    }
+                }
+
+                .contentHeader {
+                    display: flex;
+                    justify-content: space-between;
+                    width: 100%;
+
+                    &>div {
+                        padding: 4px;
+                    }
+                }
+            }
+
+            main {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                height: 100%;
+                background-color: var(--background-color-chatlist);
+                border-radius: 12px;
+
+                @media (max-width: 576px) {
+                    border-radius: 0;
+                }
             }
         }
+
+        .notSelected {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    }
+}
+
+.listMessages {
+    height: 300px;
+    overflow: auto;
+}
+
+.inputNewMessage {
+    margin: 12px;
+    display: flex;
+    align-items: end;
+    gap: 8px;
+
+    & textarea {
+        width: 100%;
     }
 }
 
