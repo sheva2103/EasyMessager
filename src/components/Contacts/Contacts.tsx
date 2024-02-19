@@ -14,7 +14,7 @@ const test = [
     {name: 'alex8'},
     {name: 'alex9'},
     {name: 'alex10'},
-    {name: 'alex11'},
+    {name: 'alex11mmmmmmmmmmmmmm'},
 ]
 
 
@@ -26,9 +26,7 @@ const Contacts: FC = () => {
         setName(e.target.value)
     }
 
-    const filter = () => {
-        return test.filter(item => item.name.includes(name))
-    }
+    const filter = test.filter(item => item.name.includes(name))
 
     return (  
         <div className={styles.container}>
@@ -43,11 +41,7 @@ const Contacts: FC = () => {
             </div>
             <div className={styles.item}>
                 <ul className={styles.list}>
-                    {/* <li>
-                        <span>name</span>
-                        <div><RemoveFromContacts /></div>
-                    </li> */}
-                    {filter().map((item, index) => (
+                    {filter.map((item, index) => (
                         <li key={String(item.name + index)}>
                             <span>{item.name}</span>
                             <div title="Удалить из друзей"><RemoveFromContacts /></div>
@@ -58,5 +52,5 @@ const Contacts: FC = () => {
         </div>
     );
 }
- 
+
 export default Contacts;

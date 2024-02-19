@@ -49,6 +49,9 @@
 
         & svg, span {
             cursor: pointer;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
         }
     }
 
