@@ -5,7 +5,8 @@ html[data-theme="dark"] {
     --color: #ffffff;
     --background-color-chatlist: #161616;
     --background-color-content-block: #313131;
-    --background-color-cover: rgb(66 66 66 / 15%)
+    --background-color-cover: rgb(66 66 66 / 15%);
+    --color-guest-message: #ffffff
 }
 
 html[data-theme="light"] {
@@ -15,6 +16,7 @@ html[data-theme="light"] {
     --background-color-chatlist: #eeebeb;
     --color-chatlist: #393b3d;
     --background-color-content-block: aliceblue;
-    --background-color-cover: rgb(181 181 181 / 84%)
+    --background-color-cover: rgb(181 181 181 / 84%);
+    --color-guest-message: #161616
 }
 

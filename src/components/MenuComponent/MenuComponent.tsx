@@ -21,6 +21,8 @@ const MenuComponent: FC = () => {
         e.stopPropagation()
     }
 
+    console.log('menu render')
+
     return (
         <div>
             <div 

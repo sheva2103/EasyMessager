@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, memo } from "react";
 import styles from './Avatar.module.scss'
 import classNames from "classnames";
 
@@ -23,4 +23,4 @@ const Avatar: FC<Props> = ({url, name}) => {
     );
 }
 
-export default Avatar;
+export default memo(Avatar);
