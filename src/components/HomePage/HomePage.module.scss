@@ -144,9 +144,10 @@
                 }
             }
 
-            &>:last-child {
+            .chatWindow {
                 height: 100%;
                 margin-bottom: 4px;
+                overflow: auto;
 
                 @media (max-width: 576px) {
                     margin: 0;
@@ -200,7 +201,7 @@
             main {
                 display: flex;
                 flex-direction: column;
-                justify-content: space-between;
+                justify-content: end;
                 height: 100%;
                 background-color: var(--background-color-chatlist);
                 border-radius: 12px;
@@ -220,15 +221,45 @@
 }
 
 .listMessages {
-    height: 300px;
     overflow: auto;
+    height: 100%;
+
+    & ul {
+        list-style: none;
+        padding-left: 8px;
+
+        li {
+            display: flex;
+            align-items: end;
+            gap: 8px;
+            padding: 4px;
+            
+            &>span {
+                border-radius: 16px;
+                border-bottom-left-radius: 0;
+                background-color: rgb(135, 116, 225);
+                padding: 8px;
+                color: #ffffff;
+                max-width: 70%;
+                @media (max-width: 900px) {
+                    max-width: 100%;
+                }
+            }
+
+            & .guest {
+                background-color: var(--background-color-input);
+                color: var(--color-guest-message);
+            }
+        }
+    }
 }
 
 .inputNewMessage {
-    margin: 12px;
+    margin: 8px;
     display: flex;
     align-items: end;
     gap: 8px;
+    max-height: 30%;
 
     & textarea {
         width: 100%;

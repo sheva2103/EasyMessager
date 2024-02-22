@@ -1,12 +1,11 @@
 import styles from './HomePage.module.scss'
-import SearchChatInput from './SearchChatInput';
 import MenuIcon from '../../assets/menu-icon.svg'
 import classNames from 'classnames';
-import ChatList from './ChatList';
 import MenuComponent from '../MenuComponent/MenuComponent';
-import { useAppDispatch, useAppSelector } from '../../hooks/hook';
+import { useAppDispatch } from '../../hooks/hook';
 import { openMenu } from '../../store/slices/appSlice';
 import ChatContent from './ChatContent';
+import ChatList1 from './ChatList';
 
 const HomaPage = () => {
 
@@ -26,8 +25,7 @@ const HomaPage = () => {
                             onClick={handleClickMenu}
                             />
                     </div>
-                    <div className={styles.item}><SearchChatInput /></div>
-                    <div  style={{height: 'calc(100% - 134px)'}}><ChatList /></div>
+                    <ChatList1 />
                 </div>
                 <ChatContent />
                 <MenuComponent />

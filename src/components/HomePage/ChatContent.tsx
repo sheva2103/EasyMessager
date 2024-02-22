@@ -26,7 +26,7 @@ const ChatContent: FC = () => {
 
     return (
         <div className={classNames(styles.contentContainer, { [styles.showContent]: selectedChat })}>
-            <div>
+            <div className={styles.header}>
                 <header>
                     <div className={styles.closeIcon} onClick={closeChat}>
                         <ArrowLeftIcon fontSize={'1.2rem'} />
@@ -37,8 +37,8 @@ const ChatContent: FC = () => {
                     </div>
                 </header>
             </div>
-            <div>
-                <main className={styles.contentMain}>
+            <div className={styles.chatWindow}>
+                <main>
                     <ListMessages />
                     <InputNewMessage />
                 </main>

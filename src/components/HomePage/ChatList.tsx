@@ -1,6 +1,7 @@
-import { FC } from "react";
-import ChatInfo from "./ChatInfo";
+import { FC, useState } from "react";
 import styles from './HomePage.module.scss'
+import ChatInfo from "./ChatInfo";
+
 
 const chats = [
     {name: 'alexdb', url: ''},
@@ -19,17 +20,36 @@ const chats = [
     {name: 'alexbbb', url: ''},
 ]
 
+const ChatList1: FC = () => {
 
-const ChatList: FC = () => {
-    return (  
-        <ul className={styles.chatList}>
-            {chats.map((item, index) => (
-                <ChatInfo key={String(item.name + index)}
-                            name={item.name} 
-                            url={item.url}/>
-            ))}
-        </ul>
+    const [name, setName] = useState('')
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setName(e.target.value)
+    }
+
+    const filter = chats.filter(item => item.name.includes(name))
+
+    console.log('filter')
+
+    return (
+        <>
+            <div className={styles.item}>
+                <div className={styles.blockInput}>
+                    <input type="text" value={name} onChange={handleChange}/>
+                </div>
+            </div>
+            <div style={{ height: 'calc(100% - 134px)' }}>
+                <ul className={styles.chatList}>
+                    {filter.map((item, index) => (
+                        <ChatInfo key={String(item.name + index)}
+                            name={item.name}
+                            url={item.url} />
+                    ))}
+                </ul>
+            </div>
+        </>
     );
 }
 
-export default ChatList;
+export default ChatList1;
