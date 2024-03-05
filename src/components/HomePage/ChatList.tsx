@@ -20,7 +20,7 @@ const chats = [
     {name: 'alexbbb', url: ''},
 ]
 
-const ChatList1: FC = () => {
+const ChatList: FC = () => {
 
     const [name, setName] = useState('')
 
@@ -52,4 +52,4 @@ const ChatList1: FC = () => {
     );
 }
 
-export default ChatList1;
+export default ChatList;
