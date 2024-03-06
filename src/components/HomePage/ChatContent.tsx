@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import styles from './HomePage.module.scss'
 import classNames from "classnames";
@@ -14,6 +14,12 @@ const ChatContent: FC = () => {
     const dispatch = useAppDispatch()
     const closeChat = () => {
         dispatch(selectChat(null))
+    }
+    const [showCheckbox, setShowCheckbox] = useState(false)
+    const handleContextMenu = (e: React.MouseEvent<HTMLSpanElement>) => {
+        e.preventDefault()
+        
+        setShowCheckbox(true)
     }
 
     if (!selectedChat) {
@@ -33,13 +39,16 @@ const ChatContent: FC = () => {
                     </div>
                     <div className={styles.contentHeader}>
                         <div>{selectedChat}</div>
-                        <div>menu</div>
+                        <div className={styles.menu}>
+                            <span>отмена</span>
+                            <div>...</div>
+                        </div>
                     </div>
                 </header>
             </div>
             <div className={styles.chatWindow}>
                 <main>
-                    <ListMessages />
+                    <ListMessages handleContextMenu={handleContextMenu} showCheckbox={showCheckbox}/>
                     <InputNewMessage />
                 </main>
             </div>

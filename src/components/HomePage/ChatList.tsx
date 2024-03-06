@@ -39,13 +39,16 @@ const ChatList: FC = () => {
                     <input type="text" value={name} onChange={handleChange}/>
                 </div>
             </div>
-            <div style={{ height: 'calc(100% - 134px)' }}>
+            <div style={{ height: 'calc(100% - 102px)' }}>
                 <ul className={styles.chatList}>
                     {filter.map((item, index) => (
                         <ChatInfo key={String(item.name + index)}
                             name={item.name}
                             url={item.url} />
                     ))}
+                    {filter.length === 0 && 
+                        <li className={styles.chatInfo}>Ничего не найдено</li>
+                    }
                 </ul>
             </div>
         </>

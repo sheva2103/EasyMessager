@@ -5,7 +5,7 @@ import MenuComponent from '../MenuComponent/MenuComponent';
 import { useAppDispatch } from '../../hooks/hook';
 import { openMenu } from '../../store/slices/appSlice';
 import ChatContent from './ChatContent';
-import ChatList1 from './ChatList';
+import ChatList from './ChatList';
 
 const HomaPage = () => {
 
@@ -23,9 +23,12 @@ const HomaPage = () => {
                             fontSize={'28px'}
                             cursor={'pointer'}
                             onClick={handleClickMenu}
-                            />
+                        />
+                        <div className={styles.title}>
+                            <span>EasyMessager</span>
+                        </div>
                     </div>
-                    <ChatList1 />
+                    <ChatList />
                 </div>
                 <ChatContent />
                 <MenuComponent />
