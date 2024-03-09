@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import Avatar from '../Avatar/Avatar';
 import styles from './HomePage.module.scss'
 import { FC, useState } from 'react';
+import Message from './Messgae';
 
 const test = [
     {name: 'alex', url: '', id: 42154,message: 'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Cumque fuga quas earum dolorum maxime unde vero dignissimos tenetur molestias sit! '},
@@ -25,22 +26,17 @@ type Props = {
     handleContextMenu: (e: React.MouseEvent) => void
 }
 
-const ListMessages: FC<Props> = ({showCheckbox, handleContextMenu}) => {
 
-    const owner = 'alex'
-    
 
-    console.log(showCheckbox)
+const ListMessages: FC<Props> = (props: Props) => {
+
+    const {showCheckbox, handleContextMenu} = props
 
     return (  
         <div className={styles.listMessages}>
             <ul>
-                {test.map((item, index) => (
-                    <li key={item.name + index}>
-                        <input type="checkbox" className={classNames({[styles.showCheckbox]: showCheckbox})}/>
-                        <Avatar url={item.url} name={item.name}/>
-                        <span className={classNames({[styles.guest]: item.name === owner})} onContextMenu={handleContextMenu}>{item.message}</span>
-                    </li>
+                {test.map((item) => (
+                    <Message {...props} item={item} key={item.id}/>
                 ))}
             </ul>
         </div>

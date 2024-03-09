@@ -22,6 +22,10 @@ const ChatContent: FC = () => {
         setShowCheckbox(true)
     }
 
+    const deselect = () => {
+        setShowCheckbox(false)
+    }
+
     if (!selectedChat) {
         return (
             <div className={classNames(styles.contentContainer, { [styles.notSelected]: !selectedChat })}>
@@ -40,7 +44,7 @@ const ChatContent: FC = () => {
                     <div className={styles.contentHeader}>
                         <div>{selectedChat}</div>
                         <div className={styles.menu}>
-                            <span>отмена</span>
+                            <span onClick={deselect}>отмена</span>
                             <div>...</div>
                         </div>
                     </div>

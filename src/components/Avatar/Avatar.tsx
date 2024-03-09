@@ -9,7 +9,6 @@ type Props = {
 
 const Avatar: FC<Props> = ({url, name}) => {
 
-    console.log(Boolean(url))
     return (  
         <div>
             {Boolean(url) ?
