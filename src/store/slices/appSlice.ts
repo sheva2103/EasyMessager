@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from '@reduxjs/toolkit'
+import { Message } from "../../types/types";
 
 
 type Menu = {
@@ -13,7 +14,8 @@ type Menu = {
 type AppState = {
     // menuIsOpen: boolean
     menu: Menu,
-    selectedChat: string | null
+    selectedChat: string | null,
+    selectedMessages: Message[]
 }
 
 const initialState: AppState = {
@@ -22,7 +24,8 @@ const initialState: AppState = {
         bar: false,
         menuChild: ''
     },
-    selectedChat: null
+    selectedChat: null,
+    selectedMessages: []
 
 }
 
@@ -45,9 +48,15 @@ export const appSlice = createSlice({
         },
         selectChat(state, action: PayloadAction<string>) {
             state.selectedChat = action.payload
+        },
+        addSelectedMessage(state, action: PayloadAction<Message>) {
+            state.selectedMessages.push(action.payload)
+        },
+        deleteSelectedMessage(state, action: PayloadAction<Message>) {
+            state.selectedMessages = state.selectedMessages.filter(message => message.id !== action.payload.id)
         }
     }
 })
 
-export const {openMenu, closeMenu, closeBar, selectChat} = appSlice.actions
+export const {openMenu, closeMenu, closeBar, selectChat, addSelectedMessage, deleteSelectedMessage} = appSlice.actions
 export default appSlice.reducer

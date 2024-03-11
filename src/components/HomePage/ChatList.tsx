@@ -30,8 +30,6 @@ const ChatList: FC = () => {
 
     const filter = chats.filter(item => item.name.includes(name))
 
-    console.log('filter')
-
     return (
         <>
             <div className={styles.item}>

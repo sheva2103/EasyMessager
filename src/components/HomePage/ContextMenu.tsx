@@ -54,7 +54,9 @@ type Props = {
         current: HTMLElement
     },
     isOpen: boolean,
-    closeContextMenu: (e: React.MouseEvent) => void
+    showCheckbox: boolean,
+    closeContextMenu: (e: React.MouseEvent) => void,
+    selectSeveral: (e: React.MouseEvent<HTMLSpanElement>) => void
 }
 
 type Offset = {
@@ -68,25 +70,25 @@ interface StyleMenu {
     left: string;
 }
 
-const ContextMenu: FC<Props> = ({element, isOpen, closeContextMenu}) => {
+const ContextMenu: FC<Props> = ({ element, isOpen, closeContextMenu, selectSeveral, showCheckbox }) => {
 
-    const [offset, setOffset] = useState<Offset>({top: 0, left: 0})
+    const [offset, setOffset] = useState<Offset>({ top: 0, left: 0 })
 
     const positionMenu: StyleMenu = {
-        position: 'relative', 
-        top: offset.top + 5 + 'px', 
+        position: 'relative',
+        top: offset.top + 5 + 'px',
         left: offset.left + 5 + 'px'
     }
 
     const setPositionMenu = (e: MouseEvent) => {
-            const position = {top: 0, left: 0}
-            const windowHeight = document.documentElement.clientHeight
-            const windowWidth = document.documentElement.clientWidth
-            const positionClickTop = e.clientY
-            const positionClickLeft = e.clientX
-            windowHeight - positionClickTop > 200 ? position.top = positionClickTop : position.top = positionClickTop - 168
-            windowWidth - positionClickLeft > 200 ? position.left = positionClickLeft : position.left = positionClickLeft - 168
-            setOffset(position)
+        const position = { top: 0, left: 0 }
+        const windowHeight = document.documentElement.clientHeight
+        const windowWidth = document.documentElement.clientWidth
+        const positionClickTop = e.clientY
+        const positionClickLeft = e.clientX
+        windowHeight - positionClickTop > 200 ? position.top = positionClickTop : position.top = positionClickTop - 168
+        windowWidth - positionClickLeft > 200 ? position.left = positionClickLeft : position.left = positionClickLeft - 168
+        setOffset(position)
     }
 
     const copyMessage = () => {
@@ -95,21 +97,29 @@ const ContextMenu: FC<Props> = ({element, isOpen, closeContextMenu}) => {
 
     useEffect(() => {
         element.current.addEventListener('contextmenu', setPositionMenu)
-        return () => element.current.removeEventListener('contextmenu', setPositionMenu)
+        if (!element.current) return () => element.current.removeEventListener('contextmenu', setPositionMenu)
     }, []);
 
-    return (  
-        <div 
-            className={classNames(styles.cover, {[styles.showContextMenu]: isOpen})} 
+    return (
+        <div
+            className={classNames(styles.cover, { [styles.showContextMenu]: isOpen })}
             onClick={closeContextMenu}
             onContextMenu={closeContextMenu}
-            >
+        >
             <div style={positionMenu} className={styles.contextMenu}>
                 <ul >
                     <li onClick={(e) => e.stopPropagation()}><SendMessage /><span>Переслать</span></li>
                     <li onClick={copyMessage}><Copy /><span>Копировать текст</span></li>
                     <li><Delete /><span>Удалить</span></li>
-                    <li><Select /><span>Выбрать несколько</span></li>
+                    {!showCheckbox &&
+                        <li
+                            onClick={selectSeveral}
+                            className={classNames(styles.selectSeveral)}
+                        >
+                            <Select />
+                            <span>Выбрать несколько</span>
+                        </li>
+                    }
                 </ul>
             </div>
         </div>

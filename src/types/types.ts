@@ -18,3 +18,9 @@ export type SignInSignUpForm = {
     rememberMe: boolean
 }
 
+export type Message = {
+    name: string,
+    url: string,
+    id: number,
+    message: string
+}

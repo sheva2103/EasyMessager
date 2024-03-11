@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import styles from './HomePage.module.scss'
 import classNames from "classnames";
@@ -6,6 +6,7 @@ import ArrowLeftIcon from '../../assets/box-arrow-left.svg'
 import { selectChat } from "../../store/slices/appSlice";
 import ListMessages from "./ListMessage";
 import InputNewMessage from "./InputNewMessage";
+import BlockControl from "./BlockControl";
 
 
 const ChatContent: FC = () => {
@@ -16,15 +17,19 @@ const ChatContent: FC = () => {
         dispatch(selectChat(null))
     }
     const [showCheckbox, setShowCheckbox] = useState(false)
-    const handleContextMenu = (e: React.MouseEvent<HTMLSpanElement>) => {
-        e.preventDefault()
-        
+    const selectSeveral = (e: React.MouseEvent<HTMLSpanElement>) => {
+        //e.preventDefault()
+
         setShowCheckbox(true)
     }
 
     const deselect = () => {
         setShowCheckbox(false)
     }
+
+    useEffect(() => {
+        setShowCheckbox(false)
+    },[selectedChat])
 
     if (!selectedChat) {
         return (
@@ -44,7 +49,9 @@ const ChatContent: FC = () => {
                     <div className={styles.contentHeader}>
                         <div>{selectedChat}</div>
                         <div className={styles.menu}>
-                            <span onClick={deselect}>отмена</span>
+                            {showCheckbox &&
+                                <BlockControl deselect={deselect}/>
+                            }
                             <div>...</div>
                         </div>
                     </div>
@@ -52,7 +59,7 @@ const ChatContent: FC = () => {
             </div>
             <div className={styles.chatWindow}>
                 <main>
-                    <ListMessages handleContextMenu={handleContextMenu} showCheckbox={showCheckbox}/>
+                    <ListMessages selectSeveral={selectSeveral} showCheckbox={showCheckbox} />
                     <InputNewMessage />
                 </main>
             </div>

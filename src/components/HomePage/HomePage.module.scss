@@ -201,10 +201,7 @@
                     display: flex;
                     justify-content: space-between;
                     width: 100%;
-
-                    &>div {
-                        padding: 4px;
-                    }
+                    align-items: center;
                 }
             }
 
@@ -244,18 +241,13 @@
             align-items: end;
             gap: 8px;
             padding: 4px;
+
+            .avatar {
+                @media (max-width: 468px) {
+                    display: none;
+                }
+            }
             
-            // & > span {
-            //     border-radius: 16px;
-            //     border-bottom-left-radius: 0;
-            //     background-color: rgb(135, 116, 225);
-            //     padding: 8px;
-            //     color: #ffffff;
-            //     max-width: 70%;
-            //     @media (max-width: 900px) {
-            //         max-width: 100%;
-            //     }
-            // }
 
             .owner {
                 border-radius: 16px;
@@ -264,7 +256,7 @@
                 padding: 8px;
                 color: #ffffff;
                 max-width: 70%;
-                @media (max-width: 900px) {
+                @media (max-width: 568px) {
                     max-width: 100%;
                 }
             }
@@ -283,8 +275,70 @@
             & .guest {
                 background-color: var(--background-color-input);
                 color: var(--color-guest-message);
+                @media (max-width: 468px) {
+                    border-bottom-right-radius: 0;
+                    border-bottom-left-radius: 16px;
+                    margin-left: auto;
+                }
             }
         }
+        // li {
+        //     display: flex;
+        //     align-items: end;
+        //     gap: 8px;
+        //     margin: 8px 4px;
+        //     width: 70%;
+        //     @media (max-width: 992px) {
+        //         justify-content: space-between;
+        //         width: 95%;
+        //     }
+
+        //     .contentMessage {
+        //         display: flex;
+        //         gap: 8px;
+        //         justify-content: end;
+
+        //         input[type='checkbox'] {
+        //             display: none;
+        //             cursor: pointer;
+            
+        //             &.showCheckbox {
+        //                 display: block;
+        //             }
+        //         }
+        //         .avatar {
+        //             @media (max-width: 768px) {
+        //                 display: none;
+        //             }
+        //         }
+        //     }
+
+        //     .textMessage {
+        //         padding: 8px;
+        //     }
+
+        //     .guest {
+        //         background-color: var(--background-color-input);
+        //         color: var(--color-guest-message);
+        //         border-radius: 16px;
+        //         border-bottom-left-radius: 0;
+        //         @media (max-width: 768px) {
+        //             border-bottom-right-radius: 0;
+        //             border-bottom-left-radius: 16px;
+        //         }
+        //     }
+        //     .owner {
+        //         border-radius: 16px;
+        //         border-bottom-left-radius: 0;
+        //         background-color: rgb(135, 116, 225);
+        //         padding: 8px;
+        //         color: #ffffff;
+        //         max-width: 70%;
+        //         @media (max-width: 568px) {
+        //             max-width: 100%;
+        //         }
+        //     }
+        // }
     }
 }
 
@@ -349,6 +403,7 @@
             display: flex;
             align-items: center;
             cursor: pointer;
+            position: relative;
 
             &:hover {
                 background-color: rgba(90, 90, 90, 0.3294117647);
@@ -364,6 +419,21 @@
             &:active {
                 background-color: rgba(102, 101, 101, 0.733);
             }
+        }
+    }
+}
+
+.blockControl {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+
+    .blockControl__item {
+        padding: 6px;
+
+        & svg {
+            margin-bottom: -4px;
         }
     }
 }

@@ -1,7 +1,5 @@
-import classNames from 'classnames';
-import Avatar from '../Avatar/Avatar';
 import styles from './HomePage.module.scss'
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import Message from './Messgae';
 
 const test = [
@@ -23,14 +21,12 @@ const test = [
 
 type Props = {
     showCheckbox: boolean,
-    handleContextMenu: (e: React.MouseEvent) => void
+    selectSeveral: (e: React.MouseEvent<HTMLSpanElement>) => void
 }
 
 
 
 const ListMessages: FC<Props> = (props: Props) => {
-
-    const {showCheckbox, handleContextMenu} = props
 
     return (  
         <div className={styles.listMessages}>
