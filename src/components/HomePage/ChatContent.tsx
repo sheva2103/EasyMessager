@@ -47,7 +47,9 @@ const ChatContent: FC = () => {
                         <ArrowLeftIcon fontSize={'1.2rem'} />
                     </div>
                     <div className={styles.contentHeader}>
-                        <div>{selectedChat}</div>
+                        <div>
+                            <span>{selectedChat}</span>
+                        </div>
                         <div className={styles.menu}>
                             {showCheckbox &&
                                 <BlockControl deselect={deselect}/>
