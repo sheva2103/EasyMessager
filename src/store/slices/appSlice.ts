@@ -15,7 +15,8 @@ type AppState = {
     // menuIsOpen: boolean
     menu: Menu,
     selectedChat: string | null,
-    selectedMessages: Message[]
+    selectedMessages: Message[],
+    changeMessage: Message | null
 }
 
 const initialState: AppState = {
@@ -25,7 +26,8 @@ const initialState: AppState = {
         menuChild: ''
     },
     selectedChat: null,
-    selectedMessages: []
+    selectedMessages: [],
+    changeMessage: null
 
 }
 
@@ -54,9 +56,12 @@ export const appSlice = createSlice({
         },
         deleteSelectedMessage(state, action: PayloadAction<Message>) {
             state.selectedMessages = state.selectedMessages.filter(message => message.id !== action.payload.id)
+        },
+        changeMessage(state, action: PayloadAction<Message | null>) {
+            state.changeMessage = action.payload
         }
     }
 })
 
-export const {openMenu, closeMenu, closeBar, selectChat, addSelectedMessage, deleteSelectedMessage} = appSlice.actions
+export const {openMenu, closeMenu, closeBar, selectChat, addSelectedMessage, deleteSelectedMessage, changeMessage} = appSlice.actions
 export default appSlice.reducer

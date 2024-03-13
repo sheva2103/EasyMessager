@@ -8,46 +8,12 @@ import SendMessage from '../../assets/send-fill.svg'
 import Copy from '../../assets/copy.svg'
 import Delete from '../../assets/delete.svg'
 import Select from '../../assets/check-all.svg'
+import Change from '../../assets/change.svg'
 
 import { FC, useEffect, useState } from "react";
-
-// type Props = {
-//     isOpen: boolean,
-//     setContextMenu: (state: boolean) => void,
-//     element: HTMLElement
-// }
-
-// export default function BasicMenu({isOpen, setContextMenu, element}: Props) {
-//     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(element);
-//     const open = Boolean(anchorEl);
-//     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-//         setAnchorEl(event.currentTarget);
-//     };
-//     // const handleClose = () => {
-//     //     setAnchorEl(null);
-//     // };
-//     const handleClose = () => {
-//         setContextMenu(false);
-//     };
-
-//     console.log(styles)
-
-//     return (
-//         <div>
-//             <Menu
-//                 id="basic-menu"
-//                 anchorEl={element}
-//                 open={isOpen}
-//                 onClose={handleClose}
-//             >
-//                 <MenuItem onClick={handleClose}>Переслать</MenuItem>
-//                 <MenuItem onClick={handleClose}>Копировать текст</MenuItem>
-//                 <MenuItem onClick={handleClose}>Удалить</MenuItem>
-//                 <MenuItem onClick={handleClose}>Выбрать несколько</MenuItem>
-//             </Menu>
-//         </div>
-//     );
-// }
+import { useAppDispatch } from '../../hooks/hook';
+import { Message } from '../../types/types';
+import { changeMessage } from '../../store/slices/appSlice';
 
 type Props = {
     element: {
@@ -55,6 +21,8 @@ type Props = {
     },
     isOpen: boolean,
     showCheckbox: boolean,
+    isOwner: boolean,
+    message: Message
     closeContextMenu: (e: React.MouseEvent) => void,
     selectSeveral: (e: React.MouseEvent<HTMLSpanElement>) => void
 }
@@ -70,9 +38,10 @@ interface StyleMenu {
     left: string;
 }
 
-const ContextMenu: FC<Props> = ({ element, isOpen, closeContextMenu, selectSeveral, showCheckbox }) => {
+const ContextMenu: FC<Props> = ({ element, isOpen, closeContextMenu, selectSeveral, showCheckbox, isOwner, message }) => {
 
     const [offset, setOffset] = useState<Offset>({ top: 0, left: 0 })
+    const dispatch = useAppDispatch()
 
     const positionMenu: StyleMenu = {
         position: 'relative',
@@ -95,6 +64,10 @@ const ContextMenu: FC<Props> = ({ element, isOpen, closeContextMenu, selectSever
         navigator.clipboard.writeText(element.current.innerText);
     }
 
+    const change = () => {
+        dispatch(changeMessage(message))
+    }
+
     useEffect(() => {
         element.current.addEventListener('contextmenu', setPositionMenu)
         if (!element.current) return () => element.current.removeEventListener('contextmenu', setPositionMenu)
@@ -110,6 +83,9 @@ const ContextMenu: FC<Props> = ({ element, isOpen, closeContextMenu, selectSever
                 <ul >
                     <li onClick={(e) => e.stopPropagation()}><SendMessage /><span>Переслать</span></li>
                     <li onClick={copyMessage}><Copy /><span>Копировать текст</span></li>
+                    {isOwner && !showCheckbox &&
+                        <li onClick={change}><Change/><span>Изменить</span></li>
+                    }
                     <li><Delete /><span>Удалить</span></li>
                     {!showCheckbox &&
                         <li

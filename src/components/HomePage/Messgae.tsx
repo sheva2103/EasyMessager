@@ -32,13 +32,12 @@ const Message: FC<Props> = ({showCheckbox, item, selectSeveral}) => {
 
     return (
         <li>
-            {/* <input type="checkbox" className={classNames({ [styles.showCheckbox]: showCheckbox })} /> */}
             <SelectMessageInput showCheckbox={showCheckbox} message={item}/>
             <div className={styles.avatar}>
                 <Avatar url={item.url} name={item.name} />
             </div>
             <span 
-                className={classNames(styles.owner, { [styles.guest]: item.name === owner, [styles.noSelect]: contextMenuIsOpen })} 
+                className={classNames(styles.owner, { [styles.guest]: item.name !== owner, [styles.noSelect]: contextMenuIsOpen })} 
                 onContextMenu={openContextMenu} 
                 ref={refSpan}
             >
@@ -50,32 +49,10 @@ const Message: FC<Props> = ({showCheckbox, item, selectSeveral}) => {
                 closeContextMenu={closeContextMenu} 
                 selectSeveral={selectSeveral}
                 showCheckbox={showCheckbox}
+                isOwner={owner === item.name}
+                message={item}
                 />
         </li>
-    //     <li style={{justifyContent: item.name !== owner ? 'flex-start' : ''}}>
-    //     <div className={styles.contentMessage}>
-    //         <input type="checkbox" className={classNames({ [styles.showCheckbox]: showCheckbox })} />
-    //         <div className={styles.avatar}>
-    //             <Avatar url={item.url} name={item.name} />
-    //         </div>
-    //     </div>
-    //     <div className={classNames(styles.textMessage, {[styles.guest]: item.name === owner, [styles.owner]: item.name !== owner})}>
-    //         <span 
-    //             className={classNames( { [styles.noSelect]: contextMenuIsOpen })} 
-    //             onContextMenu={openContextMenu} 
-    //             ref={refSpan}
-    //         >
-    //             {item.message}
-    //         </span>
-    //     </div>
-    //     <ContextMenu 
-    //         element={refSpan} 
-    //         isOpen={contextMenuIsOpen} 
-    //         closeContextMenu={closeContextMenu} 
-    //         selectSeveral={selectSeveral}
-    //         showCheckbox={showCheckbox}
-    //         />
-    // </li>
     );
 }
 

@@ -146,7 +146,7 @@
             }
 
             &>div {
-                padding: 8px 12px 0 12px;
+                padding: 12px 12px 0 12px;
                 font-size: 1.1rem;
 
                 @media (max-width: 576px) {
@@ -188,7 +188,7 @@
 
                 &>div {
                     display: flex;
-                    padding: 12px 8px;
+                    padding: 8px;
                 }
 
                 .closeIcon {
@@ -202,6 +202,27 @@
                     justify-content: space-between;
                     width: 100%;
                     align-items: center;
+
+                    @media (max-width: 306px) {
+                        justify-content: start;
+                    }
+
+                    .contentHeader__selectedChat {
+                        width: 50%;
+                        display: flex;
+                        @media (max-width: 672px) {
+                            width: 35%;
+                        }
+                        @media (max-width: 314px) {
+                            width: 25%;
+                        }
+
+                        & span {
+                            white-space: nowrap;
+                            text-overflow: ellipsis;
+                            overflow: hidden;
+                        }
+                    }
                 }
             }
 
@@ -343,22 +364,52 @@
 }
 
 .inputNewMessage {
-    margin: 8px;
+    margin: 4px 8px 8px 8px;
     display: flex;
     align-items: end;
     gap: 8px;
     max-height: 30%;
 
-    & textarea {
+    & .inputNewMessage__textarea {
+        display: flex;
         width: 100%;
+        //flex: 1 1 auto;
+        flex-direction: column;
+
+        .textarea__isEdit {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2px 8px;
+            gap: 10px;
+
+            & span {
+                font-size: 0.9rem;
+                color:#9884f8;
+            }
+
+            & svg:hover {
+                color:#8774e1;
+                cursor: pointer;
+            }
+        }
+    }
+
+    & .inputNewMessage__button {
+        width: 36px;
+    }
+
+    & textarea {
+        width: calc(100% - 26px);
     }
 }
 
 .menu {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
+    //gap: 8px;
 
     span {
         color: #8774e1;
@@ -430,8 +481,7 @@
     gap: 4px;
 
     .blockControl__item {
-        padding: 0 8px;
-        font-size: 1.2rem;
+        padding: 6px;
 
         & svg {
             margin-bottom: -4px;

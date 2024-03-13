@@ -7,6 +7,7 @@ import { selectChat } from "../../store/slices/appSlice";
 import ListMessages from "./ListMessage";
 import InputNewMessage from "./InputNewMessage";
 import BlockControl from "./BlockControl";
+import UserManagementMenu from "./UserManagementMenu";
 
 
 const ChatContent: FC = () => {
@@ -47,14 +48,14 @@ const ChatContent: FC = () => {
                         <ArrowLeftIcon fontSize={'1.2rem'} />
                     </div>
                     <div className={styles.contentHeader}>
-                        <div>
+                        <div className={styles.contentHeader__selectedChat}>
                             <span>{selectedChat}</span>
                         </div>
                         <div className={styles.menu}>
                             {showCheckbox &&
                                 <BlockControl deselect={deselect}/>
                             }
-                            <div>...</div>
+                            <UserManagementMenu />
                         </div>
                     </div>
                 </header>
