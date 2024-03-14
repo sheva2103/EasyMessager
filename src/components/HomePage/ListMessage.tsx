@@ -9,14 +9,14 @@ const test = [
     {name: 'john', url: '', id: 42157,message : 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit quo inventore repudiandae! Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit quo inventore repudiandae!'},
     {name: 'alex', url: '', id: 421588,message : 'Lorem ipsum dolor sit repudiandae!'},
     {name: 'alex', url: '', id: 421547,message : 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit quo inventore repudiandae!'},
-    {name: 'john', url: '', id: 421513,message : 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit quo inventore repudiandae!'},
+    {name: 'john', url: '', id: 421513,message : 'Lorem ipsum dolor https://reactdev.ru/libs/nextjs/basic/data-fetching/#getstaticprops sit amet consectetur adipisicing elit. Suscipit quo inventore repudiandae!'},
     {name: 'john', url: '', id: 4215111,message : '45452223'},
     {name: 'john', url: '', id: 4215885,message : 'cv'},
     {name: 'alex', url: '', id: 42154568,message : 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit quo inventore repudiandae!'},
     {name: 'alex', url: '', id: 42156534,message : 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit quo inventore repudiandae! Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit quo inventore repudiandae! Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit quo inventore repudiandae!'},
     {name: 'john', url: '', id: 4215886,message : '54678'},
     {name: 'alex', url: '', id: 421554,message : '12154hhd'},
-    {name: 'alex', url: '', id: 42153332,message : '45566 https://reactdev.ru/libs/nextjs/basic/data-fetching/#getstaticprops 45566 https://reactdev.ru/libs/nextjs/basic/data-fetching/#getstaticprops'},
+    {name: 'alex', url: '', id: 42153332,message : '45566 https://reactdev.ru/libs/nextjs/basic/data-fetching/#getstaticprops , привет друг ppppoo 45566 http://reactdev.ru/libs/nextjs/basic/data-fetching/#getstaticprops'},
 ]
 
 type Props = {

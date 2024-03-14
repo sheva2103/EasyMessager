@@ -7,6 +7,10 @@ const UserManagementMenu: FC = () => {
 
     const [isOpen, setOpen] = useState(false)
 
+    const onKeyDown = (e: React.KeyboardEvent) => {
+        if(e.key === 'Enter') setOpen(!isOpen)
+    }
+
     return (  
         <>
             <div 
@@ -18,6 +22,8 @@ const UserManagementMenu: FC = () => {
                     cursor={'pointer'} 
                     fontSize={'1.3rem'}
                     onClick={() => setOpen(!isOpen)}
+                    onKeyDown={onKeyDown}
+                    tabIndex={8}
                     />
                 <div className={classNames(styles.menu__list, {[styles.menu_show]: isOpen})}>
                     <ul>

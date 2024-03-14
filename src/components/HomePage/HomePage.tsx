@@ -10,6 +10,11 @@ import ChatList from './ChatList';
 const HomaPage = () => {
 
     const dispatch = useAppDispatch()
+
+    const onKeyDown = (e: React.KeyboardEvent) => {
+        if(e.key === 'Enter') dispatch(openMenu())
+    }
+
     const handleClickMenu = () => {
         dispatch(openMenu())
     }
@@ -23,6 +28,8 @@ const HomaPage = () => {
                             fontSize={'28px'}
                             cursor={'pointer'}
                             onClick={handleClickMenu}
+                            onKeyDown={onKeyDown}
+                            tabIndex={2}
                         />
                         <div className={styles.title}>
                             <span>EasyMessager</span>

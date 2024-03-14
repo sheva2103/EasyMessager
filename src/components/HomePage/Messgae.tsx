@@ -14,26 +14,22 @@ type Props = {
     selectSeveral: (e: React.MouseEvent<HTMLSpanElement>) => void
 }
 
-function isLink(str: string) {
+function checkMessage(str: string): string {
 
-    //const reg = /^(https?:\/\/)?([\w-]{1,32}\.[\w-]{1,32})[^\s@]*/
     const reg = /(https?:\/\/|ftps?:\/\/|www\.)((?![.,?!;:()]*(\s|$))[^\s]){2,}/gim
-    //console.log(str.replace(reg, `<a>${str}</a>`))
-    //console.log(str.search(reg))
-    let matchAll = Array.from(str.matchAll(reg));
-    //return matchAll
-    if(matchAll.length > 0) {
-        matchAll.forEach(item => {
-            console.log(item)
-            item.forEach(elem => {
-                //console.log(elem)
-            })
-        })
-    }
 
+    if(!reg.test(str)) return str
+
+    const message = str.split(' ')
+    let newStr = message.map(item => {
+        if(reg.test(item)) return `<a href='${item}' target='blank'>${item}</a>`
+        return item
+    })
+    return newStr.join(' ')
 }
 
-const Message: FC<Props> = ({showCheckbox, item, selectSeveral}) => {
+
+const Message: FC<Props> = ({ showCheckbox, item, selectSeveral }) => {
 
     const owner = 'alex'
 
@@ -49,30 +45,31 @@ const Message: FC<Props> = ({showCheckbox, item, selectSeveral}) => {
 
     const refSpan = useRef<HTMLElement>(null)
 
-    console.log(isLink(item.message))
+    checkMessage(item.message)
 
     return (
         <li>
-            <SelectMessageInput showCheckbox={showCheckbox} message={item}/>
+            <SelectMessageInput showCheckbox={showCheckbox} message={item} />
             <div className={styles.avatar}>
                 <Avatar url={item.url} name={item.name} />
             </div>
-            <span 
-                className={classNames(styles.owner, { [styles.guest]: item.name !== owner, [styles.noSelect]: contextMenuIsOpen })} 
-                onContextMenu={openContextMenu} 
+            <span
+                className={classNames(styles.owner, { [styles.guest]: item.name !== owner, [styles.noSelect]: contextMenuIsOpen })}
+                onContextMenu={openContextMenu}
                 ref={refSpan}
+                dangerouslySetInnerHTML={{__html: checkMessage(item.message)}}
             >
-                {item.message}
+                {/* {item.message} */}
             </span>
-            <ContextMenu 
-                element={refSpan} 
-                isOpen={contextMenuIsOpen} 
-                closeContextMenu={closeContextMenu} 
+            <ContextMenu
+                element={refSpan}
+                isOpen={contextMenuIsOpen}
+                closeContextMenu={closeContextMenu}
                 selectSeveral={selectSeveral}
                 showCheckbox={showCheckbox}
                 isOwner={owner === item.name}
                 message={item}
-                />
+            />
         </li>
     );
 }

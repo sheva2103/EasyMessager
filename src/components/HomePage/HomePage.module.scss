@@ -31,6 +31,10 @@
                     transform: scale(120%, 120%);
                     transition: all 0.3s;
                 }
+                svg:focus {
+                    outline: none;
+                    color:#9a86ff
+                }
 
                 .title {
                     font-size: 1.3rem;
@@ -272,6 +276,12 @@
                     display: none;
                 }
             }
+
+            span {
+                //overflow-wrap: anywhere;
+                word-break: break-all;
+                
+            }
             
 
             .owner {
@@ -281,6 +291,11 @@
                 padding: 8px;
                 color: #ffffff;
                 max-width: 70%;
+
+                a {
+                    color: rgb(27, 27, 27)
+                }
+
                 @media (max-width: 568px) {
                     max-width: 100%;
                 }
@@ -300,6 +315,11 @@
             & .guest {
                 background-color: var(--background-color-message);
                 color: var(--color-guest-message);
+
+                a {
+                    color: var(--link-guest-color)
+                }
+
                 @media (max-width: 468px) {
                     border-bottom-right-radius: 0;
                     border-bottom-left-radius: 16px;
@@ -368,6 +388,11 @@
         position: relative;
         z-index: 4;
         & svg:hover {
+            color:#9a86ff
+        }
+
+        svg:focus {
+            outline: none;
             color:#9a86ff
         }
     }

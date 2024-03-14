@@ -9,6 +9,7 @@ html[data-theme="dark"] {
     --color-guest-message: #ffffff;
     --background-image: url("./assets/dark.jpg");
     --background-color-message: #1a1a1ade;
+    --link-guest-color: rgb(173, 191, 243);
 }
 
 html[data-theme="light"] {
@@ -22,9 +23,7 @@ html[data-theme="light"] {
     --color-guest-message: #161616;
     --background-image: url("./assets/light.jpg");
     --background-color-message: #ffffff8a;
+    --link-guest-color: rgb(49 97 237);
 }
 
-// div {
-//     background-image: url("./assets/dark.jpg");
-// }
 
