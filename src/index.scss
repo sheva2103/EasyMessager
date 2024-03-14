@@ -6,7 +6,9 @@ html[data-theme="dark"] {
     --background-color-chatlist: #161616;
     --background-color-content-block: #313131;
     --background-color-cover: rgb(66 66 66 / 15%);
-    --color-guest-message: #ffffff
+    --color-guest-message: #ffffff;
+    --background-image: url("./assets/dark.jpg");
+    --background-color-message: #1a1a1ade;
 }
 
 html[data-theme="light"] {
@@ -17,6 +19,12 @@ html[data-theme="light"] {
     --color-chatlist: #393b3d;
     --background-color-content-block: aliceblue;
     --background-color-cover: rgb(181 181 181 / 84%);
-    --color-guest-message: #161616
+    --color-guest-message: #161616;
+    --background-image: url("./assets/light.jpg");
+    --background-color-message: #ffffff8a;
 }
+
+// div {
+//     background-image: url("./assets/dark.jpg");
+// }
 

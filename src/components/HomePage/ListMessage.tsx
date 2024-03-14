@@ -16,7 +16,7 @@ const test = [
     {name: 'alex', url: '', id: 42156534,message : 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit quo inventore repudiandae! Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit quo inventore repudiandae! Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit quo inventore repudiandae!'},
     {name: 'john', url: '', id: 4215886,message : '54678'},
     {name: 'alex', url: '', id: 421554,message : '12154hhd'},
-    {name: 'alex', url: '', id: 42153332,message : ' Lorem ipsum dolor sit amet consectetur adipisicing elit.'},
+    {name: 'alex', url: '', id: 42153332,message : '45566 https://reactdev.ru/libs/nextjs/basic/data-fetching/#getstaticprops 45566 https://reactdev.ru/libs/nextjs/basic/data-fetching/#getstaticprops'},
 ]
 
 type Props = {

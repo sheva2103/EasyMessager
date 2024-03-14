@@ -45,7 +45,7 @@ const ChatContent: FC = () => {
             <div className={styles.header}>
                 <header>
                     <div className={styles.closeIcon} onClick={closeChat}>
-                        <ArrowLeftIcon fontSize={'1.2rem'} />
+                        <ArrowLeftIcon fontSize={'2rem'} />
                     </div>
                     <div className={styles.contentHeader}>
                         <div className={styles.contentHeader__selectedChat}>

@@ -14,6 +14,25 @@ type Props = {
     selectSeveral: (e: React.MouseEvent<HTMLSpanElement>) => void
 }
 
+function isLink(str: string) {
+
+    //const reg = /^(https?:\/\/)?([\w-]{1,32}\.[\w-]{1,32})[^\s@]*/
+    const reg = /(https?:\/\/|ftps?:\/\/|www\.)((?![.,?!;:()]*(\s|$))[^\s]){2,}/gim
+    //console.log(str.replace(reg, `<a>${str}</a>`))
+    //console.log(str.search(reg))
+    let matchAll = Array.from(str.matchAll(reg));
+    //return matchAll
+    if(matchAll.length > 0) {
+        matchAll.forEach(item => {
+            console.log(item)
+            item.forEach(elem => {
+                //console.log(elem)
+            })
+        })
+    }
+
+}
+
 const Message: FC<Props> = ({showCheckbox, item, selectSeveral}) => {
 
     const owner = 'alex'
@@ -29,6 +48,8 @@ const Message: FC<Props> = ({showCheckbox, item, selectSeveral}) => {
     }
 
     const refSpan = useRef<HTMLElement>(null)
+
+    console.log(isLink(item.message))
 
     return (
         <li>

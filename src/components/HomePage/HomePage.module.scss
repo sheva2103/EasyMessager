@@ -231,7 +231,11 @@
                 flex-direction: column;
                 justify-content: end;
                 height: 100%;
-                background-color: var(--background-color-chatlist);
+                //background-color: var(--background-color-chatlist);
+                background-image: var(--background-image);
+                background-position: 0 0;
+                background-repeat: no-repeat;
+                background-size: cover;
                 border-radius: 12px;
 
                 @media (max-width: 576px) {
@@ -294,7 +298,7 @@
             }
 
             & .guest {
-                background-color: var(--background-color-input);
+                background-color: var(--background-color-message);
                 color: var(--color-guest-message);
                 @media (max-width: 468px) {
                     border-bottom-right-radius: 0;
@@ -303,68 +307,11 @@
                 }
             }
         }
-        // li {
-        //     display: flex;
-        //     align-items: end;
-        //     gap: 8px;
-        //     margin: 8px 4px;
-        //     width: 70%;
-        //     @media (max-width: 992px) {
-        //         justify-content: space-between;
-        //         width: 95%;
-        //     }
-
-        //     .contentMessage {
-        //         display: flex;
-        //         gap: 8px;
-        //         justify-content: end;
-
-        //         input[type='checkbox'] {
-        //             display: none;
-        //             cursor: pointer;
-            
-        //             &.showCheckbox {
-        //                 display: block;
-        //             }
-        //         }
-        //         .avatar {
-        //             @media (max-width: 768px) {
-        //                 display: none;
-        //             }
-        //         }
-        //     }
-
-        //     .textMessage {
-        //         padding: 8px;
-        //     }
-
-        //     .guest {
-        //         background-color: var(--background-color-input);
-        //         color: var(--color-guest-message);
-        //         border-radius: 16px;
-        //         border-bottom-left-radius: 0;
-        //         @media (max-width: 768px) {
-        //             border-bottom-right-radius: 0;
-        //             border-bottom-left-radius: 16px;
-        //         }
-        //     }
-        //     .owner {
-        //         border-radius: 16px;
-        //         border-bottom-left-radius: 0;
-        //         background-color: rgb(135, 116, 225);
-        //         padding: 8px;
-        //         color: #ffffff;
-        //         max-width: 70%;
-        //         @media (max-width: 568px) {
-        //             max-width: 100%;
-        //         }
-        //     }
-        // }
     }
 }
 
 .inputNewMessage {
-    margin: 4px 8px 8px 8px;
+    margin: 4px 8px 4px 8px;
     display: flex;
     align-items: end;
     gap: 8px;
@@ -401,6 +348,7 @@
 
     & textarea {
         width: calc(100% - 26px);
+        font-size: 1rem;
     }
 }
 
@@ -409,12 +357,70 @@
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
-    //gap: 8px;
+    margin-left: auto;
+
+    @media (max-width: 275px) {
+        margin-left: 0;
+    }
+
+    .menu__button {
+        margin: 0 8px -4px 8px;
+        position: relative;
+        z-index: 4;
+        & svg:hover {
+            color:#9a86ff
+        }
+    }
+
+    .menu__cover {
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 3;
+        display: none;
+
+        // &.menu__cover_show {
+        //     display: block;
+        // }
+    }
+
+    .menu__list {
+        position: absolute;
+        // bottom: 0;
+        right: 10px;
+        background-color: var(--background-color-content-block);
+        border-radius: 8px;
+        z-index: 4;
+        display: none;
+
+        & ul {
+            list-style: none;
+            margin: 0;
+            padding: 8px 0;
+
+            li {
+                padding: 8px 12px;
+                white-space: nowrap;
+                font-size: 1rem;
+                &:hover {
+                    background-color: rgba(90, 90, 90, 0.3294117647);
+                }
+                @media (max-width: 280px) {
+                    white-space: wrap;
+                }
+            }
+        }
+    }
+
+    .menu_show {
+        display: block;
+    }
 
     span {
         color: #8774e1;
         cursor: pointer;
-        //display: none;
 
         &:hover {
             color: #9d8cf5;
@@ -483,9 +489,24 @@
     .blockControl__item {
         padding: 6px;
 
+        &>div {
+            display: none;
+        }
+
+        @media (max-width: 332px) {
+            &>span {
+                display: none;
+            }
+            &>div {
+                display: block;
+            }
+        }
+
         & svg {
             margin-bottom: -4px;
         }
     }
 }
+
+
 
