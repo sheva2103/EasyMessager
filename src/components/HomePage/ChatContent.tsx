@@ -9,6 +9,8 @@ import InputNewMessage from "./InputNewMessage";
 import BlockControl from "./BlockControl";
 import UserManagementMenu from "./UserManagementMenu";
 
+//showcheckbox перенести в редакс и решить проблемму с отображениеи чекбоксов после пересылки сообщения
+
 
 const ChatContent: FC = () => {
 

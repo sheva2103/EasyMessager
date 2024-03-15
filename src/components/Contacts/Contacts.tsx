@@ -1,6 +1,8 @@
 import { FC, useState } from "react";
 import styles from './Contacts.module.scss'
 import RemoveFromContacts from '../../assets/person-dash.svg'
+import { useAppDispatch, useAppSelector } from "../../hooks/hook";
+import { clearSelectedMessage, closeMenu, selectChat } from "../../store/slices/appSlice";
 
 const test = [
     {name: 'alex'},
@@ -21,12 +23,33 @@ const test = [
 const Contacts: FC = () => {
 
     const [name, setName] = useState('')
+    const dispatch = useAppDispatch()
+    const isSend = useAppSelector(state => state.app.isSendMessage)
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value)
     }
 
+    // const selectContact = (name: string) => {
+    //     dispatch(selectChat(name))
+    //     dispatch(closeMenu())
+    // }
+
+    const handleClickName = (name: string) => {
+
+        if(isSend) {
+            console.log('переслал несколько')
+            dispatch(closeMenu())
+            dispatch(clearSelectedMessage())
+            return
+        }
+        dispatch(selectChat(name))
+        dispatch(closeMenu())
+    }
+
     const filter = test.filter(item => item.name.includes(name))
+
+    console.log(isSend)
 
     return (  
         <div className={styles.container}>
@@ -43,7 +66,7 @@ const Contacts: FC = () => {
                 <ul className={styles.list}>
                     {filter.map((item, index) => (
                         <li key={String(item.name + index)}>
-                            <span>{item.name}</span>
+                            <span onClick={() => handleClickName(item.name)}>{item.name}</span>
                             <div title="Удалить из друзей"><RemoveFromContacts /></div>
                         </li>
                     ))}

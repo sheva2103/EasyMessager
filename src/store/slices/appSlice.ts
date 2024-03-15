@@ -16,7 +16,8 @@ type AppState = {
     menu: Menu,
     selectedChat: string | null,
     selectedMessages: Message[],
-    changeMessage: Message | null
+    changeMessage: Message | null,
+    isSendMessage: boolean
 }
 
 const initialState: AppState = {
@@ -27,7 +28,8 @@ const initialState: AppState = {
     },
     selectedChat: null,
     selectedMessages: [],
-    changeMessage: null
+    changeMessage: null,
+    isSendMessage: false
 
 }
 
@@ -47,21 +49,30 @@ export const appSlice = createSlice({
         closeBar(state, action: PayloadAction<string>) {
             state.menu.bar = false
             state.menu.menuChild = action.payload
+            if(!state.menu.cover) state.menu.cover = true
         },
         selectChat(state, action: PayloadAction<string>) {
             state.selectedChat = action.payload
+            state.selectedMessages = []
         },
         addSelectedMessage(state, action: PayloadAction<Message>) {
             state.selectedMessages.push(action.payload)
+        },
+        clearSelectedMessage(state) {
+            state.selectedMessages = []
+            state.isSendMessage = false
         },
         deleteSelectedMessage(state, action: PayloadAction<Message>) {
             state.selectedMessages = state.selectedMessages.filter(message => message.id !== action.payload.id)
         },
         changeMessage(state, action: PayloadAction<Message | null>) {
             state.changeMessage = action.payload
+        },
+        isSendMessage(state, action: PayloadAction<boolean>) {
+            state.isSendMessage = action.payload
         }
     }
 })
 
-export const {openMenu, closeMenu, closeBar, selectChat, addSelectedMessage, deleteSelectedMessage, changeMessage} = appSlice.actions
+export const {openMenu, closeMenu, closeBar, selectChat, addSelectedMessage, deleteSelectedMessage, changeMessage, clearSelectedMessage, isSendMessage} = appSlice.actions
 export default appSlice.reducer
