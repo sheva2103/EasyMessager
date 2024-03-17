@@ -19,20 +19,13 @@ const test = [
     {name: 'alex', url: '', id: 42153332,message : '45566 https://reactdev.ru/libs/nextjs/basic/data-fetching/#getstaticprops , привет друг ppppoo 45566 http://reactdev.ru/libs/nextjs/basic/data-fetching/#getstaticprops'},
 ]
 
-type Props = {
-    showCheckbox: boolean,
-    selectSeveral: (e: React.MouseEvent<HTMLSpanElement>) => void
-}
-
-
-
-const ListMessages: FC<Props> = (props: Props) => {
+const ListMessages: FC = () => {
 
     return (  
         <div className={styles.listMessages}>
             <ul>
                 {test.map((item) => (
-                    <Message {...props} item={item} key={item.id}/>
+                    <Message item={item} key={item.id}/>
                 ))}
             </ul>
         </div>

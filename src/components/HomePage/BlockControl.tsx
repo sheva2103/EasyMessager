@@ -4,14 +4,10 @@ import SendMessage from '../../assets/send-fill.svg'
 import Delete from '../../assets/delete.svg'
 import Cansel from '../../assets/ban.svg'
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
-import { clearSelectedMessage, closeBar, isSendMessage } from "../../store/slices/appSlice";
+import { clearSelectedMessage, closeBar, isSendMessage, setShowCheckbox } from "../../store/slices/appSlice";
 import { CONTACTS } from "../../constants/constants";
 
-type Props = {
-    deselect: () => void
-}
-
-const BlockControl: FC<Props> = ({deselect}) => {
+const BlockControl: FC = () => {
 
     const dispatch = useAppDispatch()
     const selectedMessage = useAppSelector(state => state.app.selectedMessages)
@@ -29,8 +25,7 @@ const BlockControl: FC<Props> = ({deselect}) => {
     }
 
     const canselSelected = () => {
-        deselect()
-        if(selectedMessage.length) dispatch(clearSelectedMessage())
+        dispatch(clearSelectedMessage())
     }
 
     return (  
@@ -39,14 +34,14 @@ const BlockControl: FC<Props> = ({deselect}) => {
                 <span>отмена</span>
                 <div><Cansel /></div>
             </div>
-            <div className={styles.blockControl__item} onClick={handleClickSendMessages}>
+            <div className={styles.blockControl__item} onClick={handleClickSendMessages} title="Переслать">
                 <SendMessage 
                     cursor={'pointer'} 
-                    fontSize={'1.3rem'}
+                    fontSize={'1.4rem'}
                 />
             </div>
-            <div className={styles.blockControl__item} onClick={handleClickDeleteMessages}>
-                <Delete cursor={'pointer'} fontSize={'1.3rem'}/>
+            <div className={styles.blockControl__item} onClick={handleClickDeleteMessages} title="Удалить выбраное">
+                <Delete cursor={'pointer'} fontSize={'1.4rem'}/>
             </div>
         </div>
     );

@@ -17,7 +17,8 @@ type AppState = {
     selectedChat: string | null,
     selectedMessages: Message[],
     changeMessage: Message | null,
-    isSendMessage: boolean
+    isSendMessage: boolean,
+    showCheckbox: boolean
 }
 
 const initialState: AppState = {
@@ -29,7 +30,8 @@ const initialState: AppState = {
     selectedChat: null,
     selectedMessages: [],
     changeMessage: null,
-    isSendMessage: false
+    isSendMessage: false, 
+    showCheckbox: false
 
 }
 
@@ -60,7 +62,8 @@ export const appSlice = createSlice({
         },
         clearSelectedMessage(state) {
             state.selectedMessages = []
-            state.isSendMessage = false
+            state.isSendMessage = false,
+            state.showCheckbox = false
         },
         deleteSelectedMessage(state, action: PayloadAction<Message>) {
             state.selectedMessages = state.selectedMessages.filter(message => message.id !== action.payload.id)
@@ -70,9 +73,12 @@ export const appSlice = createSlice({
         },
         isSendMessage(state, action: PayloadAction<boolean>) {
             state.isSendMessage = action.payload
+        },
+        setShowCheckbox(state, action: PayloadAction<boolean>) {
+            state.showCheckbox = action.payload
         }
     }
 })
 
-export const {openMenu, closeMenu, closeBar, selectChat, addSelectedMessage, deleteSelectedMessage, changeMessage, clearSelectedMessage, isSendMessage} = appSlice.actions
+export const {openMenu, closeMenu, closeBar, selectChat, addSelectedMessage, deleteSelectedMessage, changeMessage, clearSelectedMessage, isSendMessage, setShowCheckbox} = appSlice.actions
 export default appSlice.reducer

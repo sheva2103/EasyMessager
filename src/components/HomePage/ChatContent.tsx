@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import styles from './HomePage.module.scss'
 import classNames from "classnames";
 import ArrowLeftIcon from '../../assets/box-arrow-left.svg'
-import { selectChat } from "../../store/slices/appSlice";
+import { selectChat, setShowCheckbox } from "../../store/slices/appSlice";
 import ListMessages from "./ListMessage";
 import InputNewMessage from "./InputNewMessage";
 import BlockControl from "./BlockControl";
@@ -19,7 +19,8 @@ const ChatContent: FC = () => {
     const closeChat = () => {
         dispatch(selectChat(null))
     }
-    const [showCheckbox, setShowCheckbox] = useState(false)
+    //const [showCheckbox, setShowCheckbox] = useState(false)
+    const showCheckbox = useAppSelector(state => state.app.showCheckbox)
     const selectSeveral = (e: React.MouseEvent<HTMLSpanElement>) => {
         //e.preventDefault()
 
@@ -31,7 +32,8 @@ const ChatContent: FC = () => {
     }
 
     useEffect(() => {
-        setShowCheckbox(false)
+        //setShowCheckbox(false)
+        dispatch(setShowCheckbox(false))
     },[selectedChat])
 
     if (!selectedChat) {
@@ -55,7 +57,7 @@ const ChatContent: FC = () => {
                         </div>
                         <div className={styles.menu}>
                             {showCheckbox &&
-                                <BlockControl deselect={deselect}/>
+                                <BlockControl />
                             }
                             <UserManagementMenu />
                         </div>
@@ -64,7 +66,7 @@ const ChatContent: FC = () => {
             </div>
             <div className={styles.chatWindow}>
                 <main>
-                    <ListMessages selectSeveral={selectSeveral} showCheckbox={showCheckbox} />
+                    <ListMessages />
                     <InputNewMessage />
                 </main>
             </div>

@@ -24,3 +24,9 @@ export type Message = {
     id: number,
     message: string
 }
+
+export interface StyleContextMenu {
+    position: 'relative';
+    top: string;
+    left: string;
+}
