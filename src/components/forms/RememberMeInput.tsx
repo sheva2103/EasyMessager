@@ -10,8 +10,10 @@ type Props = {
 const RememberMeInput: FC<Props> = ({register}) => {
     return (
         <div className={styles.checkboxBlock}>
-            <input type="checkbox" {...register('rememberMe')} />
-            <span>Запомнить меня</span>
+            <label>
+                <input type="checkbox" {...register('rememberMe')} />
+                <span>Запомнить меня</span>
+            </label>
         </div>
     );
 }

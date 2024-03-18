@@ -21,7 +21,7 @@
     margin: 2px;
     min-height: 12px;
     padding: 2px;
-    max-width: 264px;
+    width: 240px;
 
     & span {
         color: #ff5c5ce8;
@@ -31,10 +31,11 @@
 
 .passwordInput {
     position: relative;
+    width: 240px;
 
-    & svg {
+    svg {
         position: absolute;
-        top: 16px;
+        top: 14px;
         right: 16px;
         font-size: 1.2rem;
     }

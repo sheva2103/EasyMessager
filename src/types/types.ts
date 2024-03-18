@@ -11,11 +11,11 @@ export type TypeValueStartPage = {
 }
 
 export type SignInSignUpForm = {
-    login: string,
+    login?: string,
     password: string,
     confirmPassword?: string,
     email?: string,
-    rememberMe: boolean
+    rememberMe?: boolean
 }
 
 export type Message = {

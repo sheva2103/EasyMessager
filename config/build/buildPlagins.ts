@@ -20,7 +20,7 @@ export function buildPlagins({ mode, paths, analyzer, platform }: BuildOPtions):
         new DefinePlugin({
             __PLATFORM__: JSON.stringify(platform)
         }),
-        new Dotenv({path: './.env'})
+        new Dotenv()
     ]
 
     if (isDev) {

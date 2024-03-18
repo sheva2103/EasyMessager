@@ -1,28 +1,27 @@
-import { useTheme } from '../hooks/useTheme';
 import StartPage from './StartPage/StartPage';
 import './App.scss'
 import LoadingApp from './LoadingApp/LoadingApp';
 import HomaPage from './HomePage/HomePage';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 
 export const App = () => {
 
-    const {theme, setTheme} = useTheme()
-    const handleThemeDark = () => {
-        setTheme('dark')
-    }
+    const auth = getAuth();
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            const uid = user.uid;
+            console.log(uid)
+        } else {
+            console.log('никого нет')
+        }
+    });
 
-    const handleThemelight = () => {
-        setTheme('light')
-    }
-
-    return (  
-            <div className='appContainer'>
-                {/* <button onClick={handleThemelight}>светлая</button>
-                <button onClick={handleThemeDark}>тёмная</button> */}
-                {/* <StartPage /> */}
-                {/* <LoadingApp /> */}
-                <HomaPage />
-            </div>
+    return (
+        <div className='appContainer'>
+            <StartPage />
+            {/* <LoadingApp /> */}
+            {/* <HomaPage /> */}
+        </div>
     );
 }

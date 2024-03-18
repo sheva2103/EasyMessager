@@ -4,6 +4,7 @@ import { App } from './components/App'
 import './index.scss'
 import { Provider } from 'react-redux'
 import { store } from './store/store'
+import './firebase'
 
 const root = document.getElementById('root')
 

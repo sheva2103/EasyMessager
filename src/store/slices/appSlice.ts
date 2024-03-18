@@ -11,6 +11,12 @@ type Menu = {
     menuChild: string
 }
 
+type CurrentUser = {
+    displayName: string,
+    photoURL: string,
+    uid: string
+}
+
 type AppState = {
     // menuIsOpen: boolean
     menu: Menu,
@@ -18,7 +24,8 @@ type AppState = {
     selectedMessages: Message[],
     changeMessage: Message | null,
     isSendMessage: boolean,
-    showCheckbox: boolean
+    showCheckbox: boolean,
+    currentUser: null | CurrentUser
 }
 
 const initialState: AppState = {
@@ -31,7 +38,8 @@ const initialState: AppState = {
     selectedMessages: [],
     changeMessage: null,
     isSendMessage: false, 
-    showCheckbox: false
+    showCheckbox: false,
+    currentUser: null
 
 }
 
@@ -76,9 +84,23 @@ export const appSlice = createSlice({
         },
         setShowCheckbox(state, action: PayloadAction<boolean>) {
             state.showCheckbox = action.payload
+        },
+        setUser(state, action: PayloadAction<CurrentUser | null>) {
+            state.currentUser = action.payload
         }
     }
 })
 
-export const {openMenu, closeMenu, closeBar, selectChat, addSelectedMessage, deleteSelectedMessage, changeMessage, clearSelectedMessage, isSendMessage, setShowCheckbox} = appSlice.actions
+export const {openMenu,
+                closeMenu,
+                closeBar, 
+                selectChat, 
+                addSelectedMessage, 
+                deleteSelectedMessage, 
+                changeMessage, 
+                clearSelectedMessage, 
+                isSendMessage, 
+                setShowCheckbox,
+                setUser
+            } = appSlice.actions
 export default appSlice.reducer
