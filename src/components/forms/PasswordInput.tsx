@@ -13,7 +13,8 @@ type Props = {
     signIn?: boolean
 }
 
-const PASSWORD_REGEXP = /(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/
+// const PASSWORD_REGEXP = /(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/
+const PASSWORD_REGEXP = /(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z])^[^\s()-]*$.*$/
 const TEXT = 'text'
 const PASSWORD = 'password'
 

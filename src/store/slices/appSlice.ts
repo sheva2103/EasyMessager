@@ -1,24 +1,17 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { Message } from "../../types/types";
+import { CurrentUser, Message } from "../../types/types";
 
 
 type Menu = {
-    // isOpen: boolean,
-    // menuChild: MenuContent
     cover: boolean,
     bar: boolean,
     menuChild: string
 }
 
-type CurrentUser = {
-    displayName: string,
-    photoURL: string,
-    uid: string
-}
+
 
 type AppState = {
-    // menuIsOpen: boolean
     menu: Menu,
     selectedChat: string | null,
     selectedMessages: Message[],

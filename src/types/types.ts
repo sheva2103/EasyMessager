@@ -15,7 +15,8 @@ export type SignInSignUpForm = {
     password: string,
     confirmPassword?: string,
     email?: string,
-    rememberMe?: boolean
+    rememberMe?: boolean,
+    dataError?: string
 }
 
 export type Message = {
@@ -29,4 +30,11 @@ export interface StyleContextMenu {
     position: 'relative';
     top: string;
     left: string;
+}
+
+export type CurrentUser = {
+    displayName: string,
+    photoURL: string,
+    uid: string,
+    email: string
 }

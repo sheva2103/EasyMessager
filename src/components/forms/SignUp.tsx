@@ -10,6 +10,7 @@ import LoginInput from './LoginInput';
 import ButtonSubmit from './ButtonSubmit';
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { useAppDispatch } from '../../hooks/hook';
+import EmailInput from './EmailInput';
 
 
 const EMAIL_REGEXP = /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/iu;
@@ -54,7 +55,7 @@ const SignUp: FC = () => {
         <div>
             <EazyMessagerTitleIcon />
             <form onSubmit={handleSubmit(submit)}>
-                <div>
+                {/* <div>
                     <input type="text"
                         placeholder='Электронная почта'
                         disabled={isSubmitting}
@@ -63,7 +64,8 @@ const SignUp: FC = () => {
                     <div className={styles.error}>
                         {errors.email && <span>{errors.email.message || 'неправильный формат'}</span>}
                     </div>
-                </div>
+                </div> */}
+                <EmailInput register={register} errors={errors} isSubmitting={isSubmitting}/>
                 {/* <LoginInput register={register} errors={errors} isSubmitting={isSubmitting} signUp /> */}
                 <PasswordInput register={register} errors={errors} isSubmitting={isSubmitting} />
                 <ConfirmPasswordInput register={register} errors={errors} password={watch('password')} isSubmitting={isSubmitting} />

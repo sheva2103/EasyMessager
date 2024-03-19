@@ -4,17 +4,26 @@ import EazyMessagerTitleIcon from '../EazyMessagerTitleIcon/EasyMessagerTitleIco
 import PasswordInput from './PasswordInput';
 import RememberMeInput from './RememberMeInput';
 import LoginInput from './LoginInput';
-import { SignInSignUpForm } from '../../types/types';
+import { CurrentUser, SignInSignUpForm } from '../../types/types';
 import ButtonSubmit from './ButtonSubmit';
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import EmailInput from './EmailInput';
+import styles from './Styles.module.scss'
+import { useAppDispatch } from '../../hooks/hook';
+import { setUser } from '../../store/slices/appSlice';
 
+const ERROR_DATA = 'auth/invalid-credential'
+const TOO_MANY_REQUESTS = 'too-many-requests'
+const AUTH_TOO_MANY_REQUESTS = 'auth/too-many-requests'
 
 
 const SignIn: FC = () => {
 
-    const { register, handleSubmit, formState: { errors, isSubmitting }, reset, setError } = useForm<SignInSignUpForm>({
-        mode: 'onSubmit'
+    const { register, handleSubmit, formState: { errors, isSubmitting }, reset, setError, clearErrors } = useForm<SignInSignUpForm>({
+        mode: 'onChange'
     })
+
+    const dispatch = useAppDispatch()
 
     const submit: SubmitHandler<SignInSignUpForm> = async (data) => {
 
@@ -23,23 +32,31 @@ const SignIn: FC = () => {
         await signInWithEmailAndPassword(auth, data.email, data.password)
             .then((userCredential) => {
                 const user = userCredential.user;
+                const userInfo: CurrentUser = {email: user.email, displayName: user.displayName, photoURL: user.photoURL, uid: user.uid}
                 console.log(user)
+                dispatch(setUser(userInfo))
             })
             .catch((error: any) => {
                 const errorCode = error.code;
-                const errorMessage = error.message;
-                console.log(error, '>>>', errorMessage)
-            });
+                //const errorMessage = error.message;
+                if(errorCode === ERROR_DATA) setError('dataError', { message: 'ошибка логина или пароля' })
+                if(errorCode === TOO_MANY_REQUESTS || errorCode === AUTH_TOO_MANY_REQUESTS) setError('dataError', { message: 'повторите запрос позже' })
+                console.log(errorCode)
+            })
     }
 
     return (
         <div>
             <EazyMessagerTitleIcon />
             <form onSubmit={handleSubmit(submit)}>
-                <LoginInput register={register} isSubmitting={isSubmitting} errors={errors} />
+                {/* <LoginInput register={register} isSubmitting={isSubmitting} errors={errors} /> */}
+                <EmailInput register={register} isSubmitting={isSubmitting} errors={errors}/>
                 <PasswordInput register={register} errors={errors} isSubmitting={isSubmitting} signIn />
+                <div className={styles.error}>
+                    {errors.dataError && <span>{errors.dataError.message}</span>}
+                </div>
                 <RememberMeInput register={register} />
-                <ButtonSubmit isSubmitting={isSubmitting} signIn />
+                <ButtonSubmit isSubmitting={isSubmitting} signIn clearErrors={clearErrors}/>
             </form>
         </div>
     );
