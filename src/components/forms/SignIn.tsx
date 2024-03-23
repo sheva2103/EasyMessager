@@ -34,7 +34,7 @@ const SignIn: FC = () => {
                 const user = userCredential.user;
                 const userInfo: CurrentUser = {email: user.email, displayName: user.displayName, photoURL: user.photoURL, uid: user.uid}
                 console.log(user)
-                dispatch(setUser(userInfo))
+                //dispatch(setUser(userInfo))
             })
             .catch((error: any) => {
                 const errorCode = error.code;

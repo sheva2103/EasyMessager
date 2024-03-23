@@ -5,13 +5,13 @@ import ToggleTheme from "../TogleTheme/ToggleTheme";
 import Select from "./Select";
 import LangIcon from '../../assets/translate.svg'
 import BlackList from "./BlackList";
-import ArrowLeft from '../../assets/box-arrow-left.svg'
+import SignOutButton from "./SignOutButton";
 
 
 const Settings: FC = () => {
     return (  
-        <div>
-            <UserInfo />
+        <div className={styles.settings}>
+            <UserInfo isSettings/>
             <hr className={styles.hr}/>
             <div className={styles.group}>
                 <div className={styles.item}>
@@ -38,12 +38,7 @@ const Settings: FC = () => {
                 <BlackList />
             </div>
             <hr className={styles.hr}/>
-            <div className={styles.group}>
-                <button>
-                    <ArrowLeft />
-                    <span>выйти</span>
-                </button>
-            </div>
+            <SignOutButton />
         </div>
     );
 }

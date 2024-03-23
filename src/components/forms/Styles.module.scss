@@ -83,3 +83,44 @@
     }
 }
 
+.changeUserInfo {
+    height: 0;
+    transition: all 0.5s;
+    opacity: 0;
+
+    &_show {
+        height: 110px;
+        opacity: 1;
+    }
+
+    & input {
+        font-size: 0.8rem;
+        width: 100%;
+        padding: 5px;
+    }
+
+    & button {
+        margin-left: 2px;
+    }
+
+    &__item {
+        display: flex;
+    }
+
+    &__wrapper {
+        display: flex;
+        flex-direction: column;
+        width: 90%;
+        gap: 8px;
+        position: absolute;
+        top: -58px;
+        z-index: -1;
+        transition: all 0.5s;
+
+        &_show {
+            top: 62px;
+            z-index: 7;
+        }
+    }
+}
+

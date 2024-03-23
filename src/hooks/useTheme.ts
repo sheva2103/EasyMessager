@@ -3,7 +3,7 @@ import { useThemeType } from "../types/types"
 
 export const useTheme = (): useThemeType => {
 
-    const localStorageTheme = localStorage.getItem('theme') || 'dark'
+    const localStorageTheme = localStorage.getItem('theme') || 'light'
     const [theme, setTheme] = useState<string>(localStorageTheme)
 
     useLayoutEffect(() => {

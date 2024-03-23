@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, KeyboardEventHandler, useEffect, useState } from "react";
+import { ChangeEvent, FC, KeyboardEventHandler, useEffect, useRef, useState } from "react";
 import styles from './HomePage.module.scss'
 import SendMessageIcon from '../../assets/send-fill.svg'
 import CloseIcon from '../../assets/closeDesktop.svg'
@@ -17,6 +17,7 @@ const InputNewMessage: FC = () => {
     const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
         setNewMessage(e.target.value)
     }
+    const refTextarea = useRef<HTMLTextAreaElement>(null)
 
     const [editMessage, setEditMessage] = useState('')
     const handleChangeEditMessage = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -45,6 +46,7 @@ const InputNewMessage: FC = () => {
         if(isEditMessage) {
             window.addEventListener('keydown', onKeyDown)
             setEditMessage(isEditMessage.message)
+            refTextarea.current.focus()
             return () => window.removeEventListener('keydown', onKeyDown)
         }
         
@@ -74,6 +76,7 @@ const InputNewMessage: FC = () => {
                             maxRows={3}
                             value={editMessage}
                             onChange={handleChangeEditMessage}
+                            ref={refTextarea}
                         />
                     }
                 </div>

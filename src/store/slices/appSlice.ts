@@ -80,6 +80,14 @@ export const appSlice = createSlice({
         },
         setUser(state, action: PayloadAction<CurrentUser | null>) {
             state.currentUser = action.payload
+            if(!action.payload) {
+                state.selectedChat = null
+                state.menu = {cover: false, bar: false, menuChild: ''}
+                state.isSendMessage = null
+                state.changeMessage = null
+                state.showCheckbox = false
+                state.selectedMessages = null
+            }
         }
     }
 })

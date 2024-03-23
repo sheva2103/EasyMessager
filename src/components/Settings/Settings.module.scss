@@ -1,3 +1,11 @@
+.settings {
+    overflow: hidden;
+    @media (max-height: 468px) and (orientation: landscape) {
+        height: 70svh;
+        overflow: auto;
+    }
+}
+
 .hr {
     width: 100%;
     height: 4px;
@@ -96,15 +104,18 @@
     }
 }
 
-button {
-    width: fit-content;
-    display: flex;
-    gap: 8px;
-    align-items: center;
+.button {
+    width: 100px;
     margin-left: 16px;
-    font-size: 1.1rem;
-    @media (max-width: 468px) {
-        font-size: 1.2rem;
+    &__content {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        
+        font-size: 1rem;
+        @media (max-width: 468px) {
+            font-size: 1.2rem;
+        }
     }
 }
 
