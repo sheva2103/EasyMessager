@@ -6,7 +6,7 @@ import RememberMeInput from './RememberMeInput';
 import LoginInput from './LoginInput';
 import { CurrentUser, SignInSignUpForm } from '../../types/types';
 import ButtonSubmit from './ButtonSubmit';
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { browserSessionPersistence, getAuth, setPersistence, signInWithEmailAndPassword } from "firebase/auth";
 import EmailInput from './EmailInput';
 import styles from './Styles.module.scss'
 import { useAppDispatch } from '../../hooks/hook';
@@ -33,8 +33,9 @@ const SignIn: FC = () => {
             .then((userCredential) => {
                 const user = userCredential.user;
                 const userInfo: CurrentUser = {email: user.email, displayName: user.displayName, photoURL: user.photoURL, uid: user.uid}
-                console.log(user)
-                //dispatch(setUser(userInfo))
+                if(!data.rememberMe) {
+                    setPersistence(auth, browserSessionPersistence)
+                }
             })
             .catch((error: any) => {
                 const errorCode = error.code;

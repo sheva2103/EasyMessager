@@ -1,13 +1,5 @@
 import { initializeApp } from "firebase/app";
-
-// const firebaseConfig = {
-//     apiKey: "AIzaSyCeCYHA-o-QnJRXyAU9e9LxvOZlbOE18sA",
-//     authDomain: "easymessager-aa146.firebaseapp.com",
-//     projectId: "easymessager-aa146",
-//     storageBucket: "easymessager-aa146.appspot.com",
-//     messagingSenderId: "895343022395",
-//     appId: "1:895343022395:web:c82ffda6e3938a6d9b671e"
-// };
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: process.env.API_KEY,
@@ -19,3 +11,6 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+export {db}

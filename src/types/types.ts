@@ -32,9 +32,12 @@ export interface StyleContextMenu {
     left: string;
 }
 
-export type CurrentUser = {
+export type CurrentUserData = {
     displayName: string,
     photoURL: string,
+}
+
+export interface CurrentUser extends CurrentUserData {
     uid: string,
     email: string
 }

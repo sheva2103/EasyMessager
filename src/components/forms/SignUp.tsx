@@ -1,6 +1,5 @@
 import { FC } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import styles from './Styles.module.scss'
 import PasswordInput from './PasswordInput';
 import EazyMessagerTitleIcon from '../EazyMessagerTitleIcon/EasyMessagerTitleIcon';
 import ConfirmPasswordInput from './ConfirmPasswordInput';
@@ -8,12 +7,8 @@ import { SignInSignUpForm } from '../../types/types';
 import RememberMeInput from './RememberMeInput';
 import LoginInput from './LoginInput';
 import ButtonSubmit from './ButtonSubmit';
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { useAppDispatch } from '../../hooks/hook';
+import { getAuth, createUserWithEmailAndPassword, setPersistence, browserSessionPersistence } from "firebase/auth";
 import EmailInput from './EmailInput';
-
-
-const EMAIL_REGEXP = /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/iu;
 
 const ERROR_NEW_EMAIL = 'auth/email-already-in-use'
 
@@ -24,8 +19,6 @@ const SignUp: FC = () => {
     const { register, watch, handleSubmit, formState: { errors, isValid, isSubmitting }, reset, setError } = useForm<SignInSignUpForm>({
         mode: 'onChange'
     })
-
-    const dispatch = useAppDispatch()
 
     const submit: SubmitHandler<SignInSignUpForm> = async (data) => {
         // await sleep(5000).then(data => {
@@ -40,7 +33,9 @@ const SignUp: FC = () => {
         await createUserWithEmailAndPassword(auth, data.email, data.password)
             .then((userCredential) => {
                 const user = userCredential.user;
-                console.log(user)
+                if(!data.rememberMe) {
+                    setPersistence(auth, browserSessionPersistence)
+                }
             })
             .catch((error: any) => {
                 const errorCode = error.code;
@@ -55,16 +50,6 @@ const SignUp: FC = () => {
         <div>
             <EazyMessagerTitleIcon />
             <form onSubmit={handleSubmit(submit)}>
-                {/* <div>
-                    <input type="text"
-                        placeholder='Электронная почта'
-                        disabled={isSubmitting}
-                        {...register('email', { required: { value: true, message: 'обязательное поле' }, pattern: EMAIL_REGEXP })}
-                    />
-                    <div className={styles.error}>
-                        {errors.email && <span>{errors.email.message || 'неправильный формат'}</span>}
-                    </div>
-                </div> */}
                 <EmailInput register={register} errors={errors} isSubmitting={isSubmitting}/>
                 {/* <LoginInput register={register} errors={errors} isSubmitting={isSubmitting} signUp /> */}
                 <PasswordInput register={register} errors={errors} isSubmitting={isSubmitting} />

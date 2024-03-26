@@ -13,12 +13,13 @@ const UserInfo: FC<Props> = ({ isSettings }) => {
 
     const [changeInfo, setChangeInfo] = useState(false)
     const login = useAppSelector(state => state.app.currentUser.email)
-    const nameUser = useAppSelector(state => state.app.currentUser.displayName)
+    const nameUser = useAppSelector(state => state.app.currentUser?.displayName)
+    const photoURL = useAppSelector(state => state.app.currentUser?.photoURL)
 
     return (
         <div className={styles.userInfoContainer}>
             <div className={styles.userInfo}>
-                <Avatar url={undefined} name="alex" />
+                <Avatar url={photoURL} name={nameUser || login} />
                 <div className={styles.nameBlock}>
                     <span className={styles.name}>{nameUser || 'Имя не указано'}</span>
                     <span className={styles.login}>{login}</span>
@@ -29,7 +30,7 @@ const UserInfo: FC<Props> = ({ isSettings }) => {
                     </div>
                 }
             </div>
-            {isSettings && <ChangeUserInfoForm changeInfo={changeInfo} setChangeInfo={setChangeInfo} />}
+            {isSettings && <ChangeUserInfoForm changeInfo={changeInfo} setChangeInfo={setChangeInfo} displayName={nameUser} photoURL={photoURL}/>}
         </div>
     );
 }

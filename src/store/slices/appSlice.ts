@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { CurrentUser, Message } from "../../types/types";
+import { CurrentUser, CurrentUserData, Message } from "../../types/types";
 
 
 type Menu = {
@@ -88,6 +88,10 @@ export const appSlice = createSlice({
                 state.showCheckbox = false
                 state.selectedMessages = null
             }
+        },
+        setUserData(state, action: PayloadAction<CurrentUserData>) {
+            state.currentUser.displayName = action.payload.displayName
+            state.currentUser.photoURL = action.payload.photoURL
         }
     }
 })
@@ -102,6 +106,7 @@ export const {openMenu,
                 clearSelectedMessage, 
                 isSendMessage, 
                 setShowCheckbox,
-                setUser
+                setUser,
+                setUserData
             } = appSlice.actions
 export default appSlice.reducer
