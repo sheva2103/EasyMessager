@@ -4,28 +4,25 @@ import classNames from "classnames";
 import { useForm } from "react-hook-form";
 import { getAuth, updateProfile } from "firebase/auth";
 import Preloader from '../../assets/preloader.svg'
-import { useAppDispatch } from "../../hooks/hook";
-import { setUserData } from "../../store/slices/appSlice";
-import { CurrentUserData } from "../../types/types";
+import { CurrentUser, CurrentUserData } from "../../types/types";
+import { profileAPI } from "../../API/api";
 
 type Props = {
     changeInfo: boolean,
     setChangeInfo: (state: boolean) => void,
-    displayName: string,
-    photoURL: string
+    currentUserInfo: CurrentUser
 }
 
-const LOGIN_REGEXP = /^[a-zA-Z0-9_*-]{6,20}$/;
+const LOGIN_REGEXP = /^[a-zA-Z0-9_*-]{4,20}$/;
 const URL_REGEXP = /^((ftp|http|https):\/\/)?(www\.)?([A-Za-zА-Яа-я0-9]{1}[A-Za-zА-Яа-я0-9\-]*\.?)*\.{1}[A-Za-zА-Яа-я0-9-]{2,8}(\/([\w#!:.?+=&%@!\-\/])*)?/;
 
-const ChangeUserInfoForm: FC<Props> = ({ changeInfo, setChangeInfo, displayName, photoURL }) => {
+const ChangeUserInfoForm: FC<Props> = ({ changeInfo, setChangeInfo, currentUserInfo }) => {
 
-    const dispatch = useAppDispatch()
     const { handleSubmit, register, formState: { errors, isSubmitting } } = useForm<CurrentUserData>({
         mode: 'onBlur',
         defaultValues: {
-            displayName: displayName,
-            photoURL: photoURL
+            displayName: currentUserInfo.displayName,
+            photoURL: currentUserInfo.photoURL
         }
     })
 
@@ -34,8 +31,8 @@ const ChangeUserInfoForm: FC<Props> = ({ changeInfo, setChangeInfo, displayName,
         await updateProfile(auth.currentUser, {
             displayName: data.displayName, photoURL: data.photoURL
         }).then(() => {
+            profileAPI.changeUserInfo({...currentUserInfo, photoURL: data.photoURL,  displayName: data.displayName})
             setChangeInfo(false)
-            dispatch(setUserData(data))
         }).catch((error) => {
             console.log('уууупс....')
         });
@@ -49,7 +46,7 @@ const ChangeUserInfoForm: FC<Props> = ({ changeInfo, setChangeInfo, displayName,
                         <input type="text"
                             className={classNames({ [styles.error]: errors.displayName })}
                             placeholder="Имя пользователя"
-                            {...register('displayName', { maxLength: 20, minLength: 6, pattern: LOGIN_REGEXP })}
+                            {...register('displayName', { maxLength: 20, minLength: 4, pattern: LOGIN_REGEXP })}
                         />
                     </div>
                     <div className={styles.changeUserInfo__item}>

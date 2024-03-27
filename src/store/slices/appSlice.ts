@@ -89,9 +89,15 @@ export const appSlice = createSlice({
                 state.selectedMessages = null
             }
         },
+        // setUserData(state, action: PayloadAction<CurrentUserData>) {
+        //     state.currentUser.displayName = action.payload.displayName
+        //     state.currentUser.photoURL = action.payload.photoURL
+        // }
         setUserData(state, action: PayloadAction<CurrentUserData>) {
             state.currentUser.displayName = action.payload.displayName
             state.currentUser.photoURL = action.payload.photoURL
+            state.currentUser.blackList = action.payload.blackList
+            state.currentUser.contacts = action.payload.contacts
         }
     }
 })

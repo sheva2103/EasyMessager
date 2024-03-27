@@ -35,9 +35,16 @@ export interface StyleContextMenu {
 export type CurrentUserData = {
     displayName: string,
     photoURL: string,
+    blackList?: Contact[],
+    contacts?: Contact[]
 }
 
 export interface CurrentUser extends CurrentUserData {
     uid: string,
+    email: string
+}
+
+type Contact = {
+    name: string,
     email: string
 }

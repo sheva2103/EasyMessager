@@ -9,6 +9,7 @@ import LoginInput from './LoginInput';
 import ButtonSubmit from './ButtonSubmit';
 import { getAuth, createUserWithEmailAndPassword, setPersistence, browserSessionPersistence } from "firebase/auth";
 import EmailInput from './EmailInput';
+import { profileAPI } from '../../API/api';
 
 const ERROR_NEW_EMAIL = 'auth/email-already-in-use'
 
@@ -33,7 +34,8 @@ const SignUp: FC = () => {
         await createUserWithEmailAndPassword(auth, data.email, data.password)
             .then((userCredential) => {
                 const user = userCredential.user;
-                if(!data.rememberMe) {
+                profileAPI.createNewUserInDB(user)
+                if (!data.rememberMe) {
                     setPersistence(auth, browserSessionPersistence)
                 }
             })
@@ -41,7 +43,7 @@ const SignUp: FC = () => {
                 const errorCode = error.code;
                 //const errorMessage = error.message;
                 console.log(errorCode)
-                if(errorCode === ERROR_NEW_EMAIL) setError('email', {message: 'Такой пользователь уже существует'})
+                if (errorCode === ERROR_NEW_EMAIL) setError('email', { message: 'Такой пользователь уже существует' })
             });
 
     }
@@ -50,7 +52,7 @@ const SignUp: FC = () => {
         <div>
             <EazyMessagerTitleIcon />
             <form onSubmit={handleSubmit(submit)}>
-                <EmailInput register={register} errors={errors} isSubmitting={isSubmitting}/>
+                <EmailInput register={register} errors={errors} isSubmitting={isSubmitting} />
                 {/* <LoginInput register={register} errors={errors} isSubmitting={isSubmitting} signUp /> */}
                 <PasswordInput register={register} errors={errors} isSubmitting={isSubmitting} />
                 <ConfirmPasswordInput register={register} errors={errors} password={watch('password')} isSubmitting={isSubmitting} />

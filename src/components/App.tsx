@@ -4,11 +4,12 @@ import LoadingApp from './LoadingApp/LoadingApp';
 import HomaPage from './HomePage/HomePage';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useAppDispatch, useAppSelector } from '../hooks/hook';
-import { setUser } from '../store/slices/appSlice';
-import { CurrentUser } from '../types/types';
+import { setUser, setUserData } from '../store/slices/appSlice';
+import { CurrentUser, CurrentUserData } from '../types/types';
 import { useTheme } from '../hooks/useTheme';
-import { useLayoutEffect, useState } from 'react';
-
+import { useEffect, useLayoutEffect, useState } from 'react';
+import { DocumentData, DocumentSnapshot, doc, onSnapshot } from 'firebase/firestore';
+import { db } from '../firebase';
 
 export const App = () => {
 
@@ -33,6 +34,21 @@ export const App = () => {
             }
         });
     }, []);
+
+    useEffect(() => {
+        if(currentUser?.email) {
+            const userData = onSnapshot(doc(db, "users", currentUser.email), (doc: DocumentSnapshot<CurrentUserData>) => {
+                console.log("Current data: ", doc.data());
+                const data: CurrentUserData = doc.data()
+                if(!data) {
+                    dispatch(setUser(null))
+                    return
+                }
+                dispatch(setUserData(data))
+            });
+            return () => userData()
+        }
+    }, [currentUser?.email]);
 
     return (
         <div className='appContainer'>
