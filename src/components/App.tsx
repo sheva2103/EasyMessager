@@ -38,7 +38,7 @@ export const App = () => {
     useEffect(() => {
         if(currentUser?.email) {
             const userData = onSnapshot(doc(db, "users", currentUser.email), (doc: DocumentSnapshot<CurrentUserData>) => {
-                console.log("Current data: ", doc.data());
+                //console.log("Current data: ", doc.data());
                 const data: CurrentUserData = doc.data()
                 if(!data) {
                     dispatch(setUser(null))

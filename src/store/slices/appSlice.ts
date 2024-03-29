@@ -18,7 +18,10 @@ type AppState = {
     changeMessage: Message | null,
     isSendMessage: boolean,
     showCheckbox: boolean,
-    currentUser: null | CurrentUser
+    currentUser: null | CurrentUser,
+    blackList: CurrentUser[],
+    contacts: CurrentUser[],
+    chats: CurrentUser[]
 }
 
 const initialState: AppState = {
@@ -32,7 +35,10 @@ const initialState: AppState = {
     changeMessage: null,
     isSendMessage: false, 
     showCheckbox: false,
-    currentUser: null
+    currentUser: null,
+    blackList: [],
+    contacts: [],
+    chats: []
 
 }
 
@@ -87,17 +93,14 @@ export const appSlice = createSlice({
                 state.changeMessage = null
                 state.showCheckbox = false
                 state.selectedMessages = null
+                state.blackList = []
+                state.chats = []
+                state.contacts = []
             }
         },
-        // setUserData(state, action: PayloadAction<CurrentUserData>) {
-        //     state.currentUser.displayName = action.payload.displayName
-        //     state.currentUser.photoURL = action.payload.photoURL
-        // }
         setUserData(state, action: PayloadAction<CurrentUserData>) {
             state.currentUser.displayName = action.payload.displayName
             state.currentUser.photoURL = action.payload.photoURL
-            state.currentUser.blackList = action.payload.blackList
-            state.currentUser.contacts = action.payload.contacts
         }
     }
 })
