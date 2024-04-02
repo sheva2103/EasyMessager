@@ -13,7 +13,7 @@ type Menu = {
 
 type AppState = {
     menu: Menu,
-    selectedChat: string | null,
+    selectedChat: CurrentUser | null,
     selectedMessages: Message[],
     changeMessage: Message | null,
     isSendMessage: boolean,
@@ -60,7 +60,7 @@ export const appSlice = createSlice({
             state.menu.menuChild = action.payload
             if(!state.menu.cover) state.menu.cover = true
         },
-        selectChat(state, action: PayloadAction<string>) {
+        selectChat(state, action: PayloadAction<CurrentUser>) {
             state.selectedChat = action.payload
             state.selectedMessages = []
         },

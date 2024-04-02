@@ -56,6 +56,8 @@ const InputNewMessage: FC = () => {
         dispatch(changeMessage(null))
     }, [selectedChat]);
 
+    
+
     return (  
         <div className={styles.inputNewMessage}>
                 <div className={styles.inputNewMessage__textarea}>

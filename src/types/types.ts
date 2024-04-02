@@ -41,3 +41,7 @@ export interface CurrentUser extends CurrentUserData {
     uid: string,
     email: string
 }
+
+type Message1 = {
+    
+}

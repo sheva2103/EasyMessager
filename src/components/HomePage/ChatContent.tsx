@@ -53,7 +53,7 @@ const ChatContent: FC = () => {
                     </div>
                     <div className={styles.contentHeader}>
                         <div className={styles.contentHeader__selectedChat}>
-                            <span>{selectedChat}</span>
+                            <span>{selectedChat.displayName}</span>
                         </div>
                         <div className={styles.menu}>
                             {showCheckbox &&

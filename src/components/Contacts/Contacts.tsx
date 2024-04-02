@@ -3,20 +3,24 @@ import styles from './Contacts.module.scss'
 import RemoveFromContacts from '../../assets/person-dash.svg'
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { clearSelectedMessage, closeMenu, selectChat } from "../../store/slices/appSlice";
+import { CurrentUser } from "../../types/types";
 
-const test = [
-    { name: 'alex' },
-    { name: 'alex1' },
-    { name: 'alex2' },
-    { name: 'alex3' },
-    { name: 'alex4' },
-    { name: 'alex5' },
-    { name: 'alex6' },
-    { name: 'alex7' },
-    { name: 'alex8' },
-    { name: 'alex9' },
-    { name: 'alex10' },
-    { name: 'alex11mmmmmmmmmmmmmm' },
+const test: CurrentUser[] = [
+    { displayName: 'alexdb', photoURL: '', email: 'test1rt@test.com', uid: 'uhrtugjfghdhc' },
+    { displayName: 'alexcbc55555555555555', photoURL: '', email: 'test1fg@test.com', uid: 'uhugjfgfghdhc' },
+    { displayName: 'alexvbcx', photoURL: '', email: 'test1cv@test.com', uid: 'uhugjfgcvhdhc' },
+    { displayName: 'alexfgdh', photoURL: '', email: 'test1nb@test.com', uid: 'uhugjfgbnhdhc' },
+    { displayName: 'alexzzzzc', photoURL: '', email: 'test1sd@test.com', uid: 'usdhugjfghdhc' },
+    { displayName: 'alexds', photoURL: '', email: 'test1io@test.com', uid: 'uhugjfghiodhc' },
+    { displayName: 'alexvxv', photoURL: '', email: 'test1ti@test.com', uid: 'uhugjfghdtihc' },
+    { displayName: 'alexbbbb', photoURL: '', email: 'test1hh@test.com', uid: 'uhugjfghdhhhc' },
+    { displayName: 'alexcvxv', photoURL: '', email: 'test1ddg@test.com', uid: 'uhudgdgjfghdhc' },
+    { displayName: 'alexxv', photoURL: '', email: 'test1jr@test.com', uid: 'uhugjfghdgdhjdhc' },
+    { displayName: 'alexzzzzs', photoURL: '', email: 'test1rw@test.com', uid: 'uhugjwqqfghdhc' },
+    { displayName: 'alexvvcvbbb', photoURL: '', email: 'test1dhhj@test.com', uid: 'uhugjddghfghdhc' },
+    { displayName: 'alexdgsd', photoURL: '', email: 'test1qqq@test.com', uid: 'uhuqqqgjfghdhc' },
+    { displayName: 'alexbbb', photoURL: '', email: 'test1fhfr@test.com', uid: 'uhugjfgjfghdhc' },
+    { displayName: 'test1', photoURL: '', email: 'test1dete@test.com', uid: 'uhuhjhggjfghdhc' },
 ]
 
 
@@ -35,7 +39,7 @@ const Contacts: FC = () => {
         console.log('удалён из контактов')
     }
 
-    const handleClickName = (name: string) => {
+    const handleClickName = (name: CurrentUser) => {
 
         if (isSend) {
             console.log('переслал несколько')
@@ -47,7 +51,7 @@ const Contacts: FC = () => {
         dispatch(closeMenu())
     }
 
-    const filter = test.filter(item => item.name.includes(name))
+    const filter = test.filter(item => item.displayName.includes(name))
 
     return (
         <div className={styles.container}>
@@ -63,8 +67,8 @@ const Contacts: FC = () => {
             <div className={styles.item}>
                 <ul className={styles.list}>
                     {filter.map((item, index) => (
-                        <li key={String(item.name + index)} onClick={() => handleClickName(item.name)}>
-                            <span >{item.name}</span>
+                        <li key={String(item.uid)} onClick={() => handleClickName(item)}>
+                            <span >{item.displayName}</span>
                             {!isSend && <div title="Удалить из друзей"
                                 onClick={removeFromContacts}
                             >
