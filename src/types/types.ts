@@ -34,7 +34,7 @@ export interface StyleContextMenu {
 
 export type CurrentUserData = {
     displayName: string,
-    photoURL: string,
+    photoURL?: string,
 }
 
 export interface CurrentUser extends CurrentUserData {
@@ -42,6 +42,21 @@ export interface CurrentUser extends CurrentUserData {
     email: string
 }
 
-type Message1 = {
-    
+// export type Chat = {
+//     displayName: string,
+//     email: string,
+//     chatID?: string,
+//     uid: string
+// }
+
+export interface Chat extends CurrentUser  {
+    chatID?: string,
+}
+
+export type Message1 = {
+    message: string,
+    messageID: string,
+    date: string,
+    read: boolean,
+    sender: CurrentUser
 }

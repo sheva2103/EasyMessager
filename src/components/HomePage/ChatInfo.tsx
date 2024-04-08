@@ -2,16 +2,17 @@ import { FC } from "react";
 import styles from './HomePage.module.scss'
 import Avatar from "../Avatar/Avatar";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
-import { selectChat } from "../../store/slices/appSlice";
-import { CurrentUser } from "../../types/types";
+import { Chat } from "../../types/types";
+import { setChat } from "../../store/slices/setChatIDSlice";
 
 
-const ChatInfo: FC<CurrentUser> = (user) => {
+const ChatInfo: FC<Chat> = (user) => {
 
     const dispatch = useAppDispatch()
     const selectedChat = useAppSelector(state => state.app.selectedChat)
+    const currentUserEmail = useAppSelector(state => state.app.currentUser.email)
     const handleClick = () => {
-        dispatch(selectChat(user))
+        dispatch(setChat({currentUserEmail: currentUserEmail, guestInfo: user}))
     }
     const isSelected = selectedChat?.email === user.email
 

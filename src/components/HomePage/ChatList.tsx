@@ -2,36 +2,38 @@ import { FC, useEffect, useState } from "react";
 import styles from './HomePage.module.scss'
 import ChatInfo from "./ChatInfo";
 import { searchAPI } from "../../API/api";
-import { doc, onSnapshot } from "firebase/firestore";
+import { DocumentSnapshot, doc, onSnapshot } from "firebase/firestore";
 import { db } from "../../firebase";
 import { useAppSelector } from "../../hooks/hook";
-import { CurrentUser } from "../../types/types";
+import { Chat, CurrentUser } from "../../types/types";
+import { createChatList } from "../../utils/utils";
 
 
 
-const chats: CurrentUser[] = [
-    { displayName: 'alexdb', photoURL: '', email: 'test1rt@test.com', uid: 'uhrtugjfghdhc' },
-    { displayName: 'alexcbc55555555555555', photoURL: '', email: 'test1fg@test.com', uid: 'uhugjfgfghdhc' },
-    { displayName: 'alexvbcx', photoURL: '', email: 'test1cv@test.com', uid: 'uhugjfgcvhdhc' },
-    { displayName: 'alexfgdh', photoURL: '', email: 'test1nb@test.com', uid: 'uhugjfgbnhdhc' },
-    { displayName: 'alexzzzzc', photoURL: '', email: 'test1sd@test.com', uid: 'usdhugjfghdhc' },
-    { displayName: 'alexds', photoURL: '', email: 'test1io@test.com', uid: 'uhugjfghiodhc' },
-    { displayName: 'alexvxv', photoURL: '', email: 'test1ti@test.com', uid: 'uhugjfghdtihc' },
-    { displayName: 'alexbbbb', photoURL: '', email: 'test1hh@test.com', uid: 'uhugjfghdhhhc' },
-    { displayName: 'alexcvxv', photoURL: '', email: 'test1ddg@test.com', uid: 'uhudgdgjfghdhc' },
-    { displayName: 'alexxv', photoURL: '', email: 'test1jr@test.com', uid: 'uhugjfghdgdhjdhc' },
-    { displayName: 'alexzzzzs', photoURL: '', email: 'test1rw@test.com', uid: 'uhugjwqqfghdhc' },
-    { displayName: 'alexvvcvbbb', photoURL: '', email: 'test1dhhj@test.com', uid: 'uhugjddghfghdhc' },
-    { displayName: 'alexdgsd', photoURL: '', email: 'test1qqq@test.com', uid: 'uhuqqqgjfghdhc' },
-    { displayName: 'alexbbb', photoURL: '', email: 'test1fhfr@test.com', uid: 'uhugjfgjfghdhc' },
-    { displayName: 'test1', photoURL: '', email: 'test1dete@test.com', uid: 'uhuhjhggjfghdhc' },
-]
+// const chats: CurrentUser[] = [
+//     { displayName: 'alexdb', photoURL: '', email: 'test@test.com', uid: 'uhrtugjfghdhc' },
+//     { displayName: 'alexcbc55555555555555', photoURL: '', email: 'test1fg@test.com', uid: 'uhugjfgfghdhc' },
+//     { displayName: 'alexvbcx', photoURL: '', email: 'test1cv@test.com', uid: 'uhugjfgcvhdhc' },
+//     { displayName: 'alexfgdh', photoURL: '', email: 'test1nb@test.com', uid: 'uhugjfgbnhdhc' },
+//     { displayName: 'alexzzzzc', photoURL: '', email: 'test1sd@test.com', uid: 'usdhugjfghdhc' },
+//     { displayName: 'alexds', photoURL: '', email: 'test1io@test.com', uid: 'uhugjfghiodhc' },
+//     { displayName: 'alexvxv', photoURL: '', email: 'test1ti@test.com', uid: 'uhugjfghdtihc' },
+//     { displayName: 'alexbbbb', photoURL: '', email: 'test1hh@test.com', uid: 'uhugjfghdhhhc' },
+//     { displayName: 'alexcvxv', photoURL: '', email: 'test1ddg@test.com', uid: 'uhudgdgjfghdhc' },
+//     { displayName: 'alexxv', photoURL: '', email: 'test1jr@test.com', uid: 'uhugjfghdgdhjdhc' },
+//     { displayName: 'alexzzzzs', photoURL: '', email: 'test1rw@test.com', uid: 'uhugjwqqfghdhc' },
+//     { displayName: 'alexvvcvbbb', photoURL: '', email: 'test1dhhj@test.com', uid: 'uhugjddghfghdhc' },
+//     { displayName: 'alexdgsd', photoURL: '', email: 'test1qqq@test.com', uid: 'uhuqqqgjfghdhc' },
+//     { displayName: 'alexbbb', photoURL: '', email: 'test1fhfr@test.com', uid: 'uhugjfgjfghdhc' },
+//     { displayName: 'test1', photoURL: '', email: 'test1dete@test.com', uid: 'uhuhjhggjfghdhc' },
+// ]
 
 const ChatList: FC = () => {
 
     const [name, setName] = useState('')
-    const [users, setUsers] = useState([])
-    const currentUser = useAppSelector(state => state.app.currentUser.email)
+    const [globalSearchUsers, setGlobalSearchUsers] = useState([])
+    //const [chats, setChats] = useState<Chat[]>([])
+    const myChats = useAppSelector(state => state.app.chatsList)
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value)
@@ -39,18 +41,23 @@ const ChatList: FC = () => {
 
     useEffect(() => {
         searchAPI.searchUser(name)
-            .then(chat => setUsers([...chat]))
+            .then(chat => setGlobalSearchUsers([...chat]))
     }, [name]);
 
-    useEffect(() => {
-        const chatsList = onSnapshot(doc(db, currentUser, 'chatlist'), (doc) => {
-            console.log("Current data: ", doc.data());
-        });
-        return () => chatsList()
-    }, []);
-
-    const filterChats = chats.filter(item => item.displayName.includes(name))
-    const filter: CurrentUser[] = [...filterChats, ...users]
+    // убрать этот uef. в апп уже добавляются чатлисты 
+    // useEffect(() => {
+    //     const chatsList = onSnapshot(doc(db, currentUser, 'chatList'), (doc: DocumentSnapshot<Chat[]>) => {
+    //         //console.log("Current data: ", doc.data());
+    //         const data = doc.data()
+    //         if(data) {
+    //             setChats(createChatList(data))
+    //         }
+    //     });
+    //     return () => chatsList()
+    // }, []);
+    
+    const filterChats = [...myChats].filter(item => item.displayName?.includes(name))
+    const filter: Chat[] = [...filterChats, ...globalSearchUsers]
 
     return (
         <>
@@ -61,8 +68,14 @@ const ChatList: FC = () => {
             </div>
             <div style={{ height: 'calc(100% - 102px)' }}>
                 <ul className={styles.chatList}>
-                    {filter.map((item, index) => (
-                        <ChatInfo key={String(item.displayName + index)}
+                    {filterChats.map((item) => (
+                        <ChatInfo key={item.uid}
+                            {...item}
+                        />
+                    ))}
+                    <div className={styles.hr}/>
+                    {globalSearchUsers.map((item) => (
+                        <ChatInfo key={item.uid + 'global'}
                             {...item}
                         />
                     ))}

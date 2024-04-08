@@ -6,12 +6,19 @@ import CloseIcon from '../../assets/closeDesktop.svg'
 import { TextareaAutosize } from '@mui/base/TextareaAutosize';
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { changeMessage } from "../../store/slices/appSlice";
+import { messagesAPI } from "../../API/api";
 
+type Props = {
+    chatID: string
+}
 
-const InputNewMessage: FC = () => {
+const InputNewMessage: FC<Props> = ({chatID}) => {
+
+    console.log('input new message. chatID>>>>', chatID)
 
     const dispatch = useAppDispatch()
     const selectedChat = useAppSelector(state => state.app.selectedChat)
+    const currentUser = useAppSelector(state => state.app.currentUser)
     const isEditMessage = useAppSelector(state => state.app.changeMessage)
     const [newMessage, setNewMessage] = useState('')
     const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -25,7 +32,9 @@ const InputNewMessage: FC = () => {
     }
 
     const sendMessage = () => {
-        console.log(newMessage.trim())
+        if(!newMessage.trim()) return
+        Promise.all([messagesAPI.addChat(currentUser.email, selectedChat, chatID), messagesAPI.addChat(selectedChat.email, currentUser, chatID)])
+            .then(() => messagesAPI.sendMessage(chatID, currentUser, newMessage))
     }
 
     const sendEditMessage = () => {
@@ -55,8 +64,6 @@ const InputNewMessage: FC = () => {
     useEffect(() => {
         dispatch(changeMessage(null))
     }, [selectedChat]);
-
-    
 
     return (  
         <div className={styles.inputNewMessage}>

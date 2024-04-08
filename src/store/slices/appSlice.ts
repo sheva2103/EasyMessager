@@ -1,6 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { CurrentUser, CurrentUserData, Message } from "../../types/types";
+import { Chat, CurrentUser, CurrentUserData, Message } from "../../types/types";
+import { setChat } from "./setChatIDSlice";
+import { v4 as uuidv4 } from 'uuid';
 
 
 type Menu = {
@@ -13,7 +15,7 @@ type Menu = {
 
 type AppState = {
     menu: Menu,
-    selectedChat: CurrentUser | null,
+    selectedChat: Chat | null,
     selectedMessages: Message[],
     changeMessage: Message | null,
     isSendMessage: boolean,
@@ -21,7 +23,8 @@ type AppState = {
     currentUser: null | CurrentUser,
     blackList: CurrentUser[],
     contacts: CurrentUser[],
-    chats: CurrentUser[]
+    chatsList: CurrentUser[],
+    loadChat: boolean
 }
 
 const initialState: AppState = {
@@ -38,7 +41,8 @@ const initialState: AppState = {
     currentUser: null,
     blackList: [],
     contacts: [],
-    chats: []
+    chatsList: [],
+    loadChat: false
 
 }
 
@@ -60,7 +64,7 @@ export const appSlice = createSlice({
             state.menu.menuChild = action.payload
             if(!state.menu.cover) state.menu.cover = true
         },
-        selectChat(state, action: PayloadAction<CurrentUser>) {
+        selectChat(state, action: PayloadAction<Chat>) {
             state.selectedChat = action.payload
             state.selectedMessages = []
         },
@@ -94,14 +98,32 @@ export const appSlice = createSlice({
                 state.showCheckbox = false
                 state.selectedMessages = null
                 state.blackList = []
-                state.chats = []
+                state.chatsList = []
                 state.contacts = []
             }
         },
         setUserData(state, action: PayloadAction<CurrentUserData>) {
             state.currentUser.displayName = action.payload.displayName
             state.currentUser.photoURL = action.payload.photoURL
+        },
+        setChatList(state, action: PayloadAction<CurrentUser[]>) {
+            state.chatsList = action.payload
+        },
+        setLoadChat(state, action: PayloadAction<boolean>) {
+            state.loadChat = false
         }
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(setChat.pending, (state) => {
+                state.loadChat = true
+            })
+            .addCase(setChat.rejected, (state, action) => {
+                state.selectedChat = {...action.payload, chatID: uuidv4()}
+            })
+            .addCase(setChat.fulfilled, (state, action) => {
+                state.selectedChat = action.payload
+            })
     }
 })
 
@@ -116,6 +138,8 @@ export const {openMenu,
                 isSendMessage, 
                 setShowCheckbox,
                 setUser,
-                setUserData
+                setUserData,
+                setChatList,
+                setLoadChat
             } = appSlice.actions
 export default appSlice.reducer

@@ -1,9 +1,10 @@
-import { QueryDocumentSnapshot, doc, setDoc, updateDoc } from "firebase/firestore";
+import { DocumentData, DocumentSnapshot, QueryDocumentSnapshot, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { UserInfo } from "firebase/auth";
-import { CurrentUser } from "../types/types";
+import { Chat, CurrentUser, Message1 } from "../types/types";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
+import { createChatList } from "../utils/utils";
 
 
 type ProfileApi = {
@@ -17,9 +18,11 @@ type SearchAPI = {
 
 
 
-// type MessagesAPI = {
-//     sendMessage: (id: string) => void
-// }
+type MessagesAPI = {
+    addChat: (user: string, recipient: CurrentUser, chatID?: string) => Promise<void>,
+    sendMessage: (chatID: string, sender: CurrentUser, message: string) => void,
+    getChatID: (name: string) => Promise<string | undefined>
+}
 
 export const profileAPI: ProfileApi = {
 
@@ -53,13 +56,30 @@ export const searchAPI: SearchAPI = {
     }
 }
 
-// export const messagesAPI = {
+export const messagesAPI: MessagesAPI = {
 
-//     async sendMessage(message, id = uuidv4()) {
-//         await setDoc(doc(db, "usersMessages", id), {
-//             name: "Los Angeles",
-//             state: "CA",
-//             country: "USA"
-//         });
-//     }
-// }
+    async addChat(user, recipient, chatID) {
+        console.log('addchat>>>>', user)
+        const chat: Chat = { chatID, displayName: recipient.displayName, email: recipient.email, uid: recipient.uid }
+        await setDoc(doc(db, user, "chatList"), { [recipient.email]: chat }, { merge: true });
+    },
+    async sendMessage(chatID, sender, message) {
+        console.log('api send message chatID:>>>>>', chatID)
+        const id = uuidv4()
+        const messageObj: Message1 = { message: message, messageID: id, date: new Date().toLocaleDateString(), read: false, sender: sender }
+        await setDoc(doc(db, 'chats', chatID), { [id]: messageObj }, { merge: true });
+    },
+    async getChatID(name) {
+        let id = undefined
+        console.log('getchatID')
+        const docRef = doc(db, name, "chatList");
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            const data: any = docSnap.data()
+            createChatList(data).forEach(item => {
+                if(item.chatID) id = item.chatID
+            })
+        }
+        return id
+    }
+}
