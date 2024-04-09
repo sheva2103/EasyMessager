@@ -4,7 +4,7 @@ import { UserInfo } from "firebase/auth";
 import { Chat, CurrentUser, Message1 } from "../types/types";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
-import { createChatList } from "../utils/utils";
+import { createChatList, createNewDate } from "../utils/utils";
 
 
 type ProfileApi = {
@@ -21,7 +21,8 @@ type SearchAPI = {
 type MessagesAPI = {
     addChat: (user: string, recipient: CurrentUser, chatID?: string) => Promise<void>,
     sendMessage: (chatID: string, sender: CurrentUser, message: string) => void,
-    getChatID: (name: string) => Promise<string | undefined>
+    getChatID: (name: string) => Promise<string | undefined>,
+    sendEditMessage: (chatID: string, message: Message1) => Promise<void>
 }
 
 export const profileAPI: ProfileApi = {
@@ -64,9 +65,9 @@ export const messagesAPI: MessagesAPI = {
         await setDoc(doc(db, user, "chatList"), { [recipient.email]: chat }, { merge: true });
     },
     async sendMessage(chatID, sender, message) {
-        console.log('api send message chatID:>>>>>', chatID)
+        console.log('api send message chatID:>>>>>', chatID, sender)
         const id = uuidv4()
-        const messageObj: Message1 = { message: message, messageID: id, date: new Date().toLocaleDateString(), read: false, sender: sender }
+        const messageObj: Message1 = { message: message, messageID: id, date: createNewDate(), read: false, sender: sender }
         await setDoc(doc(db, 'chats', chatID), { [id]: messageObj }, { merge: true });
     },
     async getChatID(name) {
@@ -77,9 +78,17 @@ export const messagesAPI: MessagesAPI = {
         if (docSnap.exists()) {
             const data: any = docSnap.data()
             createChatList(data).forEach(item => {
-                if(item.chatID) id = item.chatID
+                if (item.chatID) id = item.chatID
             })
         }
         return id
+    },
+    async sendEditMessage(chatID, message) {
+        const messageRef = doc(db, "chats", chatID);
+
+        const editMessage = {...message, message: message.message, changed: message.changed}
+        await updateDoc(messageRef, {
+            [message.messageID]: editMessage
+        });
     }
 }

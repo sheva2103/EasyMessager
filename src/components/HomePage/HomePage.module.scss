@@ -277,6 +277,17 @@
                 }
             }
 
+            .messageData {
+                display: flex;
+                flex-direction: column;
+
+                .date {
+                    font-size: 0.7rem;
+                    margin-left: auto;
+                    margin-top: 4px;
+                }
+            }
+
             span {
                 //overflow-wrap: anywhere;
                 word-break: break-all;
@@ -364,6 +375,10 @@
 
     & .inputNewMessage__button {
         width: 36px;
+
+        & svg:hover {
+            color:#8774e1
+        }
     }
 
     & textarea {

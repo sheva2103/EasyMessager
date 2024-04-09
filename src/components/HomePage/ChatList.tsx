@@ -34,6 +34,7 @@ const ChatList: FC = () => {
     const [globalSearchUsers, setGlobalSearchUsers] = useState([])
     //const [chats, setChats] = useState<Chat[]>([])
     const myChats = useAppSelector(state => state.app.chatsList)
+    const currentUserEmail = useAppSelector(state => state.app.currentUser.email)
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value)
@@ -56,8 +57,7 @@ const ChatList: FC = () => {
     //     return () => chatsList()
     // }, []);
     
-    const filterChats = [...myChats].filter(item => item.displayName?.includes(name))
-    const filter: Chat[] = [...filterChats, ...globalSearchUsers]
+    const filterMyChats = [...myChats].filter(item => item.displayName?.includes(name))
 
     return (
         <>
@@ -68,18 +68,20 @@ const ChatList: FC = () => {
             </div>
             <div style={{ height: 'calc(100% - 102px)' }}>
                 <ul className={styles.chatList}>
-                    {filterChats.map((item) => (
+                    {filterMyChats.map((item) => (
                         <ChatInfo key={item.uid}
                             {...item}
                         />
                     ))}
-                    <div className={styles.hr}/>
-                    {globalSearchUsers.map((item) => (
-                        <ChatInfo key={item.uid + 'global'}
-                            {...item}
-                        />
-                    ))}
-                    {filter.length === 0 &&
+                    {Boolean(name.length) && <div className={styles.hr}/>}
+                    {globalSearchUsers.map((item: Chat) => {
+                        if(currentUserEmail !== item.email) return (
+                            <ChatInfo key={item.uid + 'global'}
+                                {...item}
+                            />
+                        )
+                    })}
+                    {filterMyChats.length === 0 && globalSearchUsers.length === 0 &&
                         <li className={styles.chatInfo}>Ничего не найдено</li>
                     }
                 </ul>

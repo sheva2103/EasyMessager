@@ -61,7 +61,7 @@ const ChatContent: FC = () => {
             </div>
             <div className={styles.chatWindow}>
                 <main>
-                    <ListMessages />
+                    <ListMessages selectedChat={selectedChat}/>
                     <InputNewMessage chatID={selectedChat.chatID} />
                 </main>
             </div>

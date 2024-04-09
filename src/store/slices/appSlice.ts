@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { Chat, CurrentUser, CurrentUserData, Message } from "../../types/types";
+import { Chat, CurrentUser, CurrentUserData, Message1 } from "../../types/types";
 import { setChat } from "./setChatIDSlice";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -16,8 +16,8 @@ type Menu = {
 type AppState = {
     menu: Menu,
     selectedChat: Chat | null,
-    selectedMessages: Message[],
-    changeMessage: Message | null,
+    selectedMessages: Message1[],
+    changeMessage: Message1 | null,
     isSendMessage: boolean,
     showCheckbox: boolean,
     currentUser: null | CurrentUser,
@@ -68,7 +68,7 @@ export const appSlice = createSlice({
             state.selectedChat = action.payload
             state.selectedMessages = []
         },
-        addSelectedMessage(state, action: PayloadAction<Message>) {
+        addSelectedMessage(state, action: PayloadAction<Message1>) {
             state.selectedMessages.push(action.payload)
         },
         clearSelectedMessage(state) {
@@ -76,10 +76,10 @@ export const appSlice = createSlice({
             state.isSendMessage = false,
             state.showCheckbox = false
         },
-        deleteSelectedMessage(state, action: PayloadAction<Message>) {
-            state.selectedMessages = state.selectedMessages.filter(message => message.id !== action.payload.id)
+        deleteSelectedMessage(state, action: PayloadAction<Message1>) {
+            state.selectedMessages = state.selectedMessages.filter(message => message.messageID !== action.payload.messageID)
         },
-        changeMessage(state, action: PayloadAction<Message | null>) {
+        changeMessage(state, action: PayloadAction<Message1 | null>) {
             state.changeMessage = action.payload
         },
         isSendMessage(state, action: PayloadAction<boolean>) {
@@ -104,7 +104,7 @@ export const appSlice = createSlice({
         },
         setUserData(state, action: PayloadAction<CurrentUserData>) {
             state.currentUser.displayName = action.payload.displayName
-            state.currentUser.photoURL = action.payload.photoURL
+            state.currentUser.photoURL = action.payload.photoURL || ''
         },
         setChatList(state, action: PayloadAction<CurrentUser[]>) {
             state.chatsList = action.payload

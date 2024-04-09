@@ -8,14 +8,14 @@ import Change from '../../assets/change.svg'
 
 import { FC } from "react";
 import { useAppDispatch, useAppSelector } from '../../hooks/hook';
-import { Message, StyleContextMenu } from '../../types/types';
+import { Message1, StyleContextMenu } from '../../types/types';
 import { changeMessage, setShowCheckbox } from '../../store/slices/appSlice';
 
 
 type Props = {
     isOpen: boolean,
     isOwner: boolean,
-    message: Message
+    message: Message1
     closeContextMenu: (e: React.MouseEvent) => void,
     positionMenu: StyleContextMenu
 }

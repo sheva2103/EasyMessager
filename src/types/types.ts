@@ -19,12 +19,7 @@ export type SignInSignUpForm = {
     dataError?: string
 }
 
-export type Message = {
-    name: string,
-    url: string,
-    id: number,
-    message: string
-}
+
 
 export interface StyleContextMenu {
     position: 'relative';
@@ -58,5 +53,6 @@ export type Message1 = {
     messageID: string,
     date: string,
     read: boolean,
-    sender: CurrentUser
+    sender: CurrentUser,
+    changed?: string
 }

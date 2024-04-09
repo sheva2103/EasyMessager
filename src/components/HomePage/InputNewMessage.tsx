@@ -7,6 +7,7 @@ import { TextareaAutosize } from '@mui/base/TextareaAutosize';
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { changeMessage } from "../../store/slices/appSlice";
 import { messagesAPI } from "../../API/api";
+import { createNewDate } from "../../utils/utils";
 
 type Props = {
     chatID: string
@@ -14,7 +15,7 @@ type Props = {
 
 const InputNewMessage: FC<Props> = ({chatID}) => {
 
-    console.log('input new message. chatID>>>>', chatID)
+    
 
     const dispatch = useAppDispatch()
     const selectedChat = useAppSelector(state => state.app.selectedChat)
@@ -30,16 +31,20 @@ const InputNewMessage: FC<Props> = ({chatID}) => {
     const handleChangeEditMessage = (e: ChangeEvent<HTMLTextAreaElement>) => {
         setEditMessage(e.target.value)
     }
+    console.log('input new message. chatID>>>>', chatID, currentUser)
 
     const sendMessage = () => {
         if(!newMessage.trim()) return
         Promise.all([messagesAPI.addChat(currentUser.email, selectedChat, chatID), messagesAPI.addChat(selectedChat.email, currentUser, chatID)])
             .then(() => messagesAPI.sendMessage(chatID, currentUser, newMessage))
+            .then(() => setNewMessage(''))
     }
 
     const sendEditMessage = () => {
-        console.log(editMessage.trim())
-        dispatch(changeMessage(null))
+        if(!editMessage.trim()) return
+        //console.log(editMessage.trim())
+        messagesAPI.sendEditMessage(chatID, {...isEditMessage, message: editMessage, changed: createNewDate()})
+            .then(() => dispatch(changeMessage(null)))
     }
 
     const cancelEiting = () => {
