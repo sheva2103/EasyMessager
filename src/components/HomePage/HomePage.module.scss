@@ -299,7 +299,7 @@
                 border-radius: 16px;
                 border-bottom-left-radius: 0;
                 background-color: rgb(135, 116, 225);
-                padding: 8px;
+                padding: 4px 12px;
                 color: #ffffff;
                 max-width: 70%;
 
@@ -385,6 +385,15 @@
         width: calc(100% - 26px);
         font-size: 1rem;
     }
+
+    .unavailable {
+        display: flex;
+        justify-content: space-between;
+        padding: 4px 12px;
+        align-items: center;
+        width: 100%;
+        cursor: not-allowed;
+    }
 }
 
 .menu {
@@ -444,6 +453,7 @@
                 padding: 8px 12px;
                 white-space: nowrap;
                 font-size: 1rem;
+                cursor: pointer;
                 &:hover {
                     background-color: rgba(90, 90, 90, 0.3294117647);
                 }
@@ -553,6 +563,20 @@
     height: 4px;
     background-color: var(--background-color-content-block);
     border: none;
+}
+
+.hr__container {
+    width: 100%;
+    text-align: center;
+    margin: 6px 0;
+
+    .hr__element {
+        background-color: var(--background-color-message);
+        border-radius: 12px;
+        padding: 4px 6px;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
 }
 
 

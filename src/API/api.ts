@@ -1,4 +1,4 @@
-import { DocumentData, DocumentSnapshot, QueryDocumentSnapshot, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { DocumentData, DocumentSnapshot, QueryDocumentSnapshot, deleteField, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { UserInfo } from "firebase/auth";
 import { Chat, CurrentUser, Message1 } from "../types/types";
@@ -22,7 +22,16 @@ type MessagesAPI = {
     addChat: (user: string, recipient: CurrentUser, chatID?: string) => Promise<void>,
     sendMessage: (chatID: string, sender: CurrentUser, message: string) => void,
     getChatID: (name: string) => Promise<string | undefined>,
-    sendEditMessage: (chatID: string, message: Message1) => Promise<void>
+    sendEditMessage: (chatID: string, message: Message1) => Promise<void>,
+    deleteMessage: (chatID: string, message: Message1) => Promise<void>,
+    forwardedMessageFrom: (chatID: string, sender: CurrentUser, message: string, forwardedFrom: Chat) => Promise<void>
+}
+
+type ContactsAPI = {
+    addToContacts: (currentUser: string, newContact: Chat) => Promise<void>,
+    removeFromContacts: (currentUser: string, contact: CurrentUser) => Promise<void>,
+    addToBlacklist: (currentUser: string, contact: Chat) => Promise<void>,
+    removeFromBlacklist: (currentUser: string, contact: CurrentUser) => Promise<void>
 }
 
 export const profileAPI: ProfileApi = {
@@ -86,9 +95,44 @@ export const messagesAPI: MessagesAPI = {
     async sendEditMessage(chatID, message) {
         const messageRef = doc(db, "chats", chatID);
 
-        const editMessage = {...message, message: message.message, changed: message.changed}
+        const editMessage = { ...message, message: message.message, changed: message.changed }
         await updateDoc(messageRef, {
             [message.messageID]: editMessage
+        });
+    },
+    async deleteMessage(chatID, message) {
+        const messageRef = doc(db, "chats", chatID);
+
+        await updateDoc(messageRef, {
+            [message.messageID]: deleteField()
+        });
+    },
+    async forwardedMessageFrom(chatID, sender, message, forwardedFrom) {
+        const id = uuidv4()
+        const messageObj: Message1 = { message: message, messageID: id, date: createNewDate(), read: false, sender: sender, forwardedFrom}
+        await setDoc(doc(db, 'chats', chatID), { [id]: messageObj }, { merge: true });
+    }
+}
+
+export const contactsAPI: ContactsAPI = {
+    async addToContacts(currentUser, newContact) {
+        await setDoc(doc(db, currentUser, "contacts"), { [newContact.uid]: newContact }, { merge: true });
+    },
+    async removeFromContacts(currentUser, contact) {
+        const contactsRef = doc(db, currentUser, 'contacts');
+        
+        await updateDoc(contactsRef, {
+            [contact.uid]: deleteField()
+        });
+    },
+    async addToBlacklist(currentUser, contact) {
+        await setDoc(doc(db, currentUser, "blacklist"), { [contact.uid]: contact }, { merge: true });
+    },
+    async removeFromBlacklist(currentUser, contact) {
+        const contactsRef = doc(db, currentUser, 'blacklist');
+        
+        await updateDoc(contactsRef, {
+            [contact.uid]: deleteField()
         });
     }
 }

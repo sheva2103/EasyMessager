@@ -3,12 +3,13 @@ import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import styles from './HomePage.module.scss'
 import classNames from "classnames";
 import ArrowLeftIcon from '../../assets/box-arrow-left.svg'
-import { selectChat } from "../../store/slices/appSlice";
+//import { selectChat } from "../../store/slices/appSlice";
 import ListMessages from "./ListMessage";
 import InputNewMessage from "./InputNewMessage";
 import BlockControl from "./BlockControl";
 import UserManagementMenu from "./UserManagementMenu";
 import Preloader from '../../assets/preloader.svg'
+import { setChat } from "../../store/slices/setChatIDSlice";
 
 
 const ChatContent: FC = () => {
@@ -17,7 +18,8 @@ const ChatContent: FC = () => {
     const isLoadData = useAppSelector(state => state.app.loadChat)
     const dispatch = useAppDispatch()
     const closeChat = () => {
-        dispatch(selectChat(null))
+        //dispatch(selectChat(null))
+        dispatch(setChat(null))
     }
     const showCheckbox = useAppSelector(state => state.app.showCheckbox)
 
@@ -54,7 +56,7 @@ const ChatContent: FC = () => {
                             {showCheckbox &&
                                 <BlockControl />
                             }
-                            <UserManagementMenu />
+                            <UserManagementMenu chatInfo={selectedChat}/>
                         </div>
                     </div>
                 </header>
@@ -62,7 +64,7 @@ const ChatContent: FC = () => {
             <div className={styles.chatWindow}>
                 <main>
                     <ListMessages selectedChat={selectedChat}/>
-                    <InputNewMessage chatID={selectedChat.chatID} />
+                    <InputNewMessage chatInfo={selectedChat} />
                 </main>
             </div>
         </div>

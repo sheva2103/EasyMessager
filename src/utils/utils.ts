@@ -33,3 +33,11 @@ export function createNewDate(): string {
     const time = `${hours}:${minutes}:${seconds}`
     return `${date} ${time}`
 }
+
+export function getTimeFromDate(date: string): string {
+    return date.split(' ')[1].split(':').slice(0,2).join(':')
+}
+
+export function getDatefromDate(date: string): string {
+    return date.split(' ')[0]
+}

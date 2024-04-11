@@ -6,6 +6,7 @@ import ContextMenu from "./ContextMenu";
 import SelectMessageInput from "./SelectMessageInput";
 import { Message1, StyleContextMenu } from "../../types/types";
 import { useAppSelector } from "../../hooks/hook";
+import { getTimeFromDate } from "../../utils/utils";
 
 
 function checkMessage(str: string): string {
@@ -140,7 +141,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
 
     const refSpan = useRef<HTMLDivElement>(null)
 
-    console.log('message render')
+    //console.log('message render')
 
     return (
         <li>
@@ -164,7 +165,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
                     dangerouslySetInnerHTML={{ __html: checkMessage(messageInfo.message) }}
                 >
                 </span>
-                <span className={styles.date}>{messageInfo.changed ? `ред.${messageInfo.changed}` : messageInfo.date}</span>
+                <span className={styles.date}>{messageInfo.changed ? `ред.${getTimeFromDate(messageInfo.changed)}` : getTimeFromDate(messageInfo.date)}</span>
             </div>
             {contextMenuIsOpen &&
                 <ContextMenu

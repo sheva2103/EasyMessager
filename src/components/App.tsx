@@ -54,10 +54,11 @@ export const App = () => {
     useEffect(() => {
         if(currentUser?.email) {
             const getChatList = onSnapshot(doc(db, currentUser.email, "chatList"), (doc: DocumentSnapshot<CurrentUser[]>) => {
-                console.log("chatlist: ", doc.data());
+                //console.log("chatlist: ", doc.data());
                 if(doc.data()) dispatch(setChatList(createChatList(doc.data())))
-                return () => getChatList()
+                //return () => getChatList()
             });
+            return () => getChatList()
         }
     }, [currentUser?.email]);
 

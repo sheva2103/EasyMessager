@@ -22,7 +22,7 @@ type AppState = {
     showCheckbox: boolean,
     currentUser: null | CurrentUser,
     blackList: CurrentUser[],
-    contacts: CurrentUser[],
+    contacts: Chat[],
     chatsList: CurrentUser[],
     loadChat: boolean
 }
@@ -64,11 +64,12 @@ export const appSlice = createSlice({
             state.menu.menuChild = action.payload
             if(!state.menu.cover) state.menu.cover = true
         },
-        selectChat(state, action: PayloadAction<Chat>) {
-            state.selectedChat = action.payload
-            state.selectedMessages = []
-        },
+        // selectChat(state, action: PayloadAction<Chat>) {
+        //     state.selectedChat = action.payload
+        //     state.selectedMessages = []
+        // },
         addSelectedMessage(state, action: PayloadAction<Message1>) {
+            if(state.selectedMessages.some(item => item.messageID === action.payload.messageID)) return //изменил
             state.selectedMessages.push(action.payload)
         },
         clearSelectedMessage(state) {
@@ -109,6 +110,12 @@ export const appSlice = createSlice({
         setChatList(state, action: PayloadAction<CurrentUser[]>) {
             state.chatsList = action.payload
         },
+        setContacts(state, action: PayloadAction<CurrentUser[]>) {
+            state.contacts = action.payload
+        },
+        setBlacklist(state, action: PayloadAction<CurrentUser[]>) {
+            state.blackList = action.payload
+        },
         setLoadChat(state, action: PayloadAction<boolean>) {
             state.loadChat = false
         }
@@ -123,6 +130,8 @@ export const appSlice = createSlice({
             })
             .addCase(setChat.fulfilled, (state, action) => {
                 state.selectedChat = action.payload
+                if(state.selectedMessages.length) state.selectedMessages = []
+                if(state.showCheckbox) state.showCheckbox = false
             })
     }
 })
@@ -130,7 +139,7 @@ export const appSlice = createSlice({
 export const {openMenu,
                 closeMenu,
                 closeBar, 
-                selectChat, 
+                //selectChat, 
                 addSelectedMessage, 
                 deleteSelectedMessage, 
                 changeMessage, 
@@ -140,6 +149,8 @@ export const {openMenu,
                 setUser,
                 setUserData,
                 setChatList,
-                setLoadChat
+                setLoadChat,
+                setContacts,
+                setBlacklist
             } = appSlice.actions
 export default appSlice.reducer

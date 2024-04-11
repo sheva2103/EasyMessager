@@ -8,9 +8,11 @@ type UserData = {
 }
 
 
-export const setChat = createAsyncThunk<Chat, UserData, {rejectValue: Chat}>(
+export const setChat = createAsyncThunk<Chat, UserData | null, {rejectValue: Chat}>(
     'app/getChatId',
     async (users, {rejectWithValue}) => {
+
+        if(users === null) return null
         
         if(users.guestInfo?.chatID) return users.guestInfo
 

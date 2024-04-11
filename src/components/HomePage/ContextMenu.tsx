@@ -9,7 +9,10 @@ import Change from '../../assets/change.svg'
 import { FC } from "react";
 import { useAppDispatch, useAppSelector } from '../../hooks/hook';
 import { Message1, StyleContextMenu } from '../../types/types';
-import { changeMessage, setShowCheckbox } from '../../store/slices/appSlice';
+import { addSelectedMessage, changeMessage, closeBar, isSendMessage, setShowCheckbox } from '../../store/slices/appSlice';
+import { messagesAPI } from '../../API/api';
+import { useBlacList } from '../../hooks/useBlackList';
+import { CONTACTS } from '../../constants/constants';
 
 
 type Props = {
@@ -26,6 +29,7 @@ const ContextMenu: FC<Props> = ({ isOpen, closeContextMenu, isOwner, message, po
 
     const dispatch = useAppDispatch()
     const showCheckbox = useAppSelector(state => state.app.showCheckbox)
+    const chatID = useAppSelector(state => state.app.selectedChat.chatID)
 
     const copyMessage = () => {
         navigator.clipboard.writeText(message.message);
@@ -39,6 +43,19 @@ const ContextMenu: FC<Props> = ({ isOpen, closeContextMenu, isOwner, message, po
         dispatch(setShowCheckbox(true))
     }
 
+    const deleteMessage = () => {
+        messagesAPI.deleteMessage(chatID ,message)
+    }
+
+    const forwardMessage = () => {
+        dispatch(addSelectedMessage(message))
+        dispatch(isSendMessage(true))
+        dispatch(closeBar(CONTACTS))
+    }
+
+    const ban = useBlacList()
+    console.log(ban)
+
     return (
         <div
             className={classNames(styles.cover, { [styles.showContextMenu]: isOpen })}
@@ -47,12 +64,12 @@ const ContextMenu: FC<Props> = ({ isOpen, closeContextMenu, isOwner, message, po
         >
             <div style={positionMenu} className={styles.contextMenu}>
                 <ul >
-                    <li onClick={(e) => e.stopPropagation()}><SendMessage /><span>Переслать</span></li>
+                    <li onClick={forwardMessage}><SendMessage /><span>Переслать</span></li>
                     <li onClick={copyMessage}><Copy /><span>Копировать текст</span></li>
                     {isOwner && !showCheckbox &&
                         <li onClick={change}><Change/><span>Изменить</span></li>
                     }
-                    <li><Delete /><span>Удалить</span></li>
+                    <li onClick={deleteMessage}><Delete /><span>Удалить</span></li>
                     {!showCheckbox &&
                         <li
                             onClick={selectSeveral}
