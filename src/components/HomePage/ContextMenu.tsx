@@ -28,7 +28,6 @@ type Props = {
 const ContextMenu: FC<Props> = ({ isOpen, closeContextMenu, isOwner, message, positionMenu }) => {
 
     const dispatch = useAppDispatch()
-    const showCheckbox = useAppSelector(state => state.app.showCheckbox)
     const chatID = useAppSelector(state => state.app.selectedChat.chatID)
 
     const copyMessage = () => {
@@ -44,7 +43,7 @@ const ContextMenu: FC<Props> = ({ isOpen, closeContextMenu, isOwner, message, po
     }
 
     const deleteMessage = () => {
-        messagesAPI.deleteMessage(chatID ,message)
+        messagesAPI.deleteMessage(chatID, message)
     }
 
     const forwardMessage = () => {
@@ -66,19 +65,17 @@ const ContextMenu: FC<Props> = ({ isOpen, closeContextMenu, isOwner, message, po
                 <ul >
                     <li onClick={forwardMessage}><SendMessage /><span>Переслать</span></li>
                     <li onClick={copyMessage}><Copy /><span>Копировать текст</span></li>
-                    {isOwner && !showCheckbox &&
-                        <li onClick={change}><Change/><span>Изменить</span></li>
+                    {isOwner &&
+                        <li onClick={change}><Change /><span>Изменить</span></li>
                     }
                     <li onClick={deleteMessage}><Delete /><span>Удалить</span></li>
-                    {!showCheckbox &&
-                        <li
-                            onClick={selectSeveral}
-                            className={classNames(styles.selectSeveral)}
-                        >
-                            <Select />
-                            <span>Выбрать несколько</span>
-                        </li>
-                    }
+                    <li
+                        onClick={selectSeveral}
+                        className={classNames(styles.selectSeveral)}
+                    >
+                        <Select />
+                        <span>Выбрать несколько</span>
+                    </li>
                 </ul>
             </div>
         </div>

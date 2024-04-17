@@ -1,4 +1,4 @@
-import { DocumentData, DocumentSnapshot, QueryDocumentSnapshot, deleteField, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { QueryDocumentSnapshot, deleteField, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { UserInfo } from "firebase/auth";
 import { Chat, CurrentUser, Message1 } from "../types/types";
@@ -21,7 +21,7 @@ type SearchAPI = {
 type MessagesAPI = {
     addChat: (user: string, recipient: CurrentUser, chatID?: string) => Promise<void>,
     sendMessage: (chatID: string, sender: CurrentUser, message: string) => void,
-    getChatID: (name: string) => Promise<string | undefined>,
+    getChatID: (name: string, searchName: string) => Promise<string | undefined>,
     sendEditMessage: (chatID: string, message: Message1) => Promise<void>,
     deleteMessage: (chatID: string, message: Message1) => Promise<void>,
     forwardedMessageFrom: (chatID: string, sender: CurrentUser, message: string, forwardedFrom: Chat) => Promise<void>
@@ -37,7 +37,7 @@ type ContactsAPI = {
 export const profileAPI: ProfileApi = {
 
     async createNewUserInDB(user) {
-        await setDoc(doc(db, "users", user.email), {
+        await setDoc(doc(db, "users", user.uid), {
             email: user.email,
             displayName: user.email.slice(0, user.email.indexOf('@')),
             uid: user.uid,
@@ -45,7 +45,7 @@ export const profileAPI: ProfileApi = {
         });
     },
     async changeUserInfo(data) {
-        const userRef = doc(db, "users", data.email);
+        const userRef = doc(db, "users", data.uid);
         await updateDoc(userRef, {
             photoURL: data.photoURL,
             displayName: data.displayName
@@ -71,7 +71,7 @@ export const messagesAPI: MessagesAPI = {
     async addChat(user, recipient, chatID) {
         console.log('addchat>>>>', user)
         const chat: Chat = { chatID, displayName: recipient.displayName, email: recipient.email, uid: recipient.uid }
-        await setDoc(doc(db, user, "chatList"), { [recipient.email]: chat }, { merge: true });
+        await setDoc(doc(db, user, "chatList"), { [recipient.uid]: chat }, { merge: true });
     },
     async sendMessage(chatID, sender, message) {
         console.log('api send message chatID:>>>>>', chatID, sender)
@@ -79,15 +79,18 @@ export const messagesAPI: MessagesAPI = {
         const messageObj: Message1 = { message: message, messageID: id, date: createNewDate(), read: false, sender: sender }
         await setDoc(doc(db, 'chats', chatID), { [id]: messageObj }, { merge: true });
     },
-    async getChatID(name) {
+    async getChatID(name, searchName) {
         let id = undefined
         console.log('getchatID')
         const docRef = doc(db, name, "chatList");
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
             const data: any = docSnap.data()
+            //console.log('get chat id>>>>>>', docSnap.data())
             createChatList(data).forEach(item => {
-                if (item.chatID) id = item.chatID
+                //if (item.chatID) id = item.chatID
+                console.log('foreach>>>>>',name ,item)
+                if (item.email === searchName) id = item.chatID
             })
         }
         return id
@@ -109,7 +112,7 @@ export const messagesAPI: MessagesAPI = {
     },
     async forwardedMessageFrom(chatID, sender, message, forwardedFrom) {
         const id = uuidv4()
-        const messageObj: Message1 = { message: message, messageID: id, date: createNewDate(), read: false, sender: sender, forwardedFrom}
+        const messageObj: Message1 = { message: message, messageID: id, date: createNewDate(), read: false, sender: sender, forwardedFrom }
         await setDoc(doc(db, 'chats', chatID), { [id]: messageObj }, { merge: true });
     }
 }
@@ -120,7 +123,7 @@ export const contactsAPI: ContactsAPI = {
     },
     async removeFromContacts(currentUser, contact) {
         const contactsRef = doc(db, currentUser, 'contacts');
-        
+
         await updateDoc(contactsRef, {
             [contact.uid]: deleteField()
         });
@@ -130,7 +133,7 @@ export const contactsAPI: ContactsAPI = {
     },
     async removeFromBlacklist(currentUser, contact) {
         const contactsRef = doc(db, currentUser, 'blacklist');
-        
+
         await updateDoc(contactsRef, {
             [contact.uid]: deleteField()
         });

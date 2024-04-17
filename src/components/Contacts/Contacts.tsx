@@ -61,16 +61,12 @@ const Contacts: FC = () => {
                     dispatch(clearSelectedMessage())
                 })
                 .finally(() => setSending(false))
-            //dispatch(closeMenu())
-            //dispatch(clearSelectedMessage())
             return
         }
-        //dispatch(selectChat(user))
         dispatch(setChat({currentUserEmail: user.email, guestInfo: user}))
         dispatch(closeMenu())
     }
 
-    //const filter = test.filter(item => item.displayName.includes(name))
     const filter = contactsList.filter(item => item.displayName.includes(name))
 
     return (

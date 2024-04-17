@@ -3,7 +3,7 @@ import MenuIcon from '../../assets/menu-icon.svg'
 import classNames from 'classnames';
 import MenuComponent from '../MenuComponent/MenuComponent';
 import { useAppDispatch, useAppSelector } from '../../hooks/hook';
-import { openMenu, setBlacklist, setContacts } from '../../store/slices/appSlice';
+import { openMenu, setBlacklist, setChatList, setContacts } from '../../store/slices/appSlice';
 import ChatContent from './ChatContent';
 import ChatList from './ChatList';
 import { useEffect } from 'react';
@@ -39,6 +39,15 @@ const HomaPage = () => {
             if(doc.data()) dispatch(setBlacklist(createChatList(doc.data())))
         });
         return () => getBlacklist()
+    }, [currentUserEmail]);
+
+    useEffect(() => {
+        if(currentUserEmail) {
+            const getChatList = onSnapshot(doc(db, currentUserEmail, "chatList"), (doc: DocumentSnapshot<CurrentUser[]>) => {
+                if(doc.data()) dispatch(setChatList(createChatList(doc.data())))
+            });
+            return () => getChatList()
+        }
     }, [currentUserEmail]);
 
     return (  

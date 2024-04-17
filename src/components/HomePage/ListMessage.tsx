@@ -39,7 +39,7 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
             setList(createMessageList(doc.data()))
         });
         return () => messages()
-    }, []);
+    }, [selectedChat.uid]);
 
     return (
         <div className={styles.listMessages}>

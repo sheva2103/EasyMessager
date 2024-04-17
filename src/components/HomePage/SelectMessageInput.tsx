@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { FC, useEffect, useState } from "react";
+import { FC, memo, useEffect, useState } from "react";
 import styles from './HomePage.module.scss'
 import { Message1 } from "../../types/types";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
@@ -68,4 +68,4 @@ const SelectMessageInput: FC<Props> = ({ messageInfo }) => {
     );
 }
 
-export default SelectMessageInput;
+export default memo(SelectMessageInput);
