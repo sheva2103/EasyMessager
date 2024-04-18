@@ -53,6 +53,7 @@ const ChatList: FC = () => {
                         if(currentUserEmail !== item.email) return (
                             <ChatInfo key={item.uid + 'global'}
                                 {...item}
+                                globalSearch
                             />
                         )
                     })}

@@ -10,6 +10,7 @@ import { createChatList, createNewDate } from "../utils/utils";
 type ProfileApi = {
     createNewUserInDB: (e: UserInfo) => void,
     changeUserInfo: (data: CurrentUser) => void,
+    getCurrentInfo: (uid: string) => Promise<CurrentUser | null>
 }
 
 type SearchAPI = {
@@ -50,6 +51,17 @@ export const profileAPI: ProfileApi = {
             photoURL: data.photoURL,
             displayName: data.displayName
         });
+    },
+    async getCurrentInfo(uid) {
+        const userRef = doc(db, "users", uid);
+        const docSnap = await getDoc(userRef);
+
+        if (docSnap.exists()) {
+            const info: any = docSnap.data()
+            return info
+        } else {
+            return null
+        }
     }
 }
 
@@ -89,7 +101,7 @@ export const messagesAPI: MessagesAPI = {
             //console.log('get chat id>>>>>>', docSnap.data())
             createChatList(data).forEach(item => {
                 //if (item.chatID) id = item.chatID
-                console.log('foreach>>>>>',name ,item)
+                console.log('foreach>>>>>', name, item)
                 if (item.email === searchName) id = item.chatID
             })
         }
