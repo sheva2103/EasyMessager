@@ -4,7 +4,7 @@ import RemoveFromContacts from '../../assets/person-dash.svg'
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { clearSelectedMessage, closeMenu } from "../../store/slices/appSlice";
 import { Chat, CurrentUser } from "../../types/types";
-import { messagesAPI } from "../../API/api";
+import { contactsAPI, messagesAPI } from "../../API/api";
 import { setChat } from "../../store/slices/setChatIDSlice";
 
 const test: CurrentUser[] = [
@@ -40,8 +40,9 @@ const Contacts: FC = () => {
         setName(e.target.value)
     }
 
-    const removeFromContacts = (e: React.MouseEvent) => {
+    const removeFromContacts = (e: React.MouseEvent, contact: Chat) => {
         e.stopPropagation()
+        contactsAPI.removeFromContacts(currentUser.email, contact)
         console.log('удалён из контактов')
     }
 
@@ -87,7 +88,7 @@ const Contacts: FC = () => {
                         <li key={String(item.uid)} onClick={() => handleClickName(item)}>
                             <span >{item.displayName}</span>
                             {!isSend && <div title="Удалить из друзей"
-                                onClick={removeFromContacts}
+                                onClick={(e) => removeFromContacts(e, item)}
                             >
                                 <RemoveFromContacts />
                             </div>}

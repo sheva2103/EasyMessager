@@ -16,6 +16,7 @@ const UserManagementMenu: FC<Props> = ({chatInfo}) => {
     const currentUserEmail = useAppSelector(state => state.app.currentUser.email)
     const contactsList = useAppSelector(state => state.app.contacts)
     const blackList = useAppSelector(state => state.app.blackList)
+    const selectedChat = useAppSelector(state => state.app.selectedChat)
 
     const addToContacts = () => {
         contactsAPI.addToContacts(currentUserEmail, chatInfo)
@@ -37,7 +38,7 @@ const UserManagementMenu: FC<Props> = ({chatInfo}) => {
             .then(() => setOpen(false))
     }
 
-    const isContact = useMemo(() => contactsList.some(item => item.email === chatInfo.email), [contactsList.length])
+    const isContact = useMemo(() => contactsList.some(item => item.email === chatInfo.email), [selectedChat, contactsList.length])
     const isBlackList = useMemo(() => blackList.some(item => item.email === chatInfo.email), [blackList.length])
 
     const onKeyDown = (e: React.KeyboardEvent) => {
