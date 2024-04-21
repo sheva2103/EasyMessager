@@ -81,12 +81,11 @@ export const searchAPI: SearchAPI = {
 export const messagesAPI: MessagesAPI = {
 
     async addChat(user, recipient, chatID) {
-        console.log('addchat>>>>', user)
         const chat: Chat = { chatID, displayName: recipient.displayName, email: recipient.email, uid: recipient.uid }
         await setDoc(doc(db, user, "chatList"), { [recipient.uid]: chat }, { merge: true });
     },
     async sendMessage(chatID, sender, message) {
-        console.log('api send message chatID:>>>>>', chatID, sender)
+        //console.log('api send message chatID:>>>>>', chatID, sender)
         const id = uuidv4()
         const messageObj: Message1 = { message: message, messageID: id, date: createNewDate(), read: false, sender: sender }
         await setDoc(doc(db, 'chats', chatID), { [id]: messageObj }, { merge: true });

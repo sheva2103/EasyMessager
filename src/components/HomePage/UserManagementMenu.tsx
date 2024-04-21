@@ -39,7 +39,7 @@ const UserManagementMenu: FC<Props> = ({chatInfo}) => {
     }
 
     const isContact = useMemo(() => contactsList.some(item => item.email === chatInfo.email), [selectedChat, contactsList.length])
-    const isBlackList = useMemo(() => blackList.some(item => item.email === chatInfo.email), [blackList.length])
+    const isBlackList = useMemo(() => blackList.some(item => item.email === chatInfo.email), [blackList.length, selectedChat])
 
     const onKeyDown = (e: React.KeyboardEvent) => {
         if(e.key === 'Enter') setOpen(!isOpen)

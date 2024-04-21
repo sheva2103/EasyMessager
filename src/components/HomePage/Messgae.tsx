@@ -71,7 +71,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
 
     const refSpan = useRef<HTMLDivElement>(null)
 
-    //console.log('message render')
+    console.log('message render')
 
     return (
         <li>

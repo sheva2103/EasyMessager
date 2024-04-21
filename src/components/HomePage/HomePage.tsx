@@ -34,20 +34,19 @@ const HomaPage = () => {
     }, [currentUserEmail]);
 
     useEffect(() => {
-        const getBlacklist = onSnapshot(doc(db, currentUserEmail, "blacklist"), (doc: DocumentSnapshot<CurrentUser[]>) => {
-            console.log("blacklist: ", doc.data());
-            if(doc.data()) dispatch(setBlacklist(createChatList(doc.data())))
-        });
-        return () => getBlacklist()
-    }, [currentUserEmail]);
-
-    useEffect(() => {
         if(currentUserEmail) {
             const getChatList = onSnapshot(doc(db, currentUserEmail, "chatList"), (doc: DocumentSnapshot<CurrentUser[]>) => {
                 if(doc.data()) dispatch(setChatList(createChatList(doc.data())))
             });
             return () => getChatList()
         }
+    }, [currentUserEmail]);
+    
+    useEffect(() => {
+        const getBlackList = onSnapshot(doc(db, currentUserEmail, "blacklist"), (doc: DocumentSnapshot<CurrentUser[]>) => {
+            if(doc.data()) dispatch(setBlacklist(createChatList(doc.data())))
+        });
+        return () => getBlackList()
     }, [currentUserEmail]);
 
     return (  

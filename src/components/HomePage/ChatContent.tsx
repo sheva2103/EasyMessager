@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import styles from './HomePage.module.scss'
 import classNames from "classnames";
@@ -6,10 +6,10 @@ import ArrowLeftIcon from '../../assets/box-arrow-left.svg'
 //import { selectChat } from "../../store/slices/appSlice";
 import ListMessages from "./ListMessage";
 import InputNewMessage from "./InputNewMessage";
-import BlockControl from "./BlockControl";
-import UserManagementMenu from "./UserManagementMenu";
 import Preloader from '../../assets/preloader.svg'
 import { setChat } from "../../store/slices/setChatIDSlice";
+import ChatMenu from "./ChatMenu";
+import MessageInputField from "./MessageInputField";
 
 
 const ChatContent: FC = () => {
@@ -21,7 +21,6 @@ const ChatContent: FC = () => {
         //dispatch(selectChat(null))
         dispatch(setChat(null))
     }
-    const showCheckbox = useAppSelector(state => state.app.showCheckbox)
 
     // if(isLoadData) {
     //     return (
@@ -40,6 +39,8 @@ const ChatContent: FC = () => {
             </div>
         )
     }
+    
+    //console.log('chat content render')
 
     return (
         <div className={classNames(styles.contentContainer, { [styles.showContent]: selectedChat })}>
@@ -52,19 +53,15 @@ const ChatContent: FC = () => {
                         <div className={styles.contentHeader__selectedChat}>
                             <span>{selectedChat.displayName}</span>
                         </div>
-                        <div className={styles.menu}>
-                            {showCheckbox &&
-                                <BlockControl />
-                            }
-                            <UserManagementMenu chatInfo={selectedChat}/>
-                        </div>
+                        <ChatMenu selectedChat={selectedChat}/>
                     </div>
                 </header>
             </div>
             <div className={styles.chatWindow}>
                 <main>
                     <ListMessages selectedChat={selectedChat}/>
-                    <InputNewMessage chatInfo={selectedChat} />
+                    {/* <InputNewMessage chatInfo={selectedChat} /> */}
+                    <MessageInputField selectedChat={selectedChat} />
                 </main>
             </div>
         </div>

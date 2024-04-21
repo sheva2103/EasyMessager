@@ -34,6 +34,8 @@ const ChatList: FC = () => {
     
     const filterMyChats = [...myChats].filter(item => item.displayName?.includes(name))
 
+    console.log('chat list render')
+
     return (
         <>
             <div className={styles.item}>

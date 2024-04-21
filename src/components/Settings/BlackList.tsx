@@ -5,16 +5,14 @@ import ArrowUp from '../../assets/caret-up-fill.svg'
 import BlackListIcon from '../../assets/ban.svg'
 import classNames from "classnames";
 import ListItem from "./ListItem";
-import styled from "styled-components";
-
-const List = styled.ul<{ $open?: boolean; }>`
-    
-`
+import { useAppSelector } from "../../hooks/hook";
 
 
 const BlackList: FC = () => {
 
     const [open, setOpen] = useState(false)
+    const list = useAppSelector(state => state.app.blackList)
+    const currentUserEmail = useAppSelector(state => state.app.currentUser.email)
 
     return (
         <div className={styles.item}>
@@ -26,10 +24,10 @@ const BlackList: FC = () => {
                     <div>
                         <span style={{cursor: 'pointer'}}>Чёрный список</span>
                     </div>
-                    {open === !true ?
-                        <ArrowDown cursor={'pointer'}/>
-                        :
+                    {open ?
                         <ArrowUp cursor={'pointer'}/>
+                        :
+                        <ArrowDown cursor={'pointer'}/>
                 }
                 </div>
             </div>
@@ -37,21 +35,16 @@ const BlackList: FC = () => {
                 {/* <label htmlFor='check-menu'>Чёрный список</label>
                 <input type="checkbox" id="check-menu" className={styles.checkMenu}/> */}
                 <ul className={classNames(styles.dropDawn, {[styles.show]: open})}>
-                    <ListItem />
-                    <ListItem />
-                    <ListItem />
-                    <ListItem />
-                    <ListItem />
-                    <ListItem />
-                    <ListItem />
-                    <ListItem />
-                    <ListItem />
-                    <ListItem />
-                    <ListItem />
-                    <ListItem />
-                    <ListItem />
-                    <ListItem />
-                    <ListItem />
+                    {list.map(item => <ListItem key={item.uid} user={item} currentUserEmail={currentUserEmail}/>)}
+                    {/* {list.map(item => <ListItem key={item.uid} user={item} currentUserEmail={currentUserEmail}/>)}
+                    {list.map(item => <ListItem key={item.uid} user={item} currentUserEmail={currentUserEmail}/>)}
+                    {list.map(item => <ListItem key={item.uid} user={item} currentUserEmail={currentUserEmail}/>)}
+                    {list.map(item => <ListItem key={item.uid} user={item} currentUserEmail={currentUserEmail}/>)}
+                    {list.map(item => <ListItem key={item.uid} user={item} currentUserEmail={currentUserEmail}/>)}
+                    {list.map(item => <ListItem key={item.uid} user={item} currentUserEmail={currentUserEmail}/>)}
+                    {list.map(item => <ListItem key={item.uid} user={item} currentUserEmail={currentUserEmail}/>)}
+                    {list.map(item => <ListItem key={item.uid} user={item} currentUserEmail={currentUserEmail}/>)}
+                    {list.map(item => <ListItem key={item.uid} user={item} currentUserEmail={currentUserEmail}/>)} */}
                 </ul>
             </div>
         </div>

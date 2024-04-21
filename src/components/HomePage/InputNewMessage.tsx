@@ -23,9 +23,7 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
     const selectedChat = useAppSelector(state => state.app.selectedChat)
     const currentUser = useAppSelector(state => state.app.currentUser)
     const isEditMessage = useAppSelector(state => state.app.changeMessage)
-    const blackList = useAppSelector(state => state.app.blackList)
 
-    const isBlackList = useMemo(() => blackList.some(item => item.email === chatInfo.email), [blackList.length])
     const [newMessage, setNewMessage] = useState('')
     const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
         setNewMessage(e.target.value)
@@ -76,39 +74,35 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
 
     return (
         <div className={styles.inputNewMessage}>
-            {!isBlackList ?
-                <><div className={styles.inputNewMessage__textarea}>
-                    {isEditMessage &&
-                        <div className={styles.textarea__isEdit}>
-                            <span>Редактирование</span>
-                            <CloseIcon onClick={cancelEiting} />
-                        </div>
-                    }
-                    {!isEditMessage ?
-                        <TextareaAutosize
-                            maxRows={3}
-                            value={newMessage}
-                            onChange={handleChange}
-                        />
-                        :
-                        <TextareaAutosize
-                            maxRows={3}
-                            value={editMessage}
-                            onChange={handleChangeEditMessage}
-                            ref={refTextarea}
-                        />
-                    }
-                </div>
-                    <div className={styles.inputNewMessage__button}>
-                        <SendMessageIcon
-                            fontSize={'2rem'}
-                            cursor={'pointer'}
-                            onClick={!isEditMessage ? sendMessage : sendEditMessage}
-                        />
-                    </div></>
-                :
-                <MessagesAreProhibited />
-            }
+            <div className={styles.inputNewMessage__textarea}>
+                {isEditMessage &&
+                    <div className={styles.textarea__isEdit}>
+                        <span>Редактирование</span>
+                        <CloseIcon onClick={cancelEiting} />
+                    </div>
+                }
+                {!isEditMessage ?
+                    <TextareaAutosize
+                        maxRows={3}
+                        value={newMessage}
+                        onChange={handleChange}
+                    />
+                    :
+                    <TextareaAutosize
+                        maxRows={3}
+                        value={editMessage}
+                        onChange={handleChangeEditMessage}
+                        ref={refTextarea}
+                    />
+                }
+            </div>
+            <div className={styles.inputNewMessage__button}>
+                <SendMessageIcon
+                    fontSize={'2rem'}
+                    cursor={'pointer'}
+                    onClick={!isEditMessage ? sendMessage : sendEditMessage}
+                />
+            </div>
         </div>
     );
 }

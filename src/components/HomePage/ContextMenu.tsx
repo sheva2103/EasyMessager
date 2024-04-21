@@ -11,7 +11,6 @@ import { useAppDispatch, useAppSelector } from '../../hooks/hook';
 import { Message1, StyleContextMenu } from '../../types/types';
 import { addSelectedMessage, changeMessage, closeBar, isSendMessage, setShowCheckbox } from '../../store/slices/appSlice';
 import { messagesAPI } from '../../API/api';
-import { useBlacList } from '../../hooks/useBlackList';
 import { CONTACTS } from '../../constants/constants';
 
 
@@ -51,9 +50,6 @@ const ContextMenu: FC<Props> = ({ isOpen, closeContextMenu, isOwner, message, po
         dispatch(isSendMessage(true))
         dispatch(closeBar(CONTACTS))
     }
-
-    const ban = useBlacList()
-    console.log(ban)
 
     return (
         <div
