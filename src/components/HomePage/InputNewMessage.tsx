@@ -9,7 +9,6 @@ import { changeMessage } from "../../store/slices/appSlice";
 import { messagesAPI } from "../../API/api";
 import { createNewDate } from "../../utils/utils";
 import { Chat } from "../../types/types";
-import MessagesAreProhibited from "./MessagesAreProhibited";
 
 type Props = {
     chatInfo: Chat
@@ -36,6 +35,7 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
     }
 
     const sendMessage = () => {
+        console.log('send message', !newMessage.trim())
         if (!newMessage.trim()) return
         Promise.all([messagesAPI.addChat(currentUser.email, selectedChat, chatInfo.chatID), messagesAPI.addChat(selectedChat.email, currentUser, chatInfo.chatID)])
             .then(() => messagesAPI.sendMessage(chatInfo.chatID, currentUser, newMessage))
@@ -44,7 +44,6 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
 
     const sendEditMessage = () => {
         if (!editMessage.trim()) return
-        //console.log(editMessage.trim())
         messagesAPI.sendEditMessage(chatInfo.chatID, { ...isEditMessage, message: editMessage, changed: createNewDate() })
             .then(() => dispatch(changeMessage(null)))
     }
@@ -53,19 +52,46 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
         dispatch(changeMessage(null))
     }
 
+    // const onKeyDown = (e: KeyboardEvent) => {
+    //     console.log(e.key)
+    //     if (e.key === 'Escape') dispatch(changeMessage(null))
+    // }
+
+    // useEffect(() => {
+    //     if (isEditMessage) {
+    //         window.addEventListener('keydown', onKeyDown)
+    //         setEditMessage(isEditMessage.message)
+    //         refTextarea.current.focus()
+    //         return () => window.removeEventListener('keydown', onKeyDown)
+    //     }
+
+    // }, [isEditMessage]);
+
     const onKeyDown = (e: KeyboardEvent) => {
-        console.log(e.key)
-        if (e.key === 'Escape') dispatch(changeMessage(null))
+        if (e.key === 'Escape' && isEditMessage) dispatch(changeMessage(null))
+        if (document.activeElement === refTextarea.current && e.key === 'Enter' && !isEditMessage) {
+            sendMessage()
+            refTextarea.current.blur()
+        }
+        if (document.activeElement === refTextarea.current && e.key === 'Enter' && isEditMessage) {
+            sendEditMessage()
+            refTextarea.current.blur()
+        }
     }
 
     useEffect(() => {
+        window.addEventListener('keydown', onKeyDown)
+        return () => {
+            //console.log('снимаю слушатель')
+            return window.removeEventListener('keydown', onKeyDown)
+        }
+    }, [newMessage, editMessage, isEditMessage]);
+
+    useEffect(() => {
         if (isEditMessage) {
-            window.addEventListener('keydown', onKeyDown)
             setEditMessage(isEditMessage.message)
             refTextarea.current.focus()
-            return () => window.removeEventListener('keydown', onKeyDown)
         }
-
     }, [isEditMessage]);
 
     useEffect(() => {
@@ -86,6 +112,7 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
                         maxRows={3}
                         value={newMessage}
                         onChange={handleChange}
+                        ref={refTextarea}
                     />
                     :
                     <TextareaAutosize

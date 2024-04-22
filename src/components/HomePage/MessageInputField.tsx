@@ -15,13 +15,7 @@ const MessageInputField: FC<Props> = ({selectedChat}) => {
 
     const {myBlackList, guestBlackList} = useBlackList()
 
-    if(myBlackList) return (
-        <div className={styles.inputNewMessage}>
-            <MessagesAreProhibited />
-        </div>
-    )
-
-    if(guestBlackList) return (
+    if(myBlackList || guestBlackList) return (
         <div className={styles.inputNewMessage}>
             <MessagesAreProhibited />
         </div>

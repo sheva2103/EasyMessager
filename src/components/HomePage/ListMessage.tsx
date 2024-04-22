@@ -22,8 +22,6 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
         return () => messages()
     }, [selectedChat.uid]);
 
-    //console.log('list messages render')
-
     return (
         <div className={styles.listMessages}>
             <ul>

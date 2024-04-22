@@ -1,4 +1,5 @@
 import { Chat, Message1 } from "../types/types"
+import { format } from "@formkit/tempo"
 
 
 export function createChatList(data: Chat[]) {
@@ -26,11 +27,14 @@ export function createMessageList(list: Message1[]) {
 
 export function createNewDate(): string {
     const now = new Date()
-    const date = now.toLocaleDateString()
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-    const seconds = now.getSeconds();
-    const time = `${hours}:${minutes}:${seconds}`
+    
+    // const date = now.toLocaleDateString()
+    // const hours = now.getHours();
+    // const minutes = now.getMinutes();
+    // const seconds = now.getSeconds();
+    // const time = `${hours}:${minutes}:${seconds}`
+    const date = format(now, { date: "short" })
+    const time = format(now, { time: "medium" })
     return `${date} ${time}`
 }
 
@@ -40,4 +44,18 @@ export function getTimeFromDate(date: string): string {
 
 export function getDatefromDate(date: string): string {
     return date.split(' ')[0]
+}
+
+export function checkMessage(str: string): string {
+
+    const reg = /(https?:\/\/|ftps?:\/\/|www\.)((?![.,?!;:()]*(\s|$))[^\s]){2,}/gim
+
+    if (!reg.test(str)) return str
+
+    const message = str.split(' ')
+    let newStr = message.map(item => {
+        if (reg.test(item)) return `<a href='${item}' target='blank'>${item}</a>`
+        return item
+    })
+    return newStr.join(' ')
 }

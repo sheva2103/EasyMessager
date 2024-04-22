@@ -25,7 +25,8 @@ type MessagesAPI = {
     getChatID: (name: string, searchName: string) => Promise<string | undefined>,
     sendEditMessage: (chatID: string, message: Message1) => Promise<void>,
     deleteMessage: (chatID: string, message: Message1) => Promise<void>,
-    forwardedMessageFrom: (chatID: string, sender: CurrentUser, message: string, forwardedFrom: Chat) => Promise<void>
+    forwardedMessageFrom: (chatID: string, sender: CurrentUser, message: string, forwardedFrom: Chat) => Promise<void>,
+    readMessage: (chatID: string, message: Message1) => Promise<void>
 }
 
 type ContactsAPI = {
@@ -125,7 +126,15 @@ export const messagesAPI: MessagesAPI = {
         const id = uuidv4()
         const messageObj: Message1 = { message: message, messageID: id, date: createNewDate(), read: false, sender: sender, forwardedFrom }
         await setDoc(doc(db, 'chats', chatID), { [id]: messageObj }, { merge: true });
-    }
+    },
+    async readMessage(chatID, message) {
+        const messageRef = doc(db, "chats", chatID);
+
+        const editMessage = { ...message, read: true }
+        await updateDoc(messageRef, {
+            [message.messageID]: editMessage
+        });
+    },
 }
 
 export const contactsAPI: ContactsAPI = {
