@@ -4,7 +4,6 @@ import ChatInfo from "./ChatInfo";
 import { searchAPI } from "../../API/api";
 import { useAppSelector } from "../../hooks/hook";
 import { Chat } from "../../types/types";
-import { createChatList } from "../../utils/utils";
 
 
 const ChatList: FC = () => {
@@ -21,13 +20,6 @@ const ChatList: FC = () => {
     useEffect(() => {
         searchAPI.searchUser(name)
             .then(chat => {
-                // console.log(createChatList(chat))
-                // const filter = createChatList(chat).filter(item => {
-                //     if(!myChats.length) return true
-                //     return filterMyChats.some(el => el.displayName !== item.displayName)
-                // })
-                // console.log(filter)
-                // return setGlobalSearchUsers([...filter])
                 setGlobalSearchUsers([...chat])
             })
     }, [name]);

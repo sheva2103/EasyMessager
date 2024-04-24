@@ -301,12 +301,6 @@
                 .messageData__status {
                     font-size: 1rem;
                 }
-
-                .date {
-                    font-size: 0.7rem;
-                    margin-left: auto;
-                    margin-top: 4px;
-                }
             }
 
             span {
@@ -631,6 +625,13 @@
             background-color: var(--background-color-content-block);
         }
     }
+}
+
+.preloaderBlock {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
 }
 
 

@@ -42,9 +42,9 @@ type Props = {
 
 const Message: FC<Props> = ({ messageInfo }) => {
 
-    const owner = useAppSelector(state => state.app.currentUser.email)
+    const owner = useAppSelector(state => state.app.currentUser)
     const isShowCheckbox = useAppSelector(state => state.app.showCheckbox)
-    const chatID = useAppSelector(state => state.app.selectedChat.chatID)
+    const chat = useAppSelector(state => state.app.selectedChat)
     const [offset, setOffset] = useState<Offset>({ top: 0, left: 0 })
     const positionMenu: StyleContextMenu = {
         position: 'relative',
@@ -79,7 +79,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
     }
 
     const readMessage = () => {
-        if (messageInfo.sender.email !== owner) messagesAPI.readMessage(chatID, messageInfo)
+        if (messageInfo.sender.email !== owner.email && !messageInfo.read) messagesAPI.readMessage(chat.chatID, messageInfo)
     }
 
     const refSpan = useRef<HTMLDivElement>(null)
@@ -91,24 +91,23 @@ const Message: FC<Props> = ({ messageInfo }) => {
             <label>
                 {isShowCheckbox && <SelectMessageInput messageInfo={messageInfo} />}
                 <div className={styles.avatar}>
-                    <Avatar url={messageInfo.sender.photoURL} name={messageInfo.sender.displayName} />
+                    {messageInfo.sender.email === owner.email ?
+                        <Avatar url={owner?.photoURL} name={owner.displayName} />
+                        :
+                        <Avatar url={chat?.photoURL} name={chat.displayName} />
+                    }
                 </div>
                 <div
-                    className={classNames(styles.messageData, styles.owner, { [styles.guest]: messageInfo.sender.email !== owner, [styles.noSelect]: contextMenuIsOpen })}
+                    className={classNames(styles.messageData, styles.owner, { [styles.guest]: messageInfo.sender.email !== owner.email, [styles.noSelect]: contextMenuIsOpen })}
                     onContextMenu={openContextMenu}
                     ref={refSpan}
                 >
-                    {/* <span
-                    dangerouslySetInnerHTML={{ __html: checkMessage(messageInfo.message) }}
-                >
-                </span> */}
                     <MessagesContentViewport onEnterViewport={readMessage} message={messageInfo.message} />
-                    {/* <span className={styles.date}>{messageInfo.changed ? `ред.${getTimeFromDate(messageInfo.changed)}` : getTimeFromDate(messageInfo.date)}</span> */}
                     <div className={styles.messageData__info}>
                         <div className={styles.messageData__date}>
                             <span >{messageInfo.changed ? `ред.${getTimeFromDate(messageInfo.changed)}` : getTimeFromDate(messageInfo.date)}</span>
                         </div>
-                        {messageInfo.sender.email === owner &&
+                        {messageInfo.sender.email === owner.email &&
                             <div className={styles.messageData__status}>
                                 {messageInfo.read ? <ReadIcon /> : <UnreadIcon />}
                             </div>
@@ -120,7 +119,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
                         isOpen={contextMenuIsOpen}
                         closeContextMenu={closeContextMenu}
 
-                        isOwner={owner === messageInfo.sender.email}
+                        isOwner={owner.email === messageInfo.sender.email}
                         message={messageInfo}
                         positionMenu={positionMenu}
                     />}

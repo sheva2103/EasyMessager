@@ -3,10 +3,7 @@ import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import styles from './HomePage.module.scss'
 import classNames from "classnames";
 import ArrowLeftIcon from '../../assets/box-arrow-left.svg'
-//import { selectChat } from "../../store/slices/appSlice";
 import ListMessages from "./ListMessage";
-import InputNewMessage from "./InputNewMessage";
-import Preloader from '../../assets/preloader.svg'
 import { setChat } from "../../store/slices/setChatIDSlice";
 import ChatMenu from "./ChatMenu";
 import MessageInputField from "./MessageInputField";
@@ -15,32 +12,21 @@ import MessageInputField from "./MessageInputField";
 const ChatContent: FC = () => {
 
     const selectedChat = useAppSelector(state => state.app.selectedChat)
-    const isLoadData = useAppSelector(state => state.app.loadChat)
     const dispatch = useAppDispatch()
     const closeChat = () => {
-        //dispatch(selectChat(null))
         dispatch(setChat(null))
     }
-
-    // if(isLoadData) {
-    //     return (
-    //         <div className={classNames(styles.contentContainer, { [styles.notSelected]: isLoadData })}>
-    //             <Preloader fontSize={'2rem'}/>
-    //         </div>
-    //     )
-    // }
-
 
     if (!selectedChat) {
         return (
             <div className={classNames(styles.contentContainer, { [styles.notSelected]: !selectedChat })}>
-                {/* <span>Выберите чат...</span> */}
-                {isLoadData ? <Preloader /> : <span>Выберите чат...</span>}
+                <span>Выберите чат...</span>
             </div>
         )
     }
     
     //console.log('chat content render')
+    
 
     return (
         <div className={classNames(styles.contentContainer, { [styles.showContent]: selectedChat })}>

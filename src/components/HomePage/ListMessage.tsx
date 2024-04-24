@@ -1,11 +1,14 @@
 import styles from './HomePage.module.scss'
 import { FC, memo, useEffect, useState } from 'react';
 import Message from './Messgae';
-import { DocumentSnapshot, collection, doc, onSnapshot, query } from "firebase/firestore";
+import { DocumentSnapshot, doc, onSnapshot } from "firebase/firestore";
 import { db } from '../../firebase';
 import { Chat, Message1 } from '../../types/types';
 import { createMessageList, getDatefromDate } from '../../utils/utils';
 import GetDateMessage from './GetDateMessage';
+import { useAppDispatch, useAppSelector } from '../../hooks/hook';
+import { setLoadChat } from '../../store/slices/appSlice';
+import Preloader from '../../assets/preloader.svg'
 
 type Props = {
     selectedChat: Chat
@@ -14,13 +17,24 @@ type Props = {
 const ListMessages: FC<Props> = ({ selectedChat }) => {
 
     const [list, setList] = useState<Message1[]>([])
+    const dispatch = useAppDispatch()
+    const isLoadChat = useAppSelector(state => state.app.loadChat)
 
     useEffect(() => {
         const messages = onSnapshot(doc(db, "chats", selectedChat.chatID), (doc: DocumentSnapshot<Message1[]>) => {
             setList(createMessageList(doc.data()))
+            if(isLoadChat) dispatch(setLoadChat())
         });
         return () => messages()
     }, [selectedChat.uid]);
+
+    if(isLoadChat) return (
+        <div className={styles.contentContainer}>
+            <div className={styles.preloaderBlock}>
+                <Preloader fontSize={'2.4rem'}/>
+            </div>
+        </div>
+    )
 
     return (
         <div className={styles.listMessages}>
