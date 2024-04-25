@@ -130,7 +130,7 @@ export const appSlice = createSlice({
             })
             .addCase(setChat.fulfilled, (state, action) => {
                 state.selectedChat = action.payload
-                if(state.selectedMessages.length) state.selectedMessages = []
+                if(state.selectedMessages) state.selectedMessages = []
                 if(state.showCheckbox) state.showCheckbox = false
             })
     }
