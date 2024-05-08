@@ -1,5 +1,5 @@
 import { Chat, Message1 } from "../types/types"
-import { format } from "@formkit/tempo"
+import { format, parse } from "@formkit/tempo"
 
 
 export function createChatList(data: Chat[]) {
@@ -18,6 +18,7 @@ export function createMessageList(list: Message1[]) {
         messagesArray.push(list[key])
     }
     const sort = messagesArray.sort((a, b) => {
+        //console.log('>>>>>>>>>>>' , new Date(a.date).getTime())
         if(a.date < b.date) return -1
         else if(a.date > b.date) return 1
         else return 0
