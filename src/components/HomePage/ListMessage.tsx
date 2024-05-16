@@ -22,6 +22,7 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
     const listRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
+        if(list.length) setList([])
         const messages = onSnapshot(doc(db, "chats", selectedChat.chatID), (doc: DocumentSnapshot<Message1[]>) => {
             setList(createMessageList(doc.data()))
             if (isLoadChat) dispatch(setLoadChat())
@@ -29,18 +30,18 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
         return () => messages()
     }, [selectedChat.uid]);
 
-    useEffect(() => {
+    // useEffect(() => {
 
-        listRef.current?.addEventListener('scroll', (e) => {
-            const scrollValue = listRef.current.scrollTop
-            const listHeight = listRef.current.scrollHeight
-            const viewportHeight = listRef.current.clientHeight
-            const height = listHeight - viewportHeight
-            const scrollPercent = (scrollValue / height) * 100
-            console.log(scrollPercent)
-        })
+    //     listRef.current?.addEventListener('scroll', (e) => {
+    //         const scrollValue = listRef.current.scrollTop
+    //         const listHeight = listRef.current.scrollHeight
+    //         const viewportHeight = listRef.current.clientHeight
+    //         const height = listHeight - viewportHeight
+    //         const scrollPercent = (scrollValue / height) * 100
+    //         console.log(scrollPercent)
+    //     })
 
-    }, [listRef.current]);
+    // }, [listRef.current]);
 
     if (isLoadChat) return (
         <div className={styles.contentContainer}>
@@ -49,6 +50,8 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
             </div>
         </div>
     )
+
+    //console.log('render list messages')
 
     return (
         <div className={styles.listMessages} ref={listRef}>
