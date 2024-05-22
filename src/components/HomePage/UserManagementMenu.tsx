@@ -3,8 +3,10 @@ import MenuIcon from '../../assets/menu.svg'
 import styles from './HomePage.module.scss'
 import classNames from "classnames";
 import { Chat } from "../../types/types";
-import { useAppSelector } from "../../hooks/hook";
-import { contactsAPI } from "../../API/api";
+import { useAppDispatch, useAppSelector } from "../../hooks/hook";
+import { contactsAPI, messagesAPI } from "../../API/api";
+import { setLoadChat } from "../../store/slices/appSlice";
+import { setChat } from "../../store/slices/setChatIDSlice";
 
 type Props = {
     chatInfo: Chat
@@ -17,6 +19,7 @@ const UserManagementMenu: FC<Props> = ({chatInfo}) => {
     const contactsList = useAppSelector(state => state.app.contacts)
     const blackList = useAppSelector(state => state.app.blackList)
     const selectedChat = useAppSelector(state => state.app.selectedChat)
+    const dispatch = useAppDispatch()
 
     const addToContacts = () => {
         contactsAPI.addToContacts(currentUserEmail, chatInfo)
@@ -36,6 +39,23 @@ const UserManagementMenu: FC<Props> = ({chatInfo}) => {
     const removeFromBlacklist = () => {
         contactsAPI.removeFromBlacklist(currentUserEmail, chatInfo)
             .then(() => setOpen(false))
+    }
+
+    const clearChat = () => {
+        dispatch(setLoadChat(true))
+        messagesAPI.clearChat(selectedChat.chatID)
+            .then(() => setOpen(false))
+            .catch(error => console.log(error))
+            .finally(() => dispatch(setLoadChat(false)))
+    }
+
+    const deleteChat = () => {
+        messagesAPI.deleteChat(currentUserEmail, selectedChat)
+            .then(() => {
+                setOpen(false)
+                dispatch(setChat(null))
+            })
+            .catch(error => console.log('ошибка удаления чата >>>>>', error))
     }
 
     const isContact = useMemo(() => contactsList.some(item => item.email === chatInfo.email), [selectedChat, contactsList.length])
@@ -75,7 +95,8 @@ const UserManagementMenu: FC<Props> = ({chatInfo}) => {
                             :
                             <li onClick={addToBlacklist}>Добавить в ЧС</li>
                         }
-                        
+                        <li onClick={clearChat}>Очистить историю</li>
+                        <li onClick={deleteChat}>Удалить чат</li>
                     </ul>
                 </div>
             </div>

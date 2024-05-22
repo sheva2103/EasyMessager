@@ -117,7 +117,7 @@ export const appSlice = createSlice({
             state.blackList = action.payload
         },
         setLoadChat(state, action: PayloadAction<boolean>) {
-            state.loadChat = false
+            state.loadChat = action.payload
         }
     },
     extraReducers: (builder) => {

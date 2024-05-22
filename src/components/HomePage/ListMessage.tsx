@@ -34,7 +34,7 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
         if (list.length) setList([])
         const messages = onSnapshot(doc(db, "chats", selectedChat.chatID), (doc: DocumentSnapshot<Message1[]>) => {
             setList(createMessageList(doc.data()))
-            if (isLoadChat) dispatch(setLoadChat())
+            if (isLoadChat) dispatch(setLoadChat(false))
         });
         return () => messages()
     }, [selectedChat.uid]);

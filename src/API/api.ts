@@ -1,11 +1,14 @@
-import { QueryDocumentSnapshot, deleteField, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { DocumentData, DocumentSnapshot, QueryDocumentSnapshot, deleteDoc, deleteField, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { UserInfo } from "firebase/auth";
 import { Chat, CurrentUser, Message1 } from "../types/types";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
-import { createChatList, createNewDate } from "../utils/utils";
+import { createChatList, createMessageList, createNewDate } from "../utils/utils";
 
+type Test<V> = {
+    [key: string]: V
+}
 
 type ProfileApi = {
     createNewUserInDB: (e: UserInfo) => void,
@@ -26,7 +29,9 @@ type MessagesAPI = {
     sendEditMessage: (chatID: string, message: Message1) => Promise<void>,
     deleteMessage: (chatID: string, message: Message1) => Promise<void>,
     forwardedMessageFrom: (chatID: string, sender: CurrentUser, message: string, forwardedFrom: Chat) => Promise<void>,
-    readMessage: (chatID: string, message: Message1) => Promise<void>
+    readMessage: (chatID: string, message: Message1) => Promise<void>,
+    clearChat: (chatID: string) => Promise<void[]>,
+    deleteChat: (currentUser: string, selectedChat: Chat) => Promise<void>
 }
 
 type ContactsAPI = {
@@ -135,6 +140,28 @@ export const messagesAPI: MessagesAPI = {
             [message.messageID]: editMessage
         });
     },
+    async clearChat(chatID) {
+        const docRef = doc(db, "chats", chatID);
+        const docSnap = await getDoc(docRef)
+        const promises: Promise<void>[] = []
+        const list: any = docSnap.data()
+        createMessageList(list).forEach(message => {
+            promises.push(messagesAPI.deleteMessage(chatID, message))
+        })
+        return Promise.all(promises)
+    },
+    async deleteChat(currentUser, selectedChat) {
+        const chatCurrentRef = doc(db, currentUser, 'chatList');
+        const chatGuestRef = doc(db, selectedChat.email, 'chatList');
+        const chatGuestSnap: any = await getDoc(chatGuestRef);
+        
+        await updateDoc(chatCurrentRef, {
+            [selectedChat.uid]: deleteField()
+        });
+        if(chatGuestSnap.exists() && !createChatList(chatGuestSnap.data()).some(item => item.chatID === selectedChat.chatID)) {
+            await deleteDoc(doc(db, "chats", selectedChat.chatID));
+        }
+    }
 }
 
 export const contactsAPI: ContactsAPI = {
