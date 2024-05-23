@@ -44,7 +44,7 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
 
     const sendEditMessage = () => {
         if (!editMessage.trim()) return
-        messagesAPI.sendEditMessage(chatInfo.chatID, { ...isEditMessage, message: editMessage, changed: createNewDate() })
+        messagesAPI.sendEditMessage(chatInfo.chatID, { ...isEditMessage, message: editMessage })
             .then(() => dispatch(changeMessage(null)))
     }
 

@@ -18,24 +18,25 @@ export function createMessageList(list: Message1[]) {
         messagesArray.push(list[key])
     }
     const sort = messagesArray.sort((a, b) => {
-        //console.log('>>>>>>>>>>>' , new Date(a.date).getTime())
-        if(a.date < b.date) return -1
-        else if(a.date > b.date) return 1
+        const dateOneToSecond = Date.parse(String(new Date(JSON.parse(a.date))))
+        const dateTwoToSecond = Date.parse(String(new Date(JSON.parse(b.date))))
+        
+        if(dateOneToSecond < dateTwoToSecond) return -1
+        else if(dateOneToSecond > dateTwoToSecond) return 1
         else return 0
     })
     return sort
 }
 
-export function createNewDate(): string {
-    const now = new Date()
-    
+export function createNewDate(now: string): string {
+    //const now = new Date()
     // const date = now.toLocaleDateString()
     // const hours = now.getHours();
     // const minutes = now.getMinutes();
     // const seconds = now.getSeconds();
     // const time = `${hours}:${minutes}:${seconds}`
-    const date = format(now, { date: "short" })
-    const time = format(now, { time: "medium" })
+    const date = format(JSON.parse(now), { date: "short" })
+    const time = format(JSON.parse(now), { time: "medium" })
     return `${date} ${time}`
 }
 

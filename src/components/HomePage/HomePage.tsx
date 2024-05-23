@@ -9,7 +9,7 @@ import ChatList from './ChatList';
 import { useEffect } from 'react';
 import { DocumentSnapshot, doc, onSnapshot } from 'firebase/firestore';
 import { CurrentUser } from '../../types/types';
-import { createChatList } from '../../utils/utils';
+import { createChatList, createNewDate } from '../../utils/utils';
 import { db } from '../../firebase';
 
 const HomaPage = () => {

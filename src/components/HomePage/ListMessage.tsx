@@ -4,7 +4,7 @@ import Message from './Messgae';
 import { DocumentSnapshot, doc, onSnapshot } from "firebase/firestore";
 import { db } from '../../firebase';
 import { Chat, Message1 } from '../../types/types';
-import { createMessageList, getDatefromDate } from '../../utils/utils';
+import { createMessageList, createNewDate, getDatefromDate } from '../../utils/utils';
 import GetDateMessage from './GetDateMessage';
 import { useAppDispatch, useAppSelector } from '../../hooks/hook';
 import { setLoadChat } from '../../store/slices/appSlice';
@@ -68,7 +68,7 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
                 :
                 <ul>
                     {list.map((item, index) => {
-                        if (index !== 0 && getDatefromDate(item.date) === getDatefromDate(list[index - 1].date)) {
+                        if (index !== 0 && getDatefromDate(createNewDate(item.date)) === getDatefromDate(createNewDate(list[index - 1].date))) {
                             return <Message messageInfo={item} key={item.messageID} />
                         }
                         return <div key={item.messageID}>

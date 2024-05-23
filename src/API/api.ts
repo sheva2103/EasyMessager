@@ -1,4 +1,4 @@
-import { DocumentData, DocumentSnapshot, QueryDocumentSnapshot, deleteDoc, deleteField, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { QueryDocumentSnapshot, deleteDoc, deleteField, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { UserInfo } from "firebase/auth";
 import { Chat, CurrentUser, Message1 } from "../types/types";
@@ -6,9 +6,6 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
 import { createChatList, createMessageList, createNewDate } from "../utils/utils";
 
-type Test<V> = {
-    [key: string]: V
-}
 
 type ProfileApi = {
     createNewUserInDB: (e: UserInfo) => void,
@@ -71,6 +68,9 @@ export const profileAPI: ProfileApi = {
     }
 }
 
+
+
+
 export const searchAPI: SearchAPI = {
     async searchUser(name) {
         const chats: CurrentUser[] = []
@@ -78,11 +78,14 @@ export const searchAPI: SearchAPI = {
         const querySnapshot = await getDocs(q);
         querySnapshot.forEach((doc: QueryDocumentSnapshot<CurrentUser>) => {
             chats.push(doc.data())
-            console.log(doc.id, " => ", doc.data());
+            //console.log(doc.id, " => ", doc.data());
         });
         return chats
     }
 }
+
+
+
 
 export const messagesAPI: MessagesAPI = {
 
@@ -91,9 +94,10 @@ export const messagesAPI: MessagesAPI = {
         await setDoc(doc(db, user, "chatList"), { [recipient.uid]: chat }, { merge: true });
     },
     async sendMessage(chatID, sender, message) {
-        //console.log('api send message chatID:>>>>>', chatID, sender)
+        const date = JSON.stringify(new Date())
+        console.log('send message')
         const id = uuidv4()
-        const messageObj: Message1 = { message: message, messageID: id, date: createNewDate(), read: false, sender: sender }
+        const messageObj: Message1 = { message: message, messageID: id, date: date, read: false, sender: sender }
         await setDoc(doc(db, 'chats', chatID), { [id]: messageObj }, { merge: true });
     },
     async getChatID(name, searchName) {
@@ -103,10 +107,7 @@ export const messagesAPI: MessagesAPI = {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
             const data: any = docSnap.data()
-            //console.log('get chat id>>>>>>', docSnap.data())
             createChatList(data).forEach(item => {
-                //if (item.chatID) id = item.chatID
-                console.log('foreach>>>>>', name, item)
                 if (item.email === searchName) id = item.chatID
             })
         }
@@ -114,8 +115,8 @@ export const messagesAPI: MessagesAPI = {
     },
     async sendEditMessage(chatID, message) {
         const messageRef = doc(db, "chats", chatID);
-
-        const editMessage = { ...message, message: message.message, changed: message.changed }
+        const date = JSON.stringify(new Date())
+        const editMessage = { ...message, message: message.message, changed: date }
         await updateDoc(messageRef, {
             [message.messageID]: editMessage
         });
@@ -129,8 +130,13 @@ export const messagesAPI: MessagesAPI = {
     },
     async forwardedMessageFrom(chatID, sender, message, forwardedFrom) {
         const id = uuidv4()
-        const messageObj: Message1 = { message: message, messageID: id, date: createNewDate(), read: false, sender: sender, forwardedFrom }
+        const date = JSON.stringify(new Date())
+        const messageObj: Message1 = { message: message, messageID: id, date, read: false, sender: sender, forwardedFrom }
         await setDoc(doc(db, 'chats', chatID), { [id]: messageObj }, { merge: true });
+
+        /////////////
+        //await setDoc(doc(db, sender.email, 'chatList'), { [forwardedFrom.uid]: forwardedFrom }, { merge: true });
+        //await setDoc(doc(db, forwardedFrom.email, 'chatList'), { [sender.uid]: sender }, { merge: true });
     },
     async readMessage(chatID, message) {
         const messageRef = doc(db, "chats", chatID);
@@ -163,6 +169,9 @@ export const messagesAPI: MessagesAPI = {
         }
     }
 }
+
+
+
 
 export const contactsAPI: ContactsAPI = {
     async addToContacts(currentUser, newContact) {

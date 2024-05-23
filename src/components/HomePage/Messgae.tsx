@@ -6,7 +6,7 @@ import ContextMenu from "./ContextMenu";
 import SelectMessageInput from "./SelectMessageInput";
 import { Message1, StyleContextMenu } from "../../types/types";
 import { useAppSelector } from "../../hooks/hook";
-import { checkMessage, getTimeFromDate } from "../../utils/utils";
+import { checkMessage, createNewDate, getTimeFromDate } from "../../utils/utils";
 import handleViewport, { type InjectedViewportProps } from 'react-in-viewport';
 import UnreadIcon from '../../assets/check2.svg'
 import ReadIcon from '../../assets/check2-all.svg'
@@ -105,7 +105,8 @@ const Message: FC<Props> = ({ messageInfo }) => {
                     <MessagesContentViewport onEnterViewport={readMessage} message={messageInfo.message} />
                     <div className={styles.messageData__info}>
                         <div className={styles.messageData__date}>
-                            <span >{messageInfo.changed ? `ред.${getTimeFromDate(messageInfo.changed)}` : getTimeFromDate(messageInfo.date)}</span>
+                            {/* <span >{messageInfo.changed ? `ред.${getTimeFromDate(messageInfo.changed)}` : getTimeFromDate(messageInfo.date)}</span> */}
+                            <span >{messageInfo.changed ? `ред.${getTimeFromDate(createNewDate(messageInfo.changed))}` : getTimeFromDate(createNewDate(messageInfo.date))}</span>
                         </div>
                         {messageInfo.sender.email === owner.email &&
                             <div className={styles.messageData__status}>
