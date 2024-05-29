@@ -301,6 +301,16 @@
                 .messageData__status {
                     font-size: 1rem;
                 }
+
+                .messageData__forwardedFrom {
+                    font-size: 0.8rem;
+                    cursor: pointer;
+                    font-style: italic;
+                }
+
+                span {
+                    margin-left: auto;
+                }
             }
 
             span {

@@ -25,7 +25,8 @@ type MessagesAPI = {
     getChatID: (name: string, searchName: string) => Promise<string | undefined>,
     sendEditMessage: (chatID: string, message: Message1) => Promise<void>,
     deleteMessage: (chatID: string, message: Message1) => Promise<void>,
-    forwardedMessageFrom: (chatID: string, sender: CurrentUser, message: string, forwardedFrom: Chat) => Promise<void>,
+    // forwardedMessageFrom: (chatID: string, sender: CurrentUser, message: string, forwardedFrom: Chat) => Promise<void>,
+    forwardedMessageFrom: (sender: CurrentUser, recipient: Chat, message: Message1) => Promise<void>,
     readMessage: (chatID: string, message: Message1) => Promise<void>,
     clearChat: (chatID: string) => Promise<void[]>,
     deleteChat: (currentUser: string, selectedChat: Chat) => Promise<void>
@@ -128,15 +129,35 @@ export const messagesAPI: MessagesAPI = {
             [message.messageID]: deleteField()
         });
     },
-    async forwardedMessageFrom(chatID, sender, message, forwardedFrom) {
+    // async forwardedMessageFrom(chatID, sender, message, forwardedFrom) {
+    //     console.log(chatID)
+    //     const id = uuidv4()
+    //     const date = JSON.stringify(new Date())
+    //     const messageObj: Message1 = { message: message, messageID: id, date, read: false, sender: sender, forwardedFrom }
+    //     //await setDoc(doc(db, 'chats', chatID), { [id]: messageObj }, { merge: true });
+
+    //     /////////////
+    //     //await setDoc(doc(db, sender.email, 'chatList'), { [forwardedFrom.uid]: forwardedFrom }, { merge: true });
+    //     //await setDoc(doc(db, forwardedFrom.email, 'chatList'), { [sender.uid]: sender }, { merge: true });
+    //     // console.log(sender.email, forwardedFrom.email)
+    //     // const isID = await Promise.all([messagesAPI.getChatID(sender.email, forwardedFrom.displayName), messagesAPI.getChatID(forwardedFrom.email, sender.displayName)])
+    //     // console.log('forwarded isID', isID)
+    //     // if(isID[0] || isID[1]) await setDoc(doc(db, 'chats', isID[0] || isID[1]), { [id]: messageObj }, { merge: true });
+    //     // else {
+    //     //     await setDoc(doc(db, 'chats', id), { [id]: messageObj }, { merge: true });
+    //     //     await Promise.all([messagesAPI.addChat(sender.email, sender, id), messagesAPI.addChat(forwardedFrom.email, forwardedFrom, id)])
+    //     // }
+    // },
+    async forwardedMessageFrom(sender, recipient, message) {
         const id = uuidv4()
         const date = JSON.stringify(new Date())
-        const messageObj: Message1 = { message: message, messageID: id, date, read: false, sender: sender, forwardedFrom }
-        await setDoc(doc(db, 'chats', chatID), { [id]: messageObj }, { merge: true });
-
-        /////////////
-        //await setDoc(doc(db, sender.email, 'chatList'), { [forwardedFrom.uid]: forwardedFrom }, { merge: true });
-        //await setDoc(doc(db, forwardedFrom.email, 'chatList'), { [sender.uid]: sender }, { merge: true });
+        const messageObj: Message1 = { message: message.message, messageID: id, date, read: false, sender, forwardedFrom: message.sender }
+        const isID = await Promise.all([messagesAPI.getChatID(sender.email, recipient.email), messagesAPI.getChatID(recipient.email, sender.email)])
+        if(isID[0] || isID[1]) await setDoc(doc(db, 'chats', isID[0] || isID[1]), { [id]: messageObj }, { merge: true });
+        else {
+            await Promise.all([messagesAPI.addChat(sender.email, recipient, id), messagesAPI.addChat(recipient.email, sender, id)])
+            await setDoc(doc(db, 'chats', id), { [id]: messageObj }, { merge: true });
+        }
     },
     async readMessage(chatID, message) {
         const messageRef = doc(db, "chats", chatID);

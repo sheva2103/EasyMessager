@@ -54,7 +54,8 @@ const Contacts: FC = () => {
         if (isSend) {
             console.log('переслал несколько')
             const allMessages: Promise<void>[] = []
-            selectedMessageList.forEach(item => allMessages.push(messagesAPI.forwardedMessageFrom(user.chatID, currentUser,item.message, item.sender)))
+            // selectedMessageList.forEach(item => allMessages.push(messagesAPI.forwardedMessageFrom(user.chatID, currentUser,item.message, item.sender)))
+            selectedMessageList.forEach(item => allMessages.push(messagesAPI.forwardedMessageFrom(currentUser, user, item)))
             setSending(true)
             Promise.all(allMessages)
                 .then(() => {

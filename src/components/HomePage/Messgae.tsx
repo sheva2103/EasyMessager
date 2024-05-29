@@ -4,7 +4,7 @@ import classNames from "classnames";
 import styles from './HomePage.module.scss'
 import ContextMenu from "./ContextMenu";
 import SelectMessageInput from "./SelectMessageInput";
-import { Message1, StyleContextMenu } from "../../types/types";
+import { Chat, CurrentUser, Message1, StyleContextMenu } from "../../types/types";
 import { useAppSelector } from "../../hooks/hook";
 import { checkMessage, createNewDate, getTimeFromDate } from "../../utils/utils";
 import handleViewport, { type InjectedViewportProps } from 'react-in-viewport';
@@ -14,6 +14,19 @@ import { messagesAPI } from "../../API/api";
 
 interface MessageContentProps extends InjectedViewportProps<HTMLDivElement> {
     message: string
+}
+
+interface ForwardedFromProps {
+    user: Chat
+}
+const ForwardedFrom: FC<ForwardedFromProps> = ({user}) => {
+    return ( 
+        <div className={styles.messageData__forwardedFrom}>
+            <span>переслано от:</span>
+            <br />
+            <span>{user.displayName}</span>
+        </div>
+    );
 }
 
 const MessagesContent: FC = (props: MessageContentProps) => {
@@ -102,6 +115,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
                     onContextMenu={openContextMenu}
                     ref={refSpan}
                 >
+                    {messageInfo.forwardedFrom && <ForwardedFrom user={messageInfo.forwardedFrom}/>}
                     <MessagesContentViewport onEnterViewport={readMessage} message={messageInfo.message} />
                     <div className={styles.messageData__info}>
                         <div className={styles.messageData__date}>
