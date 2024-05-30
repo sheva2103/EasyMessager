@@ -306,6 +306,7 @@
                     font-size: 0.8rem;
                     cursor: pointer;
                     font-style: italic;
+                    font-weight: 300;
                 }
 
                 span {
@@ -324,7 +325,7 @@
                 border-radius: 16px;
                 border-bottom-left-radius: 0;
                 background-color: rgb(135, 116, 225);
-                padding: 4px 12px;
+                padding: 4px 12px 0 12px;
                 color: #ffffff;
                 max-width: 70%;
 
@@ -351,6 +352,7 @@
             & .guest {
                 background-color: var(--background-color-message);
                 color: var(--color-guest-message);
+                padding-bottom: 4px;
 
                 a {
                     color: var(--link-guest-color)

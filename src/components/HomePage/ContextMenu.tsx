@@ -19,12 +19,13 @@ type Props = {
     isOwner: boolean,
     message: Message1
     closeContextMenu: (e: React.MouseEvent) => void,
-    positionMenu: StyleContextMenu
+    positionMenu: StyleContextMenu,
+    isForwarder: boolean
 }
 
 
 
-const ContextMenu: FC<Props> = ({ isOpen, closeContextMenu, isOwner, message, positionMenu }) => {
+const ContextMenu: FC<Props> = ({ isOpen, closeContextMenu, isOwner, message, positionMenu, isForwarder }) => {
 
     const dispatch = useAppDispatch()
     const chatID = useAppSelector(state => state.app.selectedChat.chatID)
@@ -61,7 +62,7 @@ const ContextMenu: FC<Props> = ({ isOpen, closeContextMenu, isOwner, message, po
                 <ul >
                     <li onClick={forwardMessage}><SendMessage /><span>Переслать</span></li>
                     <li onClick={copyMessage}><Copy /><span>Копировать текст</span></li>
-                    {isOwner &&
+                    {isOwner && !isForwarder &&
                         <li onClick={change}><Change /><span>Изменить</span></li>
                     }
                     <li onClick={deleteMessage}><Delete /><span>Удалить</span></li>

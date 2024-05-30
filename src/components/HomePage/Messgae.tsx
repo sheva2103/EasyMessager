@@ -5,12 +5,13 @@ import styles from './HomePage.module.scss'
 import ContextMenu from "./ContextMenu";
 import SelectMessageInput from "./SelectMessageInput";
 import { Chat, CurrentUser, Message1, StyleContextMenu } from "../../types/types";
-import { useAppSelector } from "../../hooks/hook";
+import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { checkMessage, createNewDate, getTimeFromDate } from "../../utils/utils";
 import handleViewport, { type InjectedViewportProps } from 'react-in-viewport';
 import UnreadIcon from '../../assets/check2.svg'
 import ReadIcon from '../../assets/check2-all.svg'
 import { messagesAPI } from "../../API/api";
+import { setChat } from "../../store/slices/setChatIDSlice";
 
 interface MessageContentProps extends InjectedViewportProps<HTMLDivElement> {
     message: string
@@ -20,11 +21,24 @@ interface ForwardedFromProps {
     user: Chat
 }
 const ForwardedFrom: FC<ForwardedFromProps> = ({user}) => {
+
+    const dispatch = useAppDispatch()
+    const currentUser = useAppSelector(state => state.app.currentUser)
+    const selectedChat = useAppSelector(state => state.app.selectedChat)
+
+    const handleClick = () => {
+        
+        if(user.uid !== currentUser.uid && user.uid !== selectedChat.uid) {
+            messagesAPI.getChatID(currentUser.email, user.email)
+                .then(data => dispatch(setChat({currentUserEmail: user.email, guestInfo: {...user, chatID: data}})))
+        }
+    }
+
     return ( 
-        <div className={styles.messageData__forwardedFrom}>
+        <div className={styles.messageData__forwardedFrom} onClick={handleClick}>
             <span>переслано от:</span>
             <br />
-            <span>{user.displayName}</span>
+            <span style={{fontWeight: 500}}>{user.displayName}</span>
         </div>
     );
 }
@@ -119,7 +133,6 @@ const Message: FC<Props> = ({ messageInfo }) => {
                     <MessagesContentViewport onEnterViewport={readMessage} message={messageInfo.message} />
                     <div className={styles.messageData__info}>
                         <div className={styles.messageData__date}>
-                            {/* <span >{messageInfo.changed ? `ред.${getTimeFromDate(messageInfo.changed)}` : getTimeFromDate(messageInfo.date)}</span> */}
                             <span >{messageInfo.changed ? `ред.${getTimeFromDate(createNewDate(messageInfo.changed))}` : getTimeFromDate(createNewDate(messageInfo.date))}</span>
                         </div>
                         {messageInfo.sender.email === owner.email &&
@@ -133,10 +146,10 @@ const Message: FC<Props> = ({ messageInfo }) => {
                     <ContextMenu
                         isOpen={contextMenuIsOpen}
                         closeContextMenu={closeContextMenu}
-
                         isOwner={owner.email === messageInfo.sender.email}
                         message={messageInfo}
                         positionMenu={positionMenu}
+                        isForwarder={Boolean(messageInfo?.forwardedFrom)}
                     />}
             </label>
         </li>
