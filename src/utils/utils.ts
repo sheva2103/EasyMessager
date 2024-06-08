@@ -1,5 +1,5 @@
 import { Chat, Message1 } from "../types/types"
-import { format, parse } from "@formkit/tempo"
+import { format } from "@formkit/tempo"
 
 
 export function createChatList(data: Chat[]) {
@@ -11,6 +11,9 @@ export function createChatList(data: Chat[]) {
     return chatsArray
 }
 
+
+
+
 export function createMessageList(list: Message1[]) {
     const messagesArray: Message1[] = []
     let key: keyof typeof list
@@ -20,13 +23,47 @@ export function createMessageList(list: Message1[]) {
     const sort = messagesArray.sort((a, b) => {
         const dateOneToSecond = Date.parse(String(new Date(JSON.parse(a.date))))
         const dateTwoToSecond = Date.parse(String(new Date(JSON.parse(b.date))))
-        
-        if(dateOneToSecond < dateTwoToSecond) return -1
-        else if(dateOneToSecond > dateTwoToSecond) return 1
+
+        if (dateOneToSecond < dateTwoToSecond) return -1
+        else if (dateOneToSecond > dateTwoToSecond) return 1
         else return 0
     })
     return sort
 }
+
+
+// export function createLimitMessagesList(list: Message1[], startPosition: number): Message1[] {
+
+//     return list.slice(startPosition - 20, 20)
+// }
+
+
+// export function checkStartIndex(list: Message1[]): number {
+//     console.log('checkStartIndex>>>', list)
+//     const index = list.findIndex(item => item.read === false)
+//     if (index === -1) return 0
+//     return index
+// }
+
+
+export function scrollToElement(element: HTMLDivElement, list: Message1[], currentUserID: string, firstRender: boolean) {
+
+    let targetID = list[list.length - 1].messageID
+    if(firstRender) {
+        for(let i = 0; i < list.length; i++) {
+            if(list[i].sender.uid !== currentUserID && i && list[i + 1]?.read === false ) {
+                targetID = list[i].messageID
+                break
+            }
+        }
+    }
+
+    if (element) {
+        const targetElement = element.querySelector(`label[data-id="${targetID}"]`)
+        targetElement.scrollIntoView({ block: 'end' ,behavior: firstRender ? 'auto' : 'smooth' })
+    }
+}
+
 
 export function createNewDate(now: string): string {
     //const now = new Date()
@@ -40,13 +77,24 @@ export function createNewDate(now: string): string {
     return `${date} ${time}`
 }
 
+
+
+
+
 export function getTimeFromDate(date: string): string {
-    return date.split(' ')[1].split(':').slice(0,2).join(':')
+    return date.split(' ')[1].split(':').slice(0, 2).join(':')
 }
+
+
+
 
 export function getDatefromDate(date: string): string {
     return date.split(' ')[0]
 }
+
+
+
+
 
 export function checkMessage(str: string): string {
 

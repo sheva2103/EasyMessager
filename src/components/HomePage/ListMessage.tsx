@@ -4,7 +4,7 @@ import Message from './Messgae';
 import { DocumentSnapshot, doc, onSnapshot } from "firebase/firestore";
 import { db } from '../../firebase';
 import { Chat, Message1 } from '../../types/types';
-import { createMessageList, createNewDate, getDatefromDate } from '../../utils/utils';
+import { createMessageList, createNewDate, getDatefromDate, scrollToElement } from '../../utils/utils';
 import GetDateMessage from './GetDateMessage';
 import { useAppDispatch, useAppSelector } from '../../hooks/hook';
 import { setLoadChat } from '../../store/slices/appSlice';
@@ -20,6 +20,8 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
     const dispatch = useAppDispatch()
     const isLoadChat = useAppSelector(state => state.app.loadChat)
     const listRef = useRef<HTMLDivElement>(null)
+    const currentUserID = useAppSelector(state => state.app.currentUser.uid)
+    const [firstRender, setFirstRender] = useState(true)
 
     const scrollListener = () => {
         const scrollValue = listRef.current.scrollTop
@@ -47,15 +49,15 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
         }
     }, []);
 
-    // if (isLoadChat) return (
-    //     <div className={styles.contentContainer}>
-    //         <div className={styles.preloaderBlock}>
-    //             <Preloader fontSize={'2.4rem'} />
-    //         </div>
-    //     </div>
-    // )
+    ///////////////////////////для авто прокрутки
 
-    //console.log('render list messages')
+    useEffect(() => {
+        if(list.length) scrollToElement(listRef.current, list, currentUserID, firstRender)
+        if(firstRender && list.length) setFirstRender(false)
+    }, [list.length]);
+
+    //////////////////////////////
+    console.log('render list messages')
 
     return (
         <div className={styles.listMessages} ref={listRef}>

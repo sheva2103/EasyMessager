@@ -115,7 +115,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
 
     return (
         <li>
-            <label>
+            <label data-id={messageInfo.messageID}>
                 {isShowCheckbox && <SelectMessageInput messageInfo={messageInfo} />}
                 <div className={styles.avatar}>
                     {messageInfo.sender.email === owner.email ?
