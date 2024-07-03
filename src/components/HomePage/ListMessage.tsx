@@ -3,27 +3,169 @@ import { FC, memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Message from './Messgae';
 import { DocumentSnapshot, doc, onSnapshot } from "firebase/firestore";
 import { db } from '../../firebase';
-import { Chat, Message1 } from '../../types/types';
-import { createMessageList, createNewDate, getDatefromDate } from '../../utils/utils';
+import { Chat, ListMessagesType, Message1 } from '../../types/types';
+import { createLimitMessagesList, createMessageList, createNewDate, getDatefromDate, searchNoReadMessage } from '../../utils/utils';
 import GetDateMessage from './GetDateMessage';
 import { useAppDispatch, useAppSelector } from '../../hooks/hook';
 import { setLoadChat } from '../../store/slices/appSlice';
 import Preloader from '../../assets/preloader.svg'
+//import { VariableSizeList as List } from 'react-window';
+//import { FixedSizeList as List } from 'react-window';
+import InfititeLoader from 'react-window-infinite-loader'
+import AutoSizer from 'react-virtualized-auto-sizer'
+import { VariableSizeList as List } from 'react-window';
 
 type Props = {
     selectedChat: Chat
 }
 
-type List = {
-    all: Message1[],
-    limit: Message1[]
+interface ListForRenderProps {
+    list: Message1[],
+    listRef: HTMLDivElement
+
 }
+
+// const ListForRender: FC<ListForRenderProps> = ({ list, listRef }) => {
+
+//     const [size, setSize] = useState({ clientWidth: listRef?.clientWidth, clientHeight: listRef?.offsetHeight })
+
+//     const resizeHandler = () => {
+//         const { clientHeight, clientWidth } = listRef || {};
+//         setSize({ clientHeight, clientWidth: clientWidth - 8 });
+//     };
+
+//     useEffect(() => {
+//         window.addEventListener("resize", resizeHandler);
+//         resizeHandler();
+//         return () => {
+//             window.removeEventListener("resize", resizeHandler);
+//         };
+//     }, []);
+
+//     //написать функцию которая будет считать высоту сообщения
+//     const rowHeights = [...list]
+//         .map((item) => item.message.length + 250);
+
+//     const getItemSize = (index: number) => rowHeights[index];
+
+//     const Row = ({ index, style }: { index: number, style: any }) => (
+//         <div style={style}>
+//             <Message messageInfo={list[index]} />
+//         </div>
+//     );
+
+//     return (
+//         <ul>
+//             <List
+//                 height={size.clientHeight}
+//                 itemCount={list.length}
+//                 itemSize={getItemSize}
+//                 width={size.clientWidth}
+//             >
+//                 {Row}
+//             </List>
+//             {/* {list.map((item, index) => {
+//                 if (index !== 0 && getDatefromDate(createNewDate(item.date)) === getDatefromDate(createNewDate(list[index - 1].date))) {
+//                     return <Message messageInfo={item} key={item.messageID} height={height} width={width} />
+//                 }
+//                 return <div key={item.messageID}>
+//                     <GetDateMessage date={item.date} />
+//                     <Message messageInfo={item} key={item.messageID} height={height} width={width} />
+//                 </div>
+//             })} */}
+//         </ul>
+//     );
+// }
+
+
+// const ListMessages: FC<Props> = ({ selectedChat }) => {
+
+//     const [list, setList] = useState<ListMessagesType>({ all: [], limit: [] })
+//     const dispatch = useAppDispatch()
+//     const isLoadChat = useAppSelector(state => state.app.loadChat)
+//     const currentUserID = useAppSelector(state => state.app.currentUser.uid)
+//     const listRef = useRef<HTMLDivElement>(null)
+//     const [firstRender, setFirstRender] = useState(true)
+//     const moreMessage = list.all.length && list.limit.length && list.all[list.all.length - 1].messageID !== list.limit[list.limit.length - 1].messageID
+
+//     //сделать чтоб не показывалось загрузка после добавления сообщения
+
+//     // const scrollListener = () => {
+//     //     const scrollValue = listRef.current.scrollTop
+//     //     const listHeight = listRef.current.scrollHeight
+//     //     const viewportHeight = listRef.current.clientHeight
+//     //     const height = listHeight - viewportHeight
+//     //     const scrollPercent = (scrollValue / height) * 100
+//     //     if(Math.ceil(scrollPercent) === 100) {
+//     //         if(moreMessage) {
+//     //             setList(prev => {
+//     //                 const lastIndex = prev.all.findIndex(item => item.messageID === prev.limit[prev.limit.length - 1].messageID)
+//     //                 const newLimit = prev.all.slice(lastIndex + 1, lastIndex + 50)
+//     //                 return {all: prev.all, limit: [...prev.limit, ...newLimit]}
+//     //             })
+//     //         }
+//     //     }
+//     // }
+
+//     useEffect(() => {
+//         if (list.all.length) setList({ all: [], limit: [] })
+//         if (!firstRender) setFirstRender(true)
+//         const messages = onSnapshot(doc(db, "chats", selectedChat.chatID), (doc: DocumentSnapshot<Message1[]>) => {
+//             //setList(createMessageList(doc.data()))
+//             setList((prev) => {
+//                 const all = createMessageList(doc.data())
+//                 //return {all, limit: prev.limit}
+//                 return { all, limit: createLimitMessagesList({ all, limit: prev.limit }) }
+//             })
+//             if (isLoadChat) dispatch(setLoadChat(false))
+//         });
+//         return () => messages()
+//     }, [selectedChat.uid]);
+
+//     // useLayoutEffect(() => {
+//     //     listRef.current?.addEventListener('scroll', scrollListener)
+//     //     return () => {
+//     //         console.log('снимаю слушатель с >', listRef.current)
+//     //         listRef.current.removeEventListener('scroll', scrollListener)
+//     //     }
+//     // }, [list]);
+
+//     ///////////////////////////для авто прокрутки
+
+//     useEffect(() => {
+//         if (firstRender && list.all.length) {
+//             setList((prev) => ({ all: prev.all, limit: prev.all.slice(0, 50) }))
+//             // const targetIndex = searchNoReadMessage(list.all, currentUserID)
+//             // setList((prev) => ({all: prev.all, limit: prev.all.slice(targetIndex - 25, targetIndex + 25)}))
+//             setFirstRender(false)
+//         }
+//         //if(list.length) scrollToElement(listRef.current, list, currentUserID, firstRender)
+//     }, [list.all]);
+
+//     //////////////////////////////
+//     console.log('render list messages')
+
+//     return (
+//         <div className={styles.listMessages} ref={listRef}>
+//             {isLoadChat ?
+//                 <div className={styles.contentContainer}>
+//                     <div className={styles.preloaderBlock}>
+//                         <Preloader fontSize={'2.4rem'} />
+//                     </div>
+//                 </div>
+//                 :
+//                 <ListForRender list={list.all} listRef={listRef.current} />
+//             }
+//         </div>
+//     );
+// }
 
 const ListMessages: FC<Props> = ({ selectedChat }) => {
 
-    const [list, setList] = useState<List>({all: [], limit: []})
+    const [list, setList] = useState<ListMessagesType>({all: [], limit: []})
     const dispatch = useAppDispatch()
     const isLoadChat = useAppSelector(state => state.app.loadChat)
+    const currentUserID = useAppSelector(state => state.app.currentUser.uid)
     const listRef = useRef<HTMLDivElement>(null)
     const [firstRender, setFirstRender] = useState(true)
     const moreMessage = list.all.length && list.limit.length && list.all[list.all.length - 1].messageID !== list.limit[list.limit.length - 1].messageID
@@ -54,7 +196,8 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
             //setList(createMessageList(doc.data()))
             setList((prev) => {
                 const all = createMessageList(doc.data())
-                return {all, limit: prev.limit}
+                //return {all, limit: prev.limit}
+                return {all, limit: createLimitMessagesList({all, limit: prev.limit})}
             })
             if (isLoadChat) dispatch(setLoadChat(false))
         });
@@ -74,8 +217,11 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
     useEffect(() => {
         if(firstRender && list.all.length) {
             setList((prev) => ({all: prev.all, limit: prev.all.slice(0, 50)}))
+            // const targetIndex = searchNoReadMessage(list.all, currentUserID)
+            // setList((prev) => ({all: prev.all, limit: prev.all.slice(targetIndex - 25, targetIndex + 25)}))
             setFirstRender(false)
         }
+        //if(list.length) scrollToElement(listRef.current, list, currentUserID, firstRender)
     }, [list.all]);
 
     //////////////////////////////

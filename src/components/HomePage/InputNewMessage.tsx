@@ -16,8 +16,6 @@ type Props = {
 
 const InputNewMessage: FC<Props> = ({ chatInfo }) => {
 
-
-
     const dispatch = useAppDispatch()
     const selectedChat = useAppSelector(state => state.app.selectedChat)
     const currentUser = useAppSelector(state => state.app.currentUser)
@@ -35,7 +33,6 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
     }
 
     const sendMessage = () => {
-        console.log('send message', !newMessage.trim())
         if (!newMessage.trim()) return
         Promise.all([messagesAPI.addChat(currentUser.email, selectedChat, chatInfo.chatID), messagesAPI.addChat(selectedChat.email, currentUser, chatInfo.chatID)])
             .then(() => messagesAPI.sendMessage(chatInfo.chatID, currentUser, newMessage))
@@ -51,21 +48,6 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
     const cancelEiting = () => {
         dispatch(changeMessage(null))
     }
-
-    // const onKeyDown = (e: KeyboardEvent) => {
-    //     console.log(e.key)
-    //     if (e.key === 'Escape') dispatch(changeMessage(null))
-    // }
-
-    // useEffect(() => {
-    //     if (isEditMessage) {
-    //         window.addEventListener('keydown', onKeyDown)
-    //         setEditMessage(isEditMessage.message)
-    //         refTextarea.current.focus()
-    //         return () => window.removeEventListener('keydown', onKeyDown)
-    //     }
-
-    // }, [isEditMessage]);
 
     const onKeyDown = (e: KeyboardEvent) => {
         if (e.key === 'Escape' && isEditMessage) dispatch(changeMessage(null))

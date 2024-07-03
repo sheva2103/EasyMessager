@@ -57,3 +57,8 @@ export type Message1 = {
     changed?: string,
     forwardedFrom?: Chat
 }
+
+export type ListMessagesType = {
+    all: Message1[],
+    limit: Message1[]
+}
