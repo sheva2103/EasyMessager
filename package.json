@@ -23,6 +23,7 @@
     "@types/node": "^20.10.0",
     "@types/react": "^18.2.38",
     "@types/react-dom": "^18.2.17",
+    "@types/react-window-infinite-loader": "^1.0.9",
     "@types/uuid": "^9.0.8",
     "@types/webpack": "^5.28.5",
     "@types/webpack-bundle-analyzer": "^4.6.3",
@@ -53,6 +54,8 @@
     "@formkit/tempo": "^0.1.1",
     "@mui/material": "^5.15.12",
     "@reduxjs/toolkit": "^2.1.0",
+    "@types/react-virtualized-auto-sizer": "^1.0.4",
+    "@types/react-window": "^1.8.8",
     "classnames": "^2.5.1",
     "firebase": "^10.9.0",
     "react": "^18.2.0",
@@ -61,6 +64,9 @@
     "react-in-viewport": "^1.0.0-alpha.30",
     "react-redux": "^9.1.0",
     "react-router-dom": "^6.20.0",
+    "react-virtualized-auto-sizer": "^1.0.24",
+    "react-window": "^1.8.10",
+    "react-window-infinite-loader": "^1.0.9",
     "styled-components": "^6.1.8",
     "uuid": "^9.0.1"
   }

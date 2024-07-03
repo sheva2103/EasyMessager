@@ -1,4 +1,4 @@
-import { Chat, Message1 } from "../types/types"
+import { Chat, ListMessagesType, Message1 } from "../types/types"
 import { format } from "@formkit/tempo"
 
 
@@ -32,14 +32,16 @@ export function createMessageList(list: Message1[]) {
 }
 
 
-export function createLimitMessagesList(list: Message1[]): Message1[] {
+export function createLimitMessagesList(list: ListMessagesType): Message1[] {
 
-    let targetIndex = list.findIndex(item => item.read === false)
-    if(targetIndex > 0) {
-        //console.log(targetIndex, '>>>', list.slice(targetIndex - 20, targetIndex + 21))
-        return list.slice(targetIndex - 20, targetIndex + 21)
+    if(list.limit.length) {
+        const startIndex = list.all.findIndex(item => item.messageID === list.limit[0].messageID)
+        const lastIndex = list.all.findIndex(item => item.messageID === list.limit[list.limit.length - 1].messageID)
+        const newLimit = list.all.slice(startIndex, lastIndex + 1)
+        if(newLimit.length < 49) return list.all
+        return newLimit
     }
-    return list.slice(list.length - 40, list.length + 1)
+    return list.limit
 }
 
 
@@ -67,6 +69,17 @@ export function scrollToElement(element: HTMLDivElement, list: Message1[], curre
         const targetElement = element.querySelector(`label[data-id="${targetID}"]`)
         targetElement.scrollIntoView({ block: 'end' ,behavior: firstRender ? 'auto' : 'smooth' })
     }
+}
+
+export function searchNoReadMessage(list: Message1[], id: string): number {
+
+    const targetIndex = list.findIndex(item => {
+        if(item.sender.uid !== id) item.read === false
+    })
+    console.log('targetIndex>>>', targetIndex)
+    if(targetIndex > 0) return targetIndex
+    return list.length - 1
+    //return targetIndex || list.length - 1
 }
 
 
