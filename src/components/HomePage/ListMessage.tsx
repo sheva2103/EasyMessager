@@ -1,10 +1,10 @@
 import styles from './HomePage.module.scss'
-import { FC, memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createElement, FC, memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Message from './Messgae';
 import { DocumentSnapshot, doc, onSnapshot } from "firebase/firestore";
 import { db } from '../../firebase';
 import { Chat, ListMessagesType, Message1 } from '../../types/types';
-import { createLimitMessagesList, createMessageList, createNewDate, getDatefromDate, searchNoReadMessage } from '../../utils/utils';
+import { calculateHeightMessage, createLimitMessagesList, createMessageList, createNewDate, getDatefromDate, searchNoReadMessage } from '../../utils/utils';
 import GetDateMessage from './GetDateMessage';
 import { useAppDispatch, useAppSelector } from '../../hooks/hook';
 import { setLoadChat } from '../../store/slices/appSlice';
@@ -27,10 +27,9 @@ interface ListForRenderProps {
 
 // const ListForRender: FC<ListForRenderProps> = ({ list, listRef }) => {
 
-//     const [size, setSize] = useState({ clientWidth: listRef?.clientWidth, clientHeight: listRef?.offsetHeight })
+//     const [size, setSize] = useState({ clientWidth: listRef?.clientWidth, clientHeight: listRef?.clientHeight })
 
 //     const resizeHandler = () => {
-//         console.log('resize')
 //         const { clientHeight, clientWidth } = listRef || {};
 //         setSize({ clientHeight, clientWidth: clientWidth - 8 });
 //     };
@@ -42,45 +41,40 @@ interface ListForRenderProps {
 //             window.removeEventListener("resize", resizeHandler);
 //         };
 //     }, []);
+//     //////////////////
+//     // const computedStyles = window.getComputedStyle(listRef);
+//     // const fontSize = computedStyles.fontSize;
+//     // const letterSpacing = computedStyles.letterSpacing
+//     // const wordSpacing = computedStyles.wordSpacing
+//     // const fontFamily = computedStyles.fontFamily
+//     // const style = {font: `${fontSize} ${fontFamily}`, letterSpacing: `${letterSpacing}`, wordSpacing: `${wordSpacing}`}
+//     // console.log('fontSize>>', style)
 
-//     const rowHeights = [...list]
-//         .map((item, index) => {
-//             const lineHeight = 26
-//             const heightDate = 32
-//             const singleLineHeight = 57
-//             const forwardedFromHeight = 30
-//             const symbolsQuantity = item.message.length
-//             const lengthString = symbolsQuantity * 16 + 64
-//             let plusPx = 0
-//             if(item.forwardedFrom) plusPx = forwardedFromHeight
-//             if(index === 0) plusPx += heightDate
-//             if(index !== 0 && getDatefromDate(createNewDate(list[index].date)) !== getDatefromDate(createNewDate(list[index - 1].date))) plusPx += heightDate
-//             if(size.clientWidth >= lengthString) return singleLineHeight + plusPx
-//             return (lineHeight * Math.ceil((lengthString / size.clientWidth))) + plusPx
-//         });
+    
+//     const rowHeights = calculateHeightMessage(list, size)
 
 //     const getItemSize = (index: number) => rowHeights[index];
 
-//     const Row = ({ index, style }: { index: number, style: any }) => (
+//     const Row = ({ index, style }: { index: number, style: Object }) => (
 //         <div style={style}>
-//             { index !== 0 && getDatefromDate(createNewDate(list[index].date)) === getDatefromDate(createNewDate(list[index - 1].date)) ?
+//             {index !== 0 && getDatefromDate(createNewDate(list[index].date)) === getDatefromDate(createNewDate(list[index - 1].date)) ?
 //                 <Message messageInfo={list[index]} />
 //                 :
 //                 <div key={list[index].messageID}>
 //                     <GetDateMessage date={list[index].date} />
 //                     <Message messageInfo={list[index]} key={list[index].messageID} />
 //                 </div>
-//                 }
+//             }
 //         </div>
 //     );
 
 //     return (
 //         <ul>
 //             <List
-//                 height={size.clientHeight}
+//                 height={size.clientHeight + 10}
 //                 itemCount={list.length}
 //                 itemSize={getItemSize}
-//                 width={size.clientWidth}
+//                 width={size.clientWidth - 4}
 //             >
 //                 {Row}
 //             </List>

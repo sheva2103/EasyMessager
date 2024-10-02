@@ -37,13 +37,6 @@ export interface CurrentUser extends CurrentUserData {
     email: string
 }
 
-// export type Chat = {
-//     displayName: string,
-//     email: string,
-//     chatID?: string,
-//     uid: string
-// }
-
 export interface Chat extends CurrentUser  {
     chatID?: string,
 }
@@ -61,4 +54,9 @@ export type Message1 = {
 export type ListMessagesType = {
     all: Message1[],
     limit: Message1[]
+}
+
+export type size = {
+    clientWidth: number,
+    clientHeight: number
 }

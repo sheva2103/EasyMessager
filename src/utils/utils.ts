@@ -1,4 +1,4 @@
-import { Chat, ListMessagesType, Message1 } from "../types/types"
+import { Chat, ListMessagesType, Message1, size } from "../types/types"
 import { format } from "@formkit/tempo"
 
 
@@ -34,11 +34,11 @@ export function createMessageList(list: Message1[]) {
 
 export function createLimitMessagesList(list: ListMessagesType): Message1[] {
 
-    if(list.limit.length) {
+    if (list.limit.length) {
         const startIndex = list.all.findIndex(item => item.messageID === list.limit[0].messageID)
         const lastIndex = list.all.findIndex(item => item.messageID === list.limit[list.limit.length - 1].messageID)
         const newLimit = list.all.slice(startIndex, lastIndex + 1)
-        if(newLimit.length < 49) return list.all
+        if (newLimit.length < 49) return list.all
         return newLimit
     }
     return list.limit
@@ -56,9 +56,9 @@ export function createLimitMessagesList(list: ListMessagesType): Message1[] {
 export function scrollToElement(element: HTMLDivElement, list: Message1[], currentUserID: string, firstRender: boolean) {
 
     let targetID = list[list.length - 1].messageID
-    if(firstRender) {
-        for(let i = 0; i < list.length; i++) {
-            if(list[i].sender.uid !== currentUserID && i && list[i + 1]?.read === false ) {
+    if (firstRender) {
+        for (let i = 0; i < list.length; i++) {
+            if (list[i].sender.uid !== currentUserID && i && list[i + 1]?.read === false) {
                 targetID = list[i].messageID
                 break
             }
@@ -67,17 +67,17 @@ export function scrollToElement(element: HTMLDivElement, list: Message1[], curre
 
     if (element) {
         const targetElement = element.querySelector(`label[data-id="${targetID}"]`)
-        targetElement.scrollIntoView({ block: 'end' ,behavior: firstRender ? 'auto' : 'smooth' })
+        targetElement.scrollIntoView({ block: 'end', behavior: firstRender ? 'auto' : 'smooth' })
     }
 }
 
 export function searchNoReadMessage(list: Message1[], id: string): number {
 
     const targetIndex = list.findIndex(item => {
-        if(item.sender.uid !== id) item.read === false
+        if (item.sender.uid !== id) item.read === false
     })
     console.log('targetIndex>>>', targetIndex)
-    if(targetIndex > 0) return targetIndex
+    if (targetIndex > 0) return targetIndex
     return list.length - 1
     //return targetIndex || list.length - 1
 }
@@ -115,15 +115,46 @@ export function getDatefromDate(date: string): string {
 
 
 export function checkMessage(str: string): string {
-
     const reg = /(https?:\/\/|ftps?:\/\/|www\.)((?![.,?!;:()]*(\s|$))[^\s]){2,}/gim
-
     if (!reg.test(str)) return str
-
     const message = str.split(' ')
     let newStr = message.map(item => {
         if (reg.test(item)) return `<a href='${item}' target='blank'>${item}</a>`
         return item
     })
     return newStr.join(' ')
+}
+
+export function calculateHeightMessage(list: Message1[], size: size): number[] {
+    console.log('пересчёт', size)
+    return [...list]
+        .map((item, index) => {
+            const canvas: HTMLCanvasElement = document.querySelector('#canvas')
+            const context = canvas.getContext('2d')
+            context.font = '17.6px Roboto'
+            const text = item.message
+            const textWidth = context.measureText(text).width
+            //console.log(`Длина текста = ${textWidth}`)
+
+            const paddingMessage = 44
+            //const widthUl = size.clientWidth >= 568 ? (size.clientWidth * 70 / 100) - paddingMessage : size.clientWidth - paddingMessage
+            const widthUl = size.clientWidth >= 568 ? size.clientWidth - paddingMessage - 40 : size.clientWidth - paddingMessage
+            let pixels = 0
+            const heightDate = 33
+            const forwardedFromHeight = 30
+            const statusHeight = 28
+            const fontSize = 17.6
+
+            const lineHeight = 21
+            const pixelLength = Number(textWidth)
+
+            if (item.forwardedFrom) pixels += forwardedFromHeight
+            if (index !== 0 && getDatefromDate(createNewDate(list[index].date)) !== getDatefromDate(createNewDate(list[index - 1].date))) pixels += heightDate
+            if (index === 0) pixels += heightDate
+            //console.log('количество строк >>>>', Math.ceil(Math.ceil(Number(textWidth)) / widthUl), widthUl, size.clientWidth, Number(textWidth))
+            if ((widthUl - 4) >= (pixelLength + paddingMessage)) return statusHeight + 8 + pixels + lineHeight
+
+            return (lineHeight * Math.ceil(Math.ceil(Number(textWidth)) / widthUl)) + pixels + statusHeight + 10  // не правильно чситается количество рядков
+
+        })
 }

@@ -105,6 +105,21 @@ const Message: FC<Props> = ({ messageInfo }) => {
         setContextMenu(false)
     }
 
+    // const ios = (event: React.TouchEvent) => {
+    //     if (event.touches.length === 1) {
+    //         // Ожидание долгого нажатия
+    //         let timer = setTimeout(function() {
+    //             event.preventDefault()
+    //             if (!isShowCheckbox) setContextMenu(true)
+    //         }, 500); // 500 мс для долгого нажатия
+    
+    //         // Отмена таймера, если пользователь убрал палец до истечения времени
+    //         event.target.addEventListener('touchend', function() {
+    //             clearTimeout(timer);
+    //         }, { once: true });
+    //     }
+    // }  ДОРАБОТАТЬ
+
     const readMessage = () => {
         if (messageInfo.sender.email !== owner.email && !messageInfo.read) messagesAPI.readMessage(chat.chatID, messageInfo)
     }
@@ -127,6 +142,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
                 <div
                     className={classNames(styles.messageData, styles.owner, { [styles.guest]: messageInfo.sender.email !== owner.email, [styles.noSelect]: contextMenuIsOpen })}
                     onContextMenu={openContextMenu}
+                    // onTouchStart={ios}
                     ref={refSpan}
                 >
                     {messageInfo.forwardedFrom && <ForwardedFrom user={messageInfo.forwardedFrom}/>}

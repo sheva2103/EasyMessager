@@ -44,6 +44,9 @@ const ChatContent: FC = () => {
                 </header>
             </div>
             <div className={styles.chatWindow}>
+                {/* <template>
+                    <canvas id="canvas"></canvas>
+                </template> */}
                 <main>
                     <ListMessages selectedChat={selectedChat}/>
                     {/* <InputNewMessage chatInfo={selectedChat} /> */}
