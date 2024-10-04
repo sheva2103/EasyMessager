@@ -4,7 +4,11 @@ import Message from './Messgae';
 import { DocumentSnapshot, doc, onSnapshot } from "firebase/firestore";
 import { db } from '../../firebase';
 import { Chat, ListMessagesType, Message1 } from '../../types/types';
+<<<<<<< HEAD
 import { calculateHeightMessage, createLimitMessagesList, createMessageList, createNewDate, getDatefromDate, searchNoReadMessage } from '../../utils/utils';
+=======
+import { createLimitMessagesList, createMessageList, createNewDate, getDatefromDate, searchNoReadMessage } from '../../utils/utils';
+>>>>>>> e41c4039d785f462fbd4787040bf0fd4e87f78e6
 import GetDateMessage from './GetDateMessage';
 import { useAppDispatch, useAppSelector } from '../../hooks/hook';
 import { setLoadChat } from '../../store/slices/appSlice';
@@ -27,7 +31,11 @@ interface ListForRenderProps {
 
 // const ListForRender: FC<ListForRenderProps> = ({ list, listRef }) => {
 
+<<<<<<< HEAD
 //     const [size, setSize] = useState({ clientWidth: listRef?.clientWidth, clientHeight: listRef?.clientHeight })
+=======
+//     const [size, setSize] = useState({ clientWidth: listRef?.clientWidth, clientHeight: listRef?.offsetHeight })
+>>>>>>> e41c4039d785f462fbd4787040bf0fd4e87f78e6
 
 //     const resizeHandler = () => {
 //         const { clientHeight, clientWidth } = listRef || {};
@@ -41,6 +49,7 @@ interface ListForRenderProps {
 //             window.removeEventListener("resize", resizeHandler);
 //         };
 //     }, []);
+<<<<<<< HEAD
 //     //////////////////
 //     // const computedStyles = window.getComputedStyle(listRef);
 //     // const fontSize = computedStyles.fontSize;
@@ -65,12 +74,25 @@ interface ListForRenderProps {
 //                     <Message messageInfo={list[index]} key={list[index].messageID} />
 //                 </div>
 //             }
+=======
+
+//     //написать функцию которая будет считать высоту сообщения
+//     const rowHeights = [...list]
+//         .map((item) => item.message.length + 250);
+
+//     const getItemSize = (index: number) => rowHeights[index];
+
+//     const Row = ({ index, style }: { index: number, style: any }) => (
+//         <div style={style}>
+//             <Message messageInfo={list[index]} />
+>>>>>>> e41c4039d785f462fbd4787040bf0fd4e87f78e6
 //         </div>
 //     );
 
 //     return (
 //         <ul>
 //             <List
+<<<<<<< HEAD
 //                 height={size.clientHeight + 10}
 //                 itemCount={list.length}
 //                 itemSize={getItemSize}
@@ -78,6 +100,24 @@ interface ListForRenderProps {
 //             >
 //                 {Row}
 //             </List>
+=======
+//                 height={size.clientHeight}
+//                 itemCount={list.length}
+//                 itemSize={getItemSize}
+//                 width={size.clientWidth}
+//             >
+//                 {Row}
+//             </List>
+//             {/* {list.map((item, index) => {
+//                 if (index !== 0 && getDatefromDate(createNewDate(item.date)) === getDatefromDate(createNewDate(list[index - 1].date))) {
+//                     return <Message messageInfo={item} key={item.messageID} height={height} width={width} />
+//                 }
+//                 return <div key={item.messageID}>
+//                     <GetDateMessage date={item.date} />
+//                     <Message messageInfo={item} key={item.messageID} height={height} width={width} />
+//                 </div>
+//             })} */}
+>>>>>>> e41c4039d785f462fbd4787040bf0fd4e87f78e6
 //         </ul>
 //     );
 // }
@@ -91,13 +131,43 @@ interface ListForRenderProps {
 //     const currentUserID = useAppSelector(state => state.app.currentUser.uid)
 //     const listRef = useRef<HTMLDivElement>(null)
 //     const [firstRender, setFirstRender] = useState(true)
+<<<<<<< HEAD
+=======
+//     const moreMessage = list.all.length && list.limit.length && list.all[list.all.length - 1].messageID !== list.limit[list.limit.length - 1].messageID
+
+//     //сделать чтоб не показывалось загрузка после добавления сообщения
+
+//     // const scrollListener = () => {
+//     //     const scrollValue = listRef.current.scrollTop
+//     //     const listHeight = listRef.current.scrollHeight
+//     //     const viewportHeight = listRef.current.clientHeight
+//     //     const height = listHeight - viewportHeight
+//     //     const scrollPercent = (scrollValue / height) * 100
+//     //     if(Math.ceil(scrollPercent) === 100) {
+//     //         if(moreMessage) {
+//     //             setList(prev => {
+//     //                 const lastIndex = prev.all.findIndex(item => item.messageID === prev.limit[prev.limit.length - 1].messageID)
+//     //                 const newLimit = prev.all.slice(lastIndex + 1, lastIndex + 50)
+//     //                 return {all: prev.all, limit: [...prev.limit, ...newLimit]}
+//     //             })
+//     //         }
+//     //     }
+//     // }
+>>>>>>> e41c4039d785f462fbd4787040bf0fd4e87f78e6
 
 //     useEffect(() => {
 //         if (list.all.length) setList({ all: [], limit: [] })
 //         if (!firstRender) setFirstRender(true)
 //         const messages = onSnapshot(doc(db, "chats", selectedChat.chatID), (doc: DocumentSnapshot<Message1[]>) => {
+<<<<<<< HEAD
 //             setList((prev) => {
 //                 const all = createMessageList(doc.data())
+=======
+//             //setList(createMessageList(doc.data()))
+//             setList((prev) => {
+//                 const all = createMessageList(doc.data())
+//                 //return {all, limit: prev.limit}
+>>>>>>> e41c4039d785f462fbd4787040bf0fd4e87f78e6
 //                 return { all, limit: createLimitMessagesList({ all, limit: prev.limit }) }
 //             })
 //             if (isLoadChat) dispatch(setLoadChat(false))
