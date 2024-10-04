@@ -55,8 +55,11 @@ export type ListMessagesType = {
     all: Message1[],
     limit: Message1[]
 }
+<<<<<<< HEAD
 
 export type size = {
     clientWidth: number,
     clientHeight: number
 }
+=======
+>>>>>>> e41c4039d785f462fbd4787040bf0fd4e87f78e6

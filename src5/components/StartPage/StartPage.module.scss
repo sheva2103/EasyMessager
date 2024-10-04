@@ -1,0 +1,58 @@
+
+.wrapper {
+    width: 100%;
+    //min-height: 100svh;
+    height: 100%;
+    position: relative;
+    overflow-x: hidden;
+    // overflow-y: hidden;
+
+    .contentButton {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        left: 0;
+        transition: all 0.5s;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        & .buttonGroup {
+            display: flex;
+            justify-content: center;
+            flex-direction: row;
+            gap: 24px;
+
+            @media (max-width: 468px) {
+                flex-direction: column;
+            }
+        }
+    }
+
+    .hide {
+        left: -100%;
+        transition: all 0.5s;
+        opacity: 0.1;
+    }
+
+    .contentForm {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        right: -100%;
+        opacity: 0;
+        transition: all 0.5s;
+    }
+    .show {
+        right: 0;
+        transition: all 0.5s;
+        opacity: 1;
+    }
+
+    & button {
+        font-weight: 500;
+        font-size: 1.3rem;
+        width: 200px;
+    }
+}

@@ -1,0 +1,122 @@
+.settings {
+    overflow: hidden;
+    @media (max-height: 468px) and (orientation: landscape) {
+        height: 70svh;
+        overflow: auto;
+    }
+}
+
+.hr {
+    width: 100%;
+    height: 4px;
+    background-color: var(--background-color-content-block);
+    border: none;
+}
+
+.group {
+    padding: 4px 0;
+    display: flex;
+    flex-direction: column;
+
+    .item {
+        padding: 8px 16px;
+    }
+
+    .item:hover {
+        background-color: var(--background-color-input);
+    }
+}
+
+.select {
+    border: 1px solid var(--background-color-input);
+    background-color: var(--background-color-input);
+    border-radius: 8px;
+    padding: 6px 35px 6px 15px;
+    //outline: none;
+    cursor: pointer;
+    color: var(--color);
+}
+
+.select:focus-visible {
+    outline: none;
+    border: 1px solid rgb(135, 116, 225);
+    //box-shadow: 0 0 0 1px #cf690a 0 0 10px #be0514;
+}
+
+.options {
+    background-color: var(--background-color-input);
+}
+
+.container {
+    display: flex;
+    width: 100%;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+
+    .containerItem {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
+
+.dropDawn {
+    list-style: none;
+    padding-left: 12px;
+    min-height: 0;
+    font-size: 0;
+    transition: all 0.2s;
+    margin: 4px 0;
+
+    & li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &.show li {
+        padding: 6px;
+        @media (max-width: 468px) {
+            padding: 10px;
+            font-size: 1.2rem;
+        }
+    }
+
+    & li:hover {
+        color: rgb(135, 116, 225);
+        border-bottom: 1px solid rgba(134, 116, 225, 0.363);
+    }
+}
+
+// .checkMenu:checked ~ .dropDawn {
+//     min-height: 100px;
+//     font-size: inherit;
+// }
+.show {
+    max-height: 200px;
+    font-size: 1.1rem;
+    overflow: auto;
+
+    & svg {
+        font-size: 1.2rem;
+    }
+}
+
+.button {
+    width: 100px;
+    margin-left: 16px;
+    &__content {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        
+        font-size: 1rem;
+        @media (max-width: 468px) {
+            font-size: 1.2rem;
+        }
+    }
+}
+
