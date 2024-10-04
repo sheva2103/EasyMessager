@@ -212,13 +212,13 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
 
     return (
         <div className={styles.listMessages} ref={listRef}>
-            {isLoadChat ?
+            {/* {isLoadChat ?
                 <div className={styles.contentContainer}>
                     <div className={styles.preloaderBlock}>
                         <Preloader fontSize={'2.4rem'} />
                     </div>
                 </div>
-                :
+                : */}
                 <ul>
                     {list.limit.map((item, index) => {
                         if (index !== 0 && getDatefromDate(createNewDate(item.date)) === getDatefromDate(createNewDate(list.limit[index - 1].date))) {
@@ -229,7 +229,8 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
                             <Message messageInfo={item} key={item.messageID} />
                         </div>
                     })}
-                </ul>}
+                </ul>
+                {/* } */}
                 {moreMessage && 
                     <div style={{textAlign: 'center'}}>
                         <span>Загружаю...</span>

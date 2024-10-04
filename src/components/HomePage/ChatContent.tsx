@@ -7,6 +7,20 @@ import ListMessages from "./ListMessage";
 import { setChat } from "../../store/slices/setChatIDSlice";
 import ChatMenu from "./ChatMenu";
 import MessageInputField from "./MessageInputField";
+import Preloader from '../../assets/preloader.svg'
+
+const LoadChatComponent: FC = () => {
+
+    const isLoad = useAppSelector(state => state.app.loadChat)
+
+    return (
+        <div className={styles.contentContainer} style={{position: 'absolute', display: isLoad? 'block' : 'none'}}>
+            <div className={styles.preloaderBlock}>
+                <Preloader fontSize={'2.4rem'} />
+            </div>
+        </div>
+    )
+}
 
 
 const ChatContent: FC = () => {
@@ -24,12 +38,13 @@ const ChatContent: FC = () => {
             </div>
         )
     }
-    
+
     //console.log('chat content render')
-    
+
 
     return (
         <div className={classNames(styles.contentContainer, { [styles.showContent]: selectedChat })}>
+            <LoadChatComponent />
             <div className={styles.header}>
                 <header>
                     <div className={styles.closeIcon} onClick={closeChat}>
@@ -39,7 +54,7 @@ const ChatContent: FC = () => {
                         <div className={styles.contentHeader__selectedChat}>
                             <span>{selectedChat.displayName}</span>
                         </div>
-                        <ChatMenu selectedChat={selectedChat}/>
+                        <ChatMenu selectedChat={selectedChat} />
                     </div>
                 </header>
             </div>
@@ -48,8 +63,7 @@ const ChatContent: FC = () => {
                     <canvas id="canvas"></canvas>
                 </template> */}
                 <main>
-                    <ListMessages selectedChat={selectedChat}/>
-                    {/* <InputNewMessage chatInfo={selectedChat} /> */}
+                    <ListMessages selectedChat={selectedChat} />
                     <MessageInputField selectedChat={selectedChat} />
                 </main>
             </div>

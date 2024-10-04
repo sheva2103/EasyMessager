@@ -6,7 +6,7 @@ import Delete from '../../assets/delete.svg'
 import Select from '../../assets/check-all.svg'
 import Change from '../../assets/change.svg'
 
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from '../../hooks/hook';
 import { Message1, StyleContextMenu } from '../../types/types';
 import { addSelectedMessage, changeMessage, closeBar, isSendMessage, setShowCheckbox } from '../../store/slices/appSlice';
@@ -29,6 +29,12 @@ const ContextMenu: FC<Props> = ({ isOpen, closeContextMenu, isOwner, message, po
 
     const dispatch = useAppDispatch()
     const chatID = useAppSelector(state => state.app.selectedChat.chatID)
+    const [animationOpen, setAnimationOpen] = useState(false)
+
+    useEffect(() => {
+        setAnimationOpen(true)
+        return () => setAnimationOpen(false)
+    }, []);
 
     const copyMessage = () => {
         navigator.clipboard.writeText(message.message);
@@ -52,14 +58,19 @@ const ContextMenu: FC<Props> = ({ isOpen, closeContextMenu, isOwner, message, po
         dispatch(closeBar(CONTACTS))
     }
 
+    const close = (e: React.MouseEvent) => {
+        setAnimationOpen(false)
+        setTimeout(() => closeContextMenu(e), 190)
+    }
+
     return (
         <div
             className={classNames(styles.cover, { [styles.showContextMenu]: isOpen })}
-            onClick={closeContextMenu}
-            onContextMenu={closeContextMenu}
+            onClick={close}
+            onContextMenu={close}
         >
             <div style={positionMenu} className={styles.contextMenu}>
-                <ul >
+                <ul className={classNames({ [styles.showAnimation]: animationOpen })}>
                     <li onClick={forwardMessage}><SendMessage /><span>Переслать</span></li>
                     <li onClick={copyMessage}><Copy /><span>Копировать текст</span></li>
                     {isOwner && !isForwarder &&
