@@ -34,13 +34,17 @@ export function createMessageList(list: Message1[]) {
 
 export function createLimitMessagesList(list: ListMessagesType): Message1[] {
 
+    
+
     if (list.limit.length) {
         const startIndex = list.all.findIndex(item => item.messageID === list.limit[0].messageID)
         const lastIndex = list.all.findIndex(item => item.messageID === list.limit[list.limit.length - 1].messageID)
         const newLimit = list.all.slice(startIndex, lastIndex + 1)
+        console.log('newlimit', newLimit)
         if (newLimit.length < 49) return list.all
         return newLimit
     }
+    console.log(list, '>>>>>>>>>>>')
     return list.limit
 }
 
@@ -157,4 +161,15 @@ export function calculateHeightMessage(list: Message1[], size: size): number[] {
             return (lineHeight * Math.ceil(Math.ceil(Number(textWidth)) / widthUl)) + pixels + statusHeight + 10  // не правильно чситается количество рядков
 
         })
+}
+
+export function createListLimitMessages(messages: ListMessagesType): ListMessagesType {
+    
+    if(messages.limit.length === 0) return
+    const lastIndex = messages.all.findIndex(item => item.messageID === messages.limit[messages.limit.length - 1].messageID)
+    const newLimit = messages.all.slice(lastIndex + 1, lastIndex + 10)
+    const del = messages.limit.slice(newLimit.length, messages.limit.length + 1)
+    console.log('new limit del', del)
+    return {all: messages.all, limit: [].concat(del).concat(newLimit)}
+
 }

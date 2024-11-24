@@ -4,16 +4,19 @@ import Message from './Messgae';
 import { DocumentSnapshot, doc, onSnapshot } from "firebase/firestore";
 import { db } from '../../firebase';
 import { Chat, ListMessagesType, Message1 } from '../../types/types';
-import { calculateHeightMessage, createLimitMessagesList, createMessageList, createNewDate, getDatefromDate, searchNoReadMessage } from '../../utils/utils';
+import { calculateHeightMessage, createLimitMessagesList, createListLimitMessages, createMessageList, createNewDate, getDatefromDate, searchNoReadMessage } from '../../utils/utils';
 import GetDateMessage from './GetDateMessage';
 import { useAppDispatch, useAppSelector } from '../../hooks/hook';
-import { setLoadChat } from '../../store/slices/appSlice';
+import { setLoadChat, setMoreMessages } from '../../store/slices/appSlice';
 import Preloader from '../../assets/preloader.svg'
 //import { VariableSizeList as List } from 'react-window';
 //import { FixedSizeList as List } from 'react-window';
 import InfititeLoader from 'react-window-infinite-loader'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { VariableSizeList as List } from 'react-window';
+//import { useWebWorker } from '../../hooks/useWebWorker';
+//import { useWebWorker } from '../../hooks/useWebWorker';
+import Worker from 'web-worker';
 
 type Props = {
     selectedChat: Chat
@@ -50,7 +53,7 @@ interface ListForRenderProps {
 //     // const style = {font: `${fontSize} ${fontFamily}`, letterSpacing: `${letterSpacing}`, wordSpacing: `${wordSpacing}`}
 //     // console.log('fontSize>>', style)
 
-    
+
 //     const rowHeights = calculateHeightMessage(list, size)
 
 //     const getItemSize = (index: number) => rowHeights[index];
@@ -145,15 +148,50 @@ interface ListForRenderProps {
 
 const ListMessages: FC<Props> = ({ selectedChat }) => {
 
-    const [list, setList] = useState<ListMessagesType>({all: [], limit: []})
+    const [list, setList] = useState<ListMessagesType>({ all: [], limit: [] })
     const dispatch = useAppDispatch()
     const isLoadChat = useAppSelector(state => state.app.loadChat)
     const currentUserID = useAppSelector(state => state.app.currentUser.uid)
     const listRef = useRef<HTMLDivElement>(null)
     const [firstRender, setFirstRender] = useState(true)
-    const moreMessage = list.all.length && list.limit.length && list.all[list.all.length - 1].messageID !== list.limit[list.limit.length - 1].messageID
+    const moreMessages = list.all.length && list.limit.length && list.all[list.all.length - 1].messageID !== list.limit[list.limit.length - 1].messageID
+
+    //const {result, run} = useWebWorker(createLimitMessage(list))
 
     //сделать чтоб не показывалось загрузка после добавления сообщения
+
+    // const [result, runWorker] = useWebWorker<ListMessagesType, any>((data) => {
+    //     //console.log(data, '<<<<<<<<<<<<<<<<')
+    //     const lastIndex = data.all.findIndex(item => item.messageID === data.limit[data.limit.length - 1].messageID)
+    //     const newLimit = data.all.slice(lastIndex + 1, lastIndex + 50)
+    //     console.log(data.limit, '<<<<<<<<<<')
+    //     return { all: data.all, limit: [...data.limit, ...newLimit] }
+    // });
+
+    const downloadMoreMessages = () => {
+
+        const url = new URL('../../utils/worker.js', import.meta.url);
+        const worker = new Worker(url);
+
+        worker.addEventListener('message', e => {
+            console.log(e.data)  // "hiya!"
+            worker.terminate()
+            setList(e.data)
+        });
+
+
+        // worker.postMessage('hello');
+        // worker.postMessage(list);
+        // const newFunction = function() {
+        //     return createListLimitMessages(list)
+        // }
+        // const functionToString = newFunction.toString()
+        // console.log(functionToString)
+        const test = { func: createListLimitMessages.toString(), data: list }
+        worker.postMessage(test);
+
+    }
+
 
     const scrollListener = () => {
         const scrollValue = listRef.current.scrollTop
@@ -161,26 +199,35 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
         const viewportHeight = listRef.current.clientHeight
         const height = listHeight - viewportHeight
         const scrollPercent = (scrollValue / height) * 100
-        if(Math.ceil(scrollPercent) === 100) {
-            if(moreMessage) {
-                setList(prev => {
-                    const lastIndex = prev.all.findIndex(item => item.messageID === prev.limit[prev.limit.length - 1].messageID)
-                    const newLimit = prev.all.slice(lastIndex + 1, lastIndex + 50)
-                    return {all: prev.all, limit: [...prev.limit, ...newLimit]}
-                })
+        if (scrollPercent === 100) {
+            if (moreMessages) {
+                //dispatch(setMoreMessages(true))
+                console.log(scrollPercent)
+
+                // setList(prev => {
+                //     const lastIndex = prev.all.findIndex(item => item.messageID === prev.limit[prev.limit.length - 1].messageID)
+                //     const newLimit = prev.all.slice(lastIndex + 1, lastIndex + 50)
+                //     return { all: prev.all, limit: [...prev.limit, ...newLimit] }
+                // })
+                downloadMoreMessages()
+
             }
         }
     }
 
+    // useEffect(() => {
+    //     dispatch(setMoreMessages(false))
+    // }, [moreMessages]);
+
     useEffect(() => {
-        if (list.all.length) setList({all: [], limit: []})
-        if(!firstRender) setFirstRender(true)
+        if (list.all.length) setList({ all: [], limit: [] })
+        if (!firstRender) setFirstRender(true)
         const messages = onSnapshot(doc(db, "chats", selectedChat.chatID), (doc: DocumentSnapshot<Message1[]>) => {
             //setList(createMessageList(doc.data()))
             setList((prev) => {
                 const all = createMessageList(doc.data())
                 //return {all, limit: prev.limit}
-                return {all, limit: createLimitMessagesList({all, limit: prev.limit})}
+                return { all, limit: createLimitMessagesList({ all, limit: prev.limit }) }
             })
             if (isLoadChat) dispatch(setLoadChat(false))
         });
@@ -198,8 +245,8 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
     ///////////////////////////для авто прокрутки
 
     useEffect(() => {
-        if(firstRender && list.all.length) {
-            setList((prev) => ({all: prev.all, limit: prev.all.slice(0, 50)}))
+        if (firstRender && list.all.length) {
+            setList((prev) => ({ all: prev.all, limit: prev.all.slice(0, 50) }))
             // const targetIndex = searchNoReadMessage(list.all, currentUserID)
             // setList((prev) => ({all: prev.all, limit: prev.all.slice(targetIndex - 25, targetIndex + 25)}))
             setFirstRender(false)
@@ -219,23 +266,20 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
                     </div>
                 </div>
                 : */}
-                <ul>
-                    {list.limit.map((item, index) => {
-                        if (index !== 0 && getDatefromDate(createNewDate(item.date)) === getDatefromDate(createNewDate(list.limit[index - 1].date))) {
-                            return <Message messageInfo={item} key={item.messageID} />
-                        }
-                        return <div key={item.messageID}>
-                            <GetDateMessage date={item.date} />
-                            <Message messageInfo={item} key={item.messageID} />
-                        </div>
-                    })}
-                </ul>
-                {/* } */}
-                {moreMessage && 
-                    <div style={{textAlign: 'center'}}>
-                        <span>Загружаю...</span>
+            <ul>
+                {list.limit.map((item, index) => {
+                    if (index !== 0 && getDatefromDate(createNewDate(item.date)) === getDatefromDate(createNewDate(list.limit[index - 1].date))) {
+                        return <Message messageInfo={item} key={item.messageID} />
+                    }
+                    return <div key={item.messageID}>
+                        <GetDateMessage date={item.date} />
+                        <Message messageInfo={item} key={item.messageID} />
                     </div>
-                }
+                })}
+                
+            </ul>
+            {/* } */}
+
         </div>
     );
 }

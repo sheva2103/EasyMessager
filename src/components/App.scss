@@ -108,3 +108,28 @@ button {
 ::-webkit-scrollbar-thumb:hover {
     background-color: #8170d6;
 }
+
+.custom-select {
+    &__control {
+        border-radius: 14px !important;
+        background-color: var(--background-color-content-block) !important;
+        border: 2px solid #888888 !important;
+        &--is-focused {
+            border-color: #888888 !important;
+        }
+    }
+    &__single-value {
+        color: var(--color) !important;
+    }
+    &__menu {
+        background-color: var(--background-color-content-block) !important;
+        
+    }
+    &__option--is-focused {
+        background-color: #8674e194 !important;
+    }
+    &__option--is-selected {
+        background-color: #8774e1 !important;
+    }
+}
+
