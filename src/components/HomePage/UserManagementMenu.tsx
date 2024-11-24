@@ -1,4 +1,4 @@
-import { FC, memo, useCallback, useMemo, useState } from "react";
+import { FC, memo, useCallback, useEffect, useMemo, useState } from "react";
 import MenuIcon from '../../assets/menu.svg'
 import styles from './HomePage.module.scss'
 import classNames from "classnames";
@@ -20,6 +20,7 @@ const UserManagementMenu: FC<Props> = ({chatInfo}) => {
     const blackList = useAppSelector(state => state.app.blackList)
     const selectedChat = useAppSelector(state => state.app.selectedChat)
     const dispatch = useAppDispatch()
+    const [animationOpen, setAnimationOpen] = useState(false)
 
     const addToContacts = () => {
         contactsAPI.addToContacts(currentUserEmail, chatInfo)
@@ -66,13 +67,22 @@ const UserManagementMenu: FC<Props> = ({chatInfo}) => {
     }
 
     const setMenu = () => {
+        setAnimationOpen(false)
+        // setTimeout(() => setOpen(!isOpen), 180)
         setOpen(!isOpen)
     }
+
+    useEffect(() => {
+        //setTimeout(() => setAnimationOpen(true), 10000)
+        if(isOpen) setAnimationOpen(true)
+        return () => setAnimationOpen(false)
+    }, [isOpen]);
+
 
     return (  
         <>
             <div 
-                className={classNames(styles.menu__cover, {[styles.menu_show]: isOpen})}
+                className={classNames(styles.menu__cover, {[styles.menu_show]: isOpen}, {[styles.animationCover]: animationOpen})}
                 onClick={setMenu}
                 ></div>
             <div className={styles.menu__button}>
@@ -83,7 +93,7 @@ const UserManagementMenu: FC<Props> = ({chatInfo}) => {
                     onKeyDown={onKeyDown}
                     tabIndex={8}
                     />
-                <div className={classNames(styles.menu__list, {[styles.menu_show]: isOpen})}>
+                <div className={classNames(styles.menu__list, {[styles.menu_show]: isOpen}, {[styles.animationMenu]: animationOpen})}>
                     <ul>
                         {isContact ? 
                             <li onClick={deleteContact}>Удалить из контактов</li> 

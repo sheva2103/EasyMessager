@@ -277,7 +277,7 @@
             //align-items: end;
             //gap: 8px;
             padding: 4px;
-            
+
             &.selectedMessage {
                 background-color: #53525270;
                 border-radius: 16px;
@@ -484,8 +484,9 @@
         left: 0;
         bottom: 0;
         z-index: 3;
-        backdrop-filter: blur(2px);
         display: none;
+        backdrop-filter: blur(0px);
+        // transition: all .2;
 
         // &.menu__cover_show {
         //     display: block;
@@ -500,6 +501,8 @@
         border-radius: 8px;
         z-index: 4;
         display: none;
+        opacity: 0.1;
+        // transition: all .1s;
 
         & ul {
             list-style: none;
@@ -523,6 +526,16 @@
 
     .menu_show {
         display: block;
+        box-shadow: var(--menu-box-shadow);
+
+        &.animationCover {
+            backdrop-filter: blur(6px);
+            transition: all 0.4s;
+        }
+        &.animationMenu {
+            opacity: 1;
+            transition: all 0.4s;
+        }
     }
 
     span {
@@ -546,12 +559,15 @@
     right: 0;
     bottom: 0;
     background-color: #d1141400;
-    display: none;
+    //display: none;
     z-index: 100;
-    backdrop-filter: blur(4px);
+    //backdrop-filter: blur(0px);
+    transition: all 0.4s;
 
     &.showContextMenu {
-        display: block;
+        //display: block;
+        backdrop-filter: blur(6px);
+        transition: all 0.4s;
     }
 }
 
@@ -560,16 +576,17 @@
     width: fit-content;
     height: fit-content;
     border-radius: 8px;
+    box-shadow: var(--menu-box-shadow);
 
     & ul {
         padding: 0;
         font-size: 0;
         opacity: 0.1;
-        transition: all .2s;
+        transition: all 0.2s;
         &.showAnimation {
             font-size: 0.95rem;
             opacity: 1;
-            transition: all .2s;
+            transition: all 0.2s;
         }
 
         & li {
@@ -683,4 +700,31 @@
     align-items: center;
     justify-content: center;
     height: 100%;
+}
+
+/* HTML: <div class="loader"></div> */
+.loadMoreMessages {
+    height: 4px;
+    width: 130px;
+    --c: no-repeat linear-gradient(#6100ee 0 0);
+    background: var(--c), var(--c), #d7b8fc;
+    background-size: 60% 100%;
+    animation: l16 3s infinite;
+}
+@keyframes l16 {
+    0% {
+        background-position:
+            -150% 0,
+            -150% 0;
+    }
+    66% {
+        background-position:
+            250% 0,
+            -150% 0;
+    }
+    100% {
+        background-position:
+            250% 0,
+            250% 0;
+    }
 }

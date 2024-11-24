@@ -8,6 +8,7 @@ import { setChat } from "../../store/slices/setChatIDSlice";
 import ChatMenu from "./ChatMenu";
 import MessageInputField from "./MessageInputField";
 import Preloader from '../../assets/preloader.svg'
+import DownloadMoreMessages from "./DownloadMoreMessage";
 
 const LoadChatComponent: FC = () => {
 
@@ -39,7 +40,7 @@ const ChatContent: FC = () => {
         )
     }
 
-    //console.log('chat content render')
+    console.log('chat content render')
 
 
     return (
@@ -64,6 +65,7 @@ const ChatContent: FC = () => {
                 </template> */}
                 <main>
                     <ListMessages selectedChat={selectedChat} />
+                    <DownloadMoreMessages />
                     <MessageInputField selectedChat={selectedChat} />
                 </main>
             </div>

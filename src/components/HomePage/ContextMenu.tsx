@@ -65,7 +65,7 @@ const ContextMenu: FC<Props> = ({ isOpen, closeContextMenu, isOwner, message, po
 
     return (
         <div
-            className={classNames(styles.cover, { [styles.showContextMenu]: isOpen })}
+            className={classNames(styles.cover, { [styles.showContextMenu]: animationOpen })}
             onClick={close}
             onContextMenu={close}
         >
