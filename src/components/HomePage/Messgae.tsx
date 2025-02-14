@@ -107,7 +107,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
         // setOffset(position)
 
         const position = { top: 0, left: 0 }
-        const parentContainer = document.querySelector('.ReactVirtualized__Grid__innerScrollContainer')
+        const parentContainer: HTMLDivElement = document.querySelector('.ReactVirtualized__Grid__innerScrollContainer')
         const parentRect = parentContainer.getBoundingClientRect();
         const clickX = e.clientX - parentRect.left;
         const clickY = e.clientY - parentRect.top;
