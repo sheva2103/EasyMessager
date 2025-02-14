@@ -163,13 +163,34 @@ export function calculateHeightMessage(list: Message1[], size: size): number[] {
         })
 }
 
+// export function createListLimitMessages(messages: ListMessagesType): ListMessagesType {
+    
+//     if(messages.limit.length === 0) return
+//     const lastIndex = messages.all.findIndex(item => item.messageID === messages.limit[messages.limit.length - 1].messageID)
+//     const newLimit = messages.all.slice(lastIndex + 1, lastIndex + 49)
+//     const del = messages.limit.slice(newLimit.length, messages.limit.length + 1)
+//     console.log('new limit del', del)
+//     return {all: messages.all, limit: [].concat(del).concat(newLimit)}
+
+// }
+
+// export function createListLimitMessages(messages: ListMessagesType): ListMessagesType {
+    
+//     if (messages.limit.length === 0) return { all: messages.all, limit: [] }
+
+//     const lastIndex = messages.all.findIndex(item => item.messageID === messages.limit[messages.limit.length - 1].messageID)
+//     const newLimit = messages.all.slice(lastIndex + 1, Math.min(lastIndex + 49, messages.all.length))
+//     const del = messages.limit.slice(newLimit.length, messages.limit.length + 1)
+//     console.log('new limit del', del)
+//     return { all: messages.all, limit: [].concat(del).concat(newLimit) }
+
+// }
+
 export function createListLimitMessages(messages: ListMessagesType): ListMessagesType {
     
-    if(messages.limit.length === 0) return
-    const lastIndex = messages.all.findIndex(item => item.messageID === messages.limit[messages.limit.length - 1].messageID)
-    const newLimit = messages.all.slice(lastIndex + 1, lastIndex + 10)
-    const del = messages.limit.slice(newLimit.length, messages.limit.length + 1)
-    console.log('new limit del', del)
-    return {all: messages.all, limit: [].concat(del).concat(newLimit)}
+    if (messages.limit.length === 0) return { all: messages.all, limit: [] }
 
+    const lastIndex = messages.all.findIndex(item => item.messageID === messages.limit[messages.limit.length - 1].messageID)
+    const newLimit = messages.all.slice(lastIndex + 1, Math.min(lastIndex + 49, messages.all.length))
+    return { all: messages.all, limit: [].concat(messages.limit).concat(newLimit).slice(-100) }
 }
