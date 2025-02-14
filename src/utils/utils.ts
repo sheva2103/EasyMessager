@@ -163,6 +163,7 @@ export function calculateHeightMessage(list: Message1[], size: size): number[] {
         })
 }
 
+<<<<<<< HEAD
 // export function createListLimitMessages(messages: ListMessagesType): ListMessagesType {
     
 //     if(messages.limit.length === 0) return
@@ -193,4 +194,15 @@ export function createListLimitMessages(messages: ListMessagesType): ListMessage
     const lastIndex = messages.all.findIndex(item => item.messageID === messages.limit[messages.limit.length - 1].messageID)
     const newLimit = messages.all.slice(lastIndex + 1, Math.min(lastIndex + 49, messages.all.length))
     return { all: messages.all, limit: [].concat(messages.limit).concat(newLimit).slice(-100) }
+=======
+export function createListLimitMessages(messages: ListMessagesType): ListMessagesType {
+    
+    if(messages.limit.length === 0) return
+    const lastIndex = messages.all.findIndex(item => item.messageID === messages.limit[messages.limit.length - 1].messageID)
+    const newLimit = messages.all.slice(lastIndex + 1, lastIndex + 10)
+    const del = messages.limit.slice(newLimit.length, messages.limit.length + 1)
+    console.log('new limit del', del)
+    return {all: messages.all, limit: [].concat(del).concat(newLimit)}
+
+>>>>>>> 19a3a81be0391c019f7f5108d3849b7c48a8f707
 }
