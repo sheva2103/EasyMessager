@@ -75,15 +75,16 @@ export function scrollToElement(element: HTMLDivElement, list: Message1[], curre
     }
 }
 
-export function searchNoReadMessage(list: Message1[], id: string): number {
+export function searchPositionNoReadMessage(list: Message1[], id: string): number {
 
     const targetIndex = list.findIndex(item => {
-        if (item.sender.uid !== id) item.read === false
+        if (item.sender.uid !== id) return item.read === false
     })
-    console.log('targetIndex>>>', targetIndex)
-    if (targetIndex > 0) return targetIndex
-    return list.length - 1
-    //return targetIndex || list.length - 1
+    console.log(targetIndex)
+    const min = Math.min(targetIndex - 12, list.length)    
+    if (targetIndex !== -1 && min > 0) return targetIndex
+    return list.length
+    
 }
 
 

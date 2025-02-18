@@ -1,4 +1,4 @@
-import { FC, memo, useEffect, useRef, useState } from "react";
+import { FC, memo, useCallback, useEffect, useRef, useState } from "react";
 import Avatar from "../Avatar/Avatar";
 import classNames from "classnames";
 import styles from './HomePage.module.scss'
@@ -86,48 +86,41 @@ const Message: FC<Props> = ({ messageInfo }) => {
     const isForwarder = Boolean(messageInfo?.forwardedFrom)
     const positionMenu: StyleContextMenu = {
         position: 'relative',
-        top: offset.top + 5 + 'px',
-        left: offset.left + 5 + 'px'
+        top: offset.top + 'px',
+        left: offset.left + 'px'
     }
+    const virtualizedListElementRef: {current: HTMLDivElement} = useRef(null)
 
     const messageRef = useRef(null)
 
     const setPositionMenu = (e: MouseEvent) => {
-        // const position = { top: 0, left: 0 }
-        // const windowHeight = document.documentElement.clientHeight
-        // const windowWidth = document.documentElement.clientWidth
-
-        // const parentContainer = document.querySelector('.ReactVirtualized__Grid__innerScrollContainer')
-        // console.log(parentContainer)
-
-        // const positionClickTop = e.clientY
-        // const positionClickLeft = e.clientX
-        // windowHeight - positionClickTop > 220 ? position.top = positionClickTop : position.top = positionClickTop - 168
-        // windowWidth - positionClickLeft > 200 ? position.left = positionClickLeft : position.left = positionClickLeft - 168
-        // setOffset(position)
-
         const position = { top: 0, left: 0 }
+        const styleContainer: HTMLDivElement = document.querySelector('.ReactVirtualized__Grid')
         const parentContainer: HTMLDivElement = document.querySelector('.ReactVirtualized__Grid__innerScrollContainer')
+        //заблокировать скрлл при открытом меню
+            virtualizedListElementRef.current = styleContainer
+            styleContainer.style.willChange = 'auto'
+            styleContainer.style.overflow = 'hidden'
         const parentRect = parentContainer.getBoundingClientRect();
         const clickX = e.clientX - parentRect.left;
-        const clickY = e.clientY - parentRect.top;
         const positionClickTop = e.clientY
-        const topIndent = positionClickTop - HEIGHT_HEADER      
-        topIndent > HEIGHT_MENU_FOR_OWNER ? position.top = clickY - (isOwner && !isForwarder ? HEIGHT_MENU_FOR_OWNER : HEIGHT_MENU_FOR_GUEST) : position.top = clickY
-        clickX > WIDTH_MENU ? position.left = clickX - 168 : position.left = clickX
+        const positionClickLeft = e.clientX
+        const topIndent = positionClickTop - HEIGHT_HEADER
+        topIndent > HEIGHT_MENU_FOR_OWNER ? position.top = positionClickTop - (isOwner && !isForwarder ? HEIGHT_MENU_FOR_OWNER : HEIGHT_MENU_FOR_GUEST) : position.top = positionClickTop
+        clickX > WIDTH_MENU ? position.left = positionClickLeft - 168 : position.left = positionClickLeft
         setOffset(position)
     }
 
     const setPositionMenuForIOS = (e: MouseEvent) => {
         //const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent)
-        if(isIOS) setPositionMenu(e)
+        if (isIOS) setPositionMenu(e)
     }
 
     const ios = ({ target }: React.MouseEvent) => {
         //const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent)
         if (!isIOS) return
         const targetElement: HTMLDivElement = target as HTMLDivElement;
-        if(targetElement.nodeName !== 'A' && !isShowCheckbox) setContextMenu(true)
+        if (targetElement.nodeName !== 'A' && !isShowCheckbox) setContextMenu(true)
     }
 
     useEffect(() => {
@@ -143,6 +136,8 @@ const Message: FC<Props> = ({ messageInfo }) => {
     }
     const closeContextMenu = (e: React.MouseEvent) => {
         e.preventDefault()
+        virtualizedListElementRef.current.style.willChange = 'transform'
+        virtualizedListElementRef.current.style.overflow = 'auto'
         setContextMenu(false)
     }
 
@@ -157,8 +152,8 @@ const Message: FC<Props> = ({ messageInfo }) => {
     console.log('message render')
     // сделать затенение для выбраного сообщения
     return (
-        <li className={classNames({[styles.selectedMessage]: contextMenuIsOpen})} ref={messageRef}>
-            {contextMenuIsOpen && <div className={styles.selectedMessage__selected}/>}
+        <li className={classNames({ [styles.selectedMessage]: contextMenuIsOpen }, {[styles.guest]: !isOwner})} ref={messageRef}>
+            {contextMenuIsOpen && <div className={styles.selectedMessage__selected} />}
             <label data-id={messageInfo.messageID}>
                 {isShowCheckbox && <SelectMessageInput messageInfo={messageInfo} />}
                 <div className={styles.avatar}>

@@ -285,6 +285,12 @@
                 width: fit-content;
                 position: relative;
 
+                &.guest {
+                    @media (max-width: 568px) {
+                        float: right;
+                    }
+                }
+
                 .selectedMessage__selected {
                     position: absolute;
                     top: 0;
