@@ -75,18 +75,6 @@ export function scrollToElement(element: HTMLDivElement, list: Message1[], curre
     }
 }
 
-export function searchPositionNoReadMessage(list: Message1[], id: string): number {
-
-    const targetIndex = list.findIndex(item => {
-        if (item.sender.uid !== id) return item.read === false
-    })
-    console.log(targetIndex)
-    const min = Math.min(targetIndex - 12, list.length)    
-    if (targetIndex !== -1 && min > 0) return targetIndex
-    return list.length
-    
-}
-
 
 export function createNewDate(now: string): string {
     //const now = new Date()
@@ -195,3 +183,21 @@ export function createListLimitMessages(messages: ListMessagesType): ListMessage
     const newLimit = messages.all.slice(lastIndex + 1, Math.min(lastIndex + 49, messages.all.length))
     return { all: messages.all, limit: [].concat(messages.limit).concat(newLimit).slice(-100) }
 }
+
+export function getQuantityNoReadMessages(list: Message1[]): {quantity: number, targetIndex: number} {
+
+    let quantity = 0
+    let targetIndex = 0
+    for (let i = list.length - 1; i > 0; i--) {
+        if(!list[i].read) {
+            quantity++
+            targetIndex = i
+        }
+    }
+    const min = Math.min(targetIndex - 12, list.length)
+    if(min < 12) targetIndex = 1
+    else targetIndex -= 12
+    //высчитать количество сообщений вмещаемое на экране, 12 это рандомное число
+    return {quantity, targetIndex}
+}
+
