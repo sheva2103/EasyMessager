@@ -25,6 +25,7 @@ interface VariableHeightListProps {
 
 const VariableHeightList: FC<VariableHeightListProps> = ({ items, assignElementToScroll }) => {
 
+    const currentUserID = useAppSelector(state => state.app.currentUser.uid)
     const cache = new CellMeasurerCache({
         fixedWidth: true,
         defaultHeight: 100,
@@ -34,13 +35,12 @@ const VariableHeightList: FC<VariableHeightListProps> = ({ items, assignElementT
 
     useEffect(() => {
         if (listRef.current && items.length) {
-            const position = getQuantityNoReadMessages(items)
+            const position = getQuantityNoReadMessages(items, currentUserID)
             listRef.current.scrollToRow(position.targetIndex)
         }
     }, [items.length]);
 
     useEffect(() => {
-        console.log('first reeeeeeender >>>>>>>', listRef.current)
         assignElementToScroll(listRef.current)
     }, []);
 
@@ -114,11 +114,6 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
     console.log('render list messages')
 
     return (
-        // <div className={styles.listMessages} ref={listRef}>
-        //     <ul id='listForMessages'>
-        //         <VariableHeightList items={list} />
-        //     </ul>
-        // </div>
         <div className={styles.contentWrapper}>
             <div className={styles.listMessages}>
                 <ul id='listForMessages'>

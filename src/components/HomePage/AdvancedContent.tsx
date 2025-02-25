@@ -5,6 +5,7 @@ import Badge from '@mui/material/Badge';
 import { Message1 } from "../../types/types";
 import { getQuantityNoReadMessages } from "../../utils/utils";
 import { List } from "react-virtualized";
+import { useAppSelector } from "../../hooks/hook";
 
 type Props = {
     list: Message1[],
@@ -14,12 +15,11 @@ type Props = {
 const ScrollButton: FC<Props> = ({list,scrollElement}) => {
 
     const [noRead, setNoRead] = useState({quantity: 0, targetIndex: 0})
+    const currentUserID = useAppSelector(state => state.app.currentUser.uid)
 
     useEffect(() => {
-        const quantity = getQuantityNoReadMessages(list)
-        if(quantity.quantity) {
-            setNoRead(quantity)
-        }
+        const quantity = getQuantityNoReadMessages(list, currentUserID)
+        setNoRead(quantity)
     }, [list]);
 
     const handleClick = () => scrollElement.scrollToRow(noRead.targetIndex)

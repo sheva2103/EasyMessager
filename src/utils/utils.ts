@@ -184,20 +184,24 @@ export function createListLimitMessages(messages: ListMessagesType): ListMessage
     return { all: messages.all, limit: [].concat(messages.limit).concat(newLimit).slice(-100) }
 }
 
-export function getQuantityNoReadMessages(list: Message1[]): {quantity: number, targetIndex: number} {
+export function getQuantityNoReadMessages(list: Message1[], currentId: string): {quantity: number, targetIndex: number} {
 
     let quantity = 0
-    let targetIndex = 0
-    for (let i = list.length - 1; i > 0; i--) {
-        if(!list[i].read) {
-            quantity++
-            targetIndex = i
+    let targetIndex = list.length - 1
+    if(list.length && list[list.length - 1].sender.uid !== currentId) {
+        for (let i = list.length - 1; i > 0; i--) {
+            if(!list[i].read && list[i].sender.uid !== currentId) {               
+                    quantity++
+                    targetIndex = i
+            }
         }
+        // const min = Math.min(targetIndex - 12, list.length)
+        // if(min < 12) targetIndex = 1
+        // else targetIndex -= 12
+
     }
-    const min = Math.min(targetIndex - 12, list.length)
-    if(min < 12) targetIndex = 1
-    else targetIndex -= 12
-    //высчитать количество сообщений вмещаемое на экране, 12 это рандомное число
     return {quantity, targetIndex}
 }
+
+//пофиксить скролл (отфильтровать по юзерафйди)
 
