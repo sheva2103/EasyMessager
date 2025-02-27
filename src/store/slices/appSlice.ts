@@ -25,7 +25,8 @@ type AppState = {
     contacts: Chat[],
     chatsList: CurrentUser[],
     loadChat: boolean,
-    moreMessages: boolean
+    moreMessages: boolean,
+    emojiIsOpen: boolean
 }
 
 const initialState: AppState = {
@@ -44,7 +45,8 @@ const initialState: AppState = {
     contacts: [],
     chatsList: [],
     loadChat: false,
-    moreMessages: false
+    moreMessages: false,
+    emojiIsOpen: false
 
 }
 
@@ -121,8 +123,8 @@ export const appSlice = createSlice({
         setLoadChat(state, action: PayloadAction<boolean>) {
             state.loadChat = action.payload
         },
-        setMoreMessages(state, action: PayloadAction<boolean>) {
-            state.moreMessages = action.payload
+        setEmojiState(state, action: PayloadAction<boolean>) {
+            state.emojiIsOpen = action.payload
         }
     },
     extraReducers: (builder) => {
@@ -157,6 +159,6 @@ export const {openMenu,
                 setLoadChat,
                 setContacts,
                 setBlacklist,
-                setMoreMessages
+                setEmojiState
             } = appSlice.actions
 export default appSlice.reducer

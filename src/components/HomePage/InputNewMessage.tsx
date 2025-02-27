@@ -5,14 +5,29 @@ import CloseIcon from '../../assets/closeDesktop.svg'
 
 import { TextareaAutosize } from '@mui/base/TextareaAutosize';
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
-import { changeMessage } from "../../store/slices/appSlice";
+import { changeMessage, setEmojiState } from "../../store/slices/appSlice";
 import { messagesAPI } from "../../API/api";
 import { createNewDate } from "../../utils/utils";
 import { Chat } from "../../types/types";
+import EmojiIcon from '../../assets/emoji-smile-fill.svg'
 
 type Props = {
     chatInfo: Chat
 }
+
+const EmojiControl: FC = () => {
+
+    const dispatch = useAppDispatch()
+    const isOpen = useAppSelector(state => state.app.emojiIsOpen)
+    const handleClick = () => isOpen ? dispatch(setEmojiState(false)) : dispatch(setEmojiState(true))
+
+    return (
+        <div className={styles.inputNewMessage__activateEmoji}>
+            <EmojiIcon fontSize={'1.2rem'} cursor={'pointer'} onClick={handleClick}/>
+        </div>
+    );
+}
+
 
 const InputNewMessage: FC<Props> = ({ chatInfo }) => {
 
@@ -104,6 +119,7 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
                         ref={refTextarea}
                     />
                 }
+                <EmojiControl />
             </div>
             <div className={styles.inputNewMessage__button}>
                 <SendMessageIcon

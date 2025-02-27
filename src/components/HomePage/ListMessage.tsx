@@ -7,7 +7,7 @@ import { Chat, ListMessagesType, Message1 } from '../../types/types';
 import { calculateHeightMessage, createLimitMessagesList, createListLimitMessages, createMessageList, createNewDate, getDatefromDate, getQuantityNoReadMessages } from '../../utils/utils';
 import GetDateMessage from './GetDateMessage';
 import { useAppDispatch, useAppSelector } from '../../hooks/hook';
-import { setLoadChat, setMoreMessages } from '../../store/slices/appSlice';
+import { setLoadChat } from '../../store/slices/appSlice';
 import Preloader from '../../assets/preloader.svg'
 import InfititeLoader from 'react-window-infinite-loader'
 import Worker from 'web-worker';

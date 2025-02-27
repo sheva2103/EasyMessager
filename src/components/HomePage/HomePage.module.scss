@@ -260,7 +260,6 @@
     height: 100%;
 
     &__control {
-
         //width: 20px;
         height: 100%;
         display: flex;
@@ -271,14 +270,34 @@
         .scrollControl {
             margin-bottom: 20px;
             position: absolute;
-            left: -4rem;
+            left: -3rem;
             font-size: 1.8rem;
             @media (max-width: 568px) {
                 font-size: 2.5rem;
             }
         }
         .emojiControl {
-            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            padding: 2px 4px 2px 0;
+
+            .emojiControl_wrapper {
+                background-color: var(--background-color-chatlist);
+                border: none;
+                z-index: 2;
+                input {
+                    background-color: var(--background-color-input);
+                    border: none;
+                }
+                h2 {
+                    background-color: var(--background-color-chatlist);
+                }
+                button:hover {
+                    background-color: rgb(135, 116, 225);
+                }
+            }
         }
     }
 }
@@ -446,6 +465,13 @@
         width: 100%;
         //flex: 1 1 auto;
         flex-direction: column;
+        position: relative;
+
+        & .inputNewMessage__activateEmoji {
+            position: absolute;
+            right: 16px;
+            bottom: 6px;
+        }
 
         .textarea__isEdit {
             display: flex;

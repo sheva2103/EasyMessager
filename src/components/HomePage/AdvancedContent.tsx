@@ -6,6 +6,7 @@ import { Message1 } from "../../types/types";
 import { getQuantityNoReadMessages } from "../../utils/utils";
 import { List } from "react-virtualized";
 import { useAppSelector } from "../../hooks/hook";
+import EmojiComponent from "./EmojiComponent";
 
 type Props = {
     list: Message1[],
@@ -37,9 +38,9 @@ const AdvancedContent: FC<Props> = ({list, scrollElement}) => {
     return (
         <>
             <div className={styles.contentWrapper__control}>
-                {/* <div className={styles.emojiControl}>
-                    <Arrow />
-                </div> */}
+                <div className={styles.emojiControl}>
+                    <EmojiComponent />
+                </div>
                 <div className={styles.scrollControl}>
                     <ScrollButton list={list} scrollElement={scrollElement}/>
                 </div>
