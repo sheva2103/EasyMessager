@@ -26,7 +26,8 @@ type AppState = {
     chatsList: CurrentUser[],
     loadChat: boolean,
     moreMessages: boolean,
-    emojiIsOpen: boolean
+    emojiIsOpen: boolean,
+    selectedEmoji: string
 }
 
 const initialState: AppState = {
@@ -46,7 +47,8 @@ const initialState: AppState = {
     chatsList: [],
     loadChat: false,
     moreMessages: false,
-    emojiIsOpen: false
+    emojiIsOpen: false,
+    selectedEmoji: ''
 
 }
 
@@ -125,6 +127,9 @@ export const appSlice = createSlice({
         },
         setEmojiState(state, action: PayloadAction<boolean>) {
             state.emojiIsOpen = action.payload
+        },
+        setSelectedEmoji(state, action: PayloadAction<string>) {
+            state.selectedEmoji = action.payload
         }
     },
     extraReducers: (builder) => {
@@ -159,6 +164,7 @@ export const {openMenu,
                 setLoadChat,
                 setContacts,
                 setBlacklist,
-                setEmojiState
+                setEmojiState,
+                setSelectedEmoji
             } = appSlice.actions
 export default appSlice.reducer

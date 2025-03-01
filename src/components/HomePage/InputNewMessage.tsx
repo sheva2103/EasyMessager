@@ -5,7 +5,7 @@ import CloseIcon from '../../assets/closeDesktop.svg'
 
 import { TextareaAutosize } from '@mui/base/TextareaAutosize';
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
-import { changeMessage, setEmojiState } from "../../store/slices/appSlice";
+import { changeMessage, setEmojiState, setSelectedEmoji } from "../../store/slices/appSlice";
 import { messagesAPI } from "../../API/api";
 import { createNewDate } from "../../utils/utils";
 import { Chat } from "../../types/types";
@@ -35,6 +35,7 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
     const selectedChat = useAppSelector(state => state.app.selectedChat)
     const currentUser = useAppSelector(state => state.app.currentUser)
     const isEditMessage = useAppSelector(state => state.app.changeMessage)
+    const selectedEmoji = useAppSelector(state => state.app.selectedEmoji)
 
     const [newMessage, setNewMessage] = useState('')
     const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -94,6 +95,14 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
     useEffect(() => {
         dispatch(changeMessage(null))
     }, [selectedChat]);
+
+    useEffect(() => {
+        if(selectedEmoji) {
+            !isEditMessage ? setNewMessage(prev => prev + selectedEmoji) : setEditMessage(prev => prev + selectedEmoji)
+            refTextarea.current.focus()
+        }
+        dispatch(setSelectedEmoji(''))
+    }, [selectedEmoji]);
 
     return (
         <div className={styles.inputNewMessage}>

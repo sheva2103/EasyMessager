@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import styles from './HomePage.module.scss'
 import Arrow from '../../assets/arrow-down-circle-fill.svg'
 import Badge from '@mui/material/Badge';
@@ -35,11 +35,14 @@ const ScrollButton: FC<Props> = ({list,scrollElement}) => {
 }
 
 const AdvancedContent: FC<Props> = ({list, scrollElement}) => {
+
+    const parentRef = useRef<HTMLDivElement>(null)
+
     return (
         <>
             <div className={styles.contentWrapper__control}>
-                <div className={styles.emojiControl}>
-                    <EmojiComponent />
+                <div className={styles.emojiControl} ref={parentRef}>
+                    <EmojiComponent parent={parentRef}/>
                 </div>
                 <div className={styles.scrollControl}>
                     <ScrollButton list={list} scrollElement={scrollElement}/>
