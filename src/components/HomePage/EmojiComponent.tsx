@@ -1,27 +1,27 @@
-import { FC, memo } from "react";
+import { FC, memo, useEffect } from "react";
 import styles from './HomePage.module.scss'
 import EmojiPicker, { EmojiClickData, EmojiStyle } from 'emoji-picker-react';
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { setSelectedEmoji } from "../../store/slices/appSlice";
+import classNames from "classnames";
 
 
 type Props = {
-    parent: React.MutableRefObject<HTMLDivElement> | null
+    height: number
 }
 
-const EmojiComponent: FC<Props> = ({parent}) => {
+const EmojiComponent: FC<Props> = ({height}) => {
 
     console.log('render emoji')
     const isOpen = useAppSelector(state => state.app.emojiIsOpen)
     const dispatch = useAppDispatch()
-    const height = parent.current ? parent.current.clientHeight : 450
 
     const selectEmoji = (e: EmojiClickData) => {
         dispatch(setSelectedEmoji(e.emoji))
     }
 
     return (
-        <div>
+        <div className={classNames(styles.emojiControl__component, {[styles.emojiControl__component_show]: isOpen})}>
             <EmojiPicker 
                 className={styles.emojiControl_wrapper}
                 autoFocusSearch={false}
@@ -31,6 +31,7 @@ const EmojiComponent: FC<Props> = ({parent}) => {
                 emojiStyle={EmojiStyle.GOOGLE}
                 onEmojiClick={selectEmoji}
                 height={height}
+                width={250}
             />
         </div>
     );

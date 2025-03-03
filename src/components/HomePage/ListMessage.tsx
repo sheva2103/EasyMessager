@@ -4,7 +4,7 @@ import Message from './Messgae';
 import { DocumentSnapshot, doc, onSnapshot } from "firebase/firestore";
 import { db } from '../../firebase';
 import { Chat, ListMessagesType, Message1 } from '../../types/types';
-import { calculateHeightMessage, createLimitMessagesList, createListLimitMessages, createMessageList, createNewDate, getDatefromDate, getQuantityNoReadMessages } from '../../utils/utils';
+import { createMessageList, createNewDate, getDatefromDate, getQuantityNoReadMessages } from '../../utils/utils';
 import GetDateMessage from './GetDateMessage';
 import { useAppDispatch, useAppSelector } from '../../hooks/hook';
 import { setLoadChat } from '../../store/slices/appSlice';

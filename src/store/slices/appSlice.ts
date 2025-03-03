@@ -136,6 +136,7 @@ export const appSlice = createSlice({
         builder
             .addCase(setChat.pending, (state) => {
                 state.loadChat = true
+                if(state.emojiIsOpen) state.emojiIsOpen = false
             })
             .addCase(setChat.rejected, (state, action) => {
                 state.selectedChat = {...action.payload, chatID: uuidv4()}

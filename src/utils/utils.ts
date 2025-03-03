@@ -118,63 +118,6 @@ export function checkMessage(str: string): string {
     return newStr.join(' ')
 }
 
-export function calculateHeightMessage(list: Message1[], size: size): number[] {
-    console.log('пересчёт', size)
-    return [...list]
-        .map((item, index) => {
-            const canvas: HTMLCanvasElement = document.querySelector('#canvas')
-            const context = canvas.getContext('2d')
-            context.font = '17.6px Roboto'
-            const text = item.message
-            const textWidth = context.measureText(text).width
-            //console.log(`Длина текста = ${textWidth}`)
-
-            const paddingMessage = 44
-            //const widthUl = size.clientWidth >= 568 ? (size.clientWidth * 70 / 100) - paddingMessage : size.clientWidth - paddingMessage
-            const widthUl = size.clientWidth >= 568 ? size.clientWidth - paddingMessage - 40 : size.clientWidth - paddingMessage
-            let pixels = 0
-            const heightDate = 33
-            const forwardedFromHeight = 30
-            const statusHeight = 28
-            const fontSize = 17.6
-
-            const lineHeight = 21
-            const pixelLength = Number(textWidth)
-
-            if (item.forwardedFrom) pixels += forwardedFromHeight
-            if (index !== 0 && getDatefromDate(createNewDate(list[index].date)) !== getDatefromDate(createNewDate(list[index - 1].date))) pixels += heightDate
-            if (index === 0) pixels += heightDate
-            //console.log('количество строк >>>>', Math.ceil(Math.ceil(Number(textWidth)) / widthUl), widthUl, size.clientWidth, Number(textWidth))
-            if ((widthUl - 4) >= (pixelLength + paddingMessage)) return statusHeight + 8 + pixels + lineHeight
-
-            return (lineHeight * Math.ceil(Math.ceil(Number(textWidth)) / widthUl)) + pixels + statusHeight + 10  // не правильно чситается количество рядков
-
-        })
-}
-
-// export function createListLimitMessages(messages: ListMessagesType): ListMessagesType {
-    
-//     if(messages.limit.length === 0) return
-//     const lastIndex = messages.all.findIndex(item => item.messageID === messages.limit[messages.limit.length - 1].messageID)
-//     const newLimit = messages.all.slice(lastIndex + 1, lastIndex + 49)
-//     const del = messages.limit.slice(newLimit.length, messages.limit.length + 1)
-//     console.log('new limit del', del)
-//     return {all: messages.all, limit: [].concat(del).concat(newLimit)}
-
-// }
-
-// export function createListLimitMessages(messages: ListMessagesType): ListMessagesType {
-    
-//     if (messages.limit.length === 0) return { all: messages.all, limit: [] }
-
-//     const lastIndex = messages.all.findIndex(item => item.messageID === messages.limit[messages.limit.length - 1].messageID)
-//     const newLimit = messages.all.slice(lastIndex + 1, Math.min(lastIndex + 49, messages.all.length))
-//     const del = messages.limit.slice(newLimit.length, messages.limit.length + 1)
-//     console.log('new limit del', del)
-//     return { all: messages.all, limit: [].concat(del).concat(newLimit) }
-
-// }
-
 export function createListLimitMessages(messages: ListMessagesType): ListMessagesType {
     
     if (messages.limit.length === 0) return { all: messages.all, limit: [] }
@@ -195,10 +138,6 @@ export function getQuantityNoReadMessages(list: Message1[], currentId: string): 
                     targetIndex = i
             }
         }
-        // const min = Math.min(targetIndex - 12, list.length)
-        // if(min < 12) targetIndex = 1
-        // else targetIndex -= 12
-
     }
     return {quantity, targetIndex}
 }

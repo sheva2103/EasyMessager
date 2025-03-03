@@ -37,12 +37,22 @@ const ScrollButton: FC<Props> = ({list,scrollElement}) => {
 const AdvancedContent: FC<Props> = ({list, scrollElement}) => {
 
     const parentRef = useRef<HTMLDivElement>(null)
+    const [height, setHeight] = useState(350)
+
+    useEffect(() => {
+        const handleResize = () => {
+            setHeight(parentRef.current.clientHeight - 4)
+        };
+        handleResize()
+        window.addEventListener('resize', handleResize)
+        return () => window.removeEventListener('resize', handleResize)
+    }, []);
 
     return (
         <>
             <div className={styles.contentWrapper__control}>
                 <div className={styles.emojiControl} ref={parentRef}>
-                    <EmojiComponent parent={parentRef}/>
+                    <EmojiComponent height={height}/>
                 </div>
                 <div className={styles.scrollControl}>
                     <ScrollButton list={list} scrollElement={scrollElement}/>

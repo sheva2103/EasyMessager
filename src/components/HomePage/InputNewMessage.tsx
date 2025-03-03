@@ -22,7 +22,7 @@ const EmojiControl: FC = () => {
     const handleClick = () => isOpen ? dispatch(setEmojiState(false)) : dispatch(setEmojiState(true))
 
     return (
-        <div className={styles.inputNewMessage__activateEmoji}>
+        <div className={styles.inputNewMessage__activateEmoji} title='emoji'>
             <EmojiIcon fontSize={'1.2rem'} cursor={'pointer'} onClick={handleClick}/>
         </div>
     );
