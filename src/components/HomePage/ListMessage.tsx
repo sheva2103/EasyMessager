@@ -8,7 +8,6 @@ import { createMessageList, createNewDate, getDatefromDate, getQuantityNoReadMes
 import GetDateMessage from './GetDateMessage';
 import { useAppDispatch, useAppSelector } from '../../hooks/hook';
 import { setLoadChat } from '../../store/slices/appSlice';
-import Preloader from '../../assets/preloader.svg'
 import InfititeLoader from 'react-window-infinite-loader'
 import Worker from 'web-worker';
 import { List, AutoSizer, CellMeasurer, CellMeasurerCache, ListRowRenderer } from 'react-virtualized'
@@ -28,8 +27,8 @@ const VariableHeightList: FC<VariableHeightListProps> = ({ items, assignElementT
     const currentUserID = useAppSelector(state => state.app.currentUser.uid)
     const cache = new CellMeasurerCache({
         fixedWidth: true,
-        defaultHeight: 100,
-    }); //кэш для измерения высоты ячеек
+        defaultHeight: 57,
+    })
 
     const listRef = useRef<List>(null);
 
@@ -38,13 +37,12 @@ const VariableHeightList: FC<VariableHeightListProps> = ({ items, assignElementT
             const position = getQuantityNoReadMessages(items, currentUserID)
             listRef.current.scrollToRow(position.targetIndex)
         }
-    }, [items.length]);
+    }, [items.length])
 
     useEffect(() => {
         assignElementToScroll(listRef.current)
     }, []);
 
-    // Функция рендера строки списка
     const rowRenderer: ListRowRenderer = ({ index, key, parent, style }) => {
 
         return (
@@ -94,8 +92,6 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
     const [list, setList] = useState<Message1[]>([])
     const dispatch = useAppDispatch()
     const isLoadChat = useAppSelector(state => state.app.loadChat)
-    //const listRef = useRef<HTMLDivElement>(null)
-    const [firstRender, setFirstRender] = useState(true)
 
     const scrollElementRef = useRef<List>(null)
 
@@ -103,7 +99,6 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
 
     useEffect(() => {
         if (list.length) setList([])
-        if (!firstRender) setFirstRender(true)
         const messages = onSnapshot(doc(db, "chats", selectedChat.chatID), (doc: DocumentSnapshot<Message1[]>) => {
             setList(createMessageList(doc.data()))
             if (isLoadChat) dispatch(setLoadChat(false))
@@ -124,7 +119,5 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
         </div>
     );
 }
-
-
 
 export default memo(ListMessages);

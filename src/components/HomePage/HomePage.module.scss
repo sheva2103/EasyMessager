@@ -315,6 +315,9 @@
                 button:hover {
                     background-color: rgb(135, 116, 225);
                 }
+                div[aria-label="Category navigation"] {
+                    display: none;
+                }
             }
         }
     }
@@ -458,7 +461,7 @@
             & .guest {
                 background-color: var(--background-color-message);
                 color: var(--color-guest-message);
-                padding-bottom: 4px;
+                padding-bottom: 6px;
 
                 a {
                     color: var(--link-guest-color);

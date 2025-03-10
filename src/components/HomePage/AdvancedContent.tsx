@@ -15,6 +15,8 @@ type Props = {
 
 const ScrollButton: FC<Props> = ({list,scrollElement}) => {
 
+    console.log('scrollbutton')
+
     const [noRead, setNoRead] = useState({quantity: 0, targetIndex: 0})
     const currentUserID = useAppSelector(state => state.app.currentUser.uid)
 
@@ -48,6 +50,8 @@ const AdvancedContent: FC<Props> = ({list, scrollElement}) => {
         return () => window.removeEventListener('resize', handleResize)
     }, []);
 
+    console.log('advanced content')
+
     return (
         <>
             <div className={styles.contentWrapper__control}>
@@ -58,7 +62,6 @@ const AdvancedContent: FC<Props> = ({list, scrollElement}) => {
                     <ScrollButton list={list} scrollElement={scrollElement}/>
                 </div>
             </div>
-            {/* <div>emoji</div> */}
         </>
     );
 }
