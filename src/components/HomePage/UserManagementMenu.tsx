@@ -5,7 +5,7 @@ import classNames from "classnames";
 import { Chat } from "../../types/types";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { contactsAPI, messagesAPI } from "../../API/api";
-import { setLoadChat } from "../../store/slices/appSlice";
+import { setLoadChat, setSearchMessages } from "../../store/slices/appSlice";
 import { setChat } from "../../store/slices/setChatIDSlice";
 
 type Props = {
@@ -59,6 +59,11 @@ const UserManagementMenu: FC<Props> = ({chatInfo}) => {
             .catch(error => console.log('ошибка удаления чата >>>>>', error))
     }
 
+    const showSearchMessages = () => {
+        dispatch(setSearchMessages(true))
+        setOpen(false)
+    }
+
     const isContact = useMemo(() => contactsList.some(item => item.email === chatInfo.email), [selectedChat, contactsList.length])
     const isBlackList = useMemo(() => blackList.some(item => item.email === chatInfo.email), [blackList.length, selectedChat])
 
@@ -95,6 +100,7 @@ const UserManagementMenu: FC<Props> = ({chatInfo}) => {
                     />
                 <div className={classNames(styles.menu__list, {[styles.menu_show]: isOpen}, {[styles.animationMenu]: animationOpen})}>
                     <ul>
+                        <li onClick={showSearchMessages}>Поиск</li>
                         {isContact ? 
                             <li onClick={deleteContact}>Удалить из контактов</li> 
                             :

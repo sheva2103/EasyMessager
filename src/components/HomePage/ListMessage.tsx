@@ -12,6 +12,7 @@ import InfititeLoader from 'react-window-infinite-loader'
 import Worker from 'web-worker';
 import { List, AutoSizer, CellMeasurer, CellMeasurerCache, ListRowRenderer } from 'react-virtualized'
 import AdvancedContent from './AdvancedContent';
+import SearchMessages from './SearchMessages';
 
 type Props = {
     selectedChat: Chat
@@ -111,6 +112,7 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
     return (
         <div className={styles.contentWrapper}>
             <div className={styles.listMessages}>
+                <SearchMessages list={list} setList={setList}/>
                 <ul id='listForMessages'>
                     <VariableHeightList items={list} assignElementToScroll={assignElementToScroll}/>
                 </ul>

@@ -142,5 +142,7 @@ export function getQuantityNoReadMessages(list: Message1[], currentId: string): 
     return {quantity, targetIndex}
 }
 
-//пофиксить скролл (отфильтровать по юзерафйди)
+export function searchMessagesInList(list: Message1[], text: string) {
+    return [...list].filter(item => item.message.includes(text))
+}
 

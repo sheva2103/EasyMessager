@@ -328,11 +328,43 @@
     overflow: auto;
     height: 100%;
     max-width: 70%;
+    position: relative;
     @media (max-width: 568px) {
         max-width: 100%;
     }
     @media (min-width: 569px) and (max-width: 991px) {
         max-width: 90%;
+    }
+
+    .searchMessages {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        z-index: 2;
+        width: 99%;
+        @media (max-width: 569px) {
+            width: 100%;
+        }
+
+        & .searchMessages_container {
+            display: flex;
+            justify-content: space-between;
+            gap: 4px;
+            padding: 0px 8px 8px 4px;
+            align-items: center;
+            background-color: var(--background-color-content-block);
+            border-radius: 0px 0px 10px 0;
+
+            & .searchMessages_input {
+                width: 10px;
+                transition: .5s;
+                display: flex;
+
+                & input {
+                    width: 100%;
+                }
+            }
+        }
     }
 
     & ul {

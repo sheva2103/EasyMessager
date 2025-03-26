@@ -27,7 +27,8 @@ type AppState = {
     loadChat: boolean,
     moreMessages: boolean,
     emojiIsOpen: boolean,
-    selectedEmoji: string
+    selectedEmoji: string,
+    isSearchMessage: boolean
 }
 
 const initialState: AppState = {
@@ -48,7 +49,8 @@ const initialState: AppState = {
     loadChat: false,
     moreMessages: false,
     emojiIsOpen: false,
-    selectedEmoji: ''
+    selectedEmoji: '',
+    isSearchMessage: false
 
 }
 
@@ -130,6 +132,9 @@ export const appSlice = createSlice({
         },
         setSelectedEmoji(state, action: PayloadAction<string>) {
             state.selectedEmoji = action.payload
+        },
+        setSearchMessages(state, action: PayloadAction<boolean>) {
+            state.isSearchMessage = action.payload
         }
     },
     extraReducers: (builder) => {
@@ -166,6 +171,7 @@ export const {openMenu,
                 setContacts,
                 setBlacklist,
                 setEmojiState,
-                setSelectedEmoji
+                setSelectedEmoji,
+                setSearchMessages
             } = appSlice.actions
 export default appSlice.reducer

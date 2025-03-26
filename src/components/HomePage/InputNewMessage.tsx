@@ -36,6 +36,7 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
     const currentUser = useAppSelector(state => state.app.currentUser)
     const isEditMessage = useAppSelector(state => state.app.changeMessage)
     const selectedEmoji = useAppSelector(state => state.app.selectedEmoji)
+    const isCheckBox = useAppSelector(state => state.app.showCheckbox)
 
     const [newMessage, setNewMessage] = useState('')
     const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -103,6 +104,8 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
         }
         dispatch(setSelectedEmoji(''))
     }, [selectedEmoji]);
+
+    if(isCheckBox) return <></>
 
     return (
         <div className={styles.inputNewMessage}>
