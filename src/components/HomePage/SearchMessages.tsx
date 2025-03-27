@@ -8,14 +8,13 @@ import { useDebounce } from 'use-debounce';
 
 type Props = {
     list: Message1[],
-    setList: (list: Message1[]) => void
+    setTargetMessages: (indexes: Set<number>) => void
 }
 
-const SearchMessages: FC<Props> = ({ list, setList }) => {
+const SearchMessages: FC<Props> = ({ list, setTargetMessages }) => {
 
     const [text, setText] = useState('')
     const isOpen = useAppSelector(state => state.app.isSearchMessage)
-    const [cache, setCache] = useState([])
     const [debouncedText] = useDebounce(text, 1000);
     const inputRefContainer = useRef<HTMLDivElement>(null)
     const inputRef = useRef<HTMLInputElement>(null)
@@ -28,10 +27,10 @@ const SearchMessages: FC<Props> = ({ list, setList }) => {
     }
     const hide = () => {
         if (inputRefContainer.current) inputRefContainer.current.style.width = '10px'
-        //setList(cache)
         setTimeout(() => {
             if (text.length) setText('')
             dispatch(setSearchMessages(false))
+            setTargetMessages(new Set())
         }, 500)
     }
 
@@ -39,22 +38,18 @@ const SearchMessages: FC<Props> = ({ list, setList }) => {
         setText(e.target.value)
     }
 
-    // useEffect(() => {
-    //     setCache(list)
-    // }, []);
-
     useEffect(() => {
         const delay = setTimeout(show, 100)
         return () => clearTimeout(delay)
     }, [isOpen]);
 
-    // useEffect(() => {
-    //     if (debouncedText) {
-    //         console.log('Поиск по:');
-    //         const result = searchMessagesInList(list, text)
-    //         if(result.length) setList(result)
-    //     }
-    // }, [debouncedText]);
+    useEffect(() => {
+        if (debouncedText) {
+            const result = searchMessagesInList(list, text)
+            console.log('Поиск по:', result);
+            setTargetMessages(result)
+        }
+    }, [debouncedText]);
 
     if (!isOpen) return null
 

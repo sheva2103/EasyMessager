@@ -142,7 +142,16 @@ export function getQuantityNoReadMessages(list: Message1[], currentId: string): 
     return {quantity, targetIndex}
 }
 
-export function searchMessagesInList(list: Message1[], text: string) {
-    return [...list].filter(item => item.message.includes(text))
+// export function searchMessagesInList(list: Message1[], text: string) {
+//     return [...list].filter(item => item.message.includes(text))
+// }
+
+export function searchMessagesInList(array: Message1[], substring: string): Set<number> {
+    return array.reduce((indicesSet, str, index) => {
+        if (str.message.includes(substring)) {
+            indicesSet.add(index);
+        }
+        return indicesSet
+    }, new Set<number>());
 }
 

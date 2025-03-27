@@ -20,10 +20,11 @@ type Props = {
 
 interface VariableHeightListProps {
     items: Message1[],
-    assignElementToScroll: (element: List) => List
+    assignElementToScroll: (element: List) => List,
+    searchIndexes: Set<number>
 }
 
-const VariableHeightList: FC<VariableHeightListProps> = ({ items, assignElementToScroll }) => {
+const VariableHeightList: FC<VariableHeightListProps> = ({ items, assignElementToScroll, searchIndexes }) => {
 
     const currentUserID = useAppSelector(state => state.app.currentUser.uid)
     const cache = new CellMeasurerCache({
@@ -46,6 +47,16 @@ const VariableHeightList: FC<VariableHeightListProps> = ({ items, assignElementT
 
     const rowRenderer: ListRowRenderer = ({ index, key, parent, style }) => {
 
+        const isHighlighted = searchIndexes.has(index)
+        const rowStyle = {
+            ...style,
+            width: 'fit-content',
+            borderRadius: '16px',
+            backgroundColor: isHighlighted ? "#53525270" : "transparent",
+            borderBottom: isHighlighted ? "2px solid #2368af7a" : "transparent",
+            transition: "background-color 0.3s ease",
+        };
+
         return (
             <CellMeasurer
                 key={key}
@@ -55,7 +66,7 @@ const VariableHeightList: FC<VariableHeightListProps> = ({ items, assignElementT
                 rowIndex={index}
             >
                 {({ measure, registerChild }) => (
-                    <div ref={registerChild} style={style} onLoad={measure}>
+                    <div ref={registerChild} style={rowStyle} onLoad={measure}>
                         {index !== 0 && getDatefromDate(createNewDate(items[index].date)) === getDatefromDate(createNewDate(items[index - 1].date)) ?
                             <Message messageInfo={items[index]} />
                             :
@@ -91,6 +102,7 @@ const VariableHeightList: FC<VariableHeightListProps> = ({ items, assignElementT
 const ListMessages: FC<Props> = ({ selectedChat }) => {
 
     const [list, setList] = useState<Message1[]>([])
+    const [targetMessages, setTargetMessages] = useState<Set<number>>(new Set())
     const dispatch = useAppDispatch()
     const isLoadChat = useAppSelector(state => state.app.loadChat)
 
@@ -112,9 +124,9 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
     return (
         <div className={styles.contentWrapper}>
             <div className={styles.listMessages}>
-                <SearchMessages list={list} setList={setList}/>
+                <SearchMessages list={list} setTargetMessages={setTargetMessages}/>
                 <ul id='listForMessages'>
-                    <VariableHeightList items={list} assignElementToScroll={assignElementToScroll}/>
+                    <VariableHeightList items={list} assignElementToScroll={assignElementToScroll} searchIndexes={targetMessages}/>
                 </ul>
             </div>
             <AdvancedContent list={list} scrollElement={scrollElementRef.current}/>
@@ -123,3 +135,5 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
 }
 
 export default memo(ListMessages);
+
+//сделать скролл для выделеных сообщений, индексы брать из targetMessages
