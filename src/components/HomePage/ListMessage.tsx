@@ -50,7 +50,6 @@ const VariableHeightList: FC<VariableHeightListProps> = ({ items, assignElementT
         const isHighlighted = searchIndexes.has(index)
         const rowStyle = {
             ...style,
-            width: 'fit-content',
             borderRadius: '16px',
             backgroundColor: isHighlighted ? "#53525270" : "transparent",
             borderBottom: isHighlighted ? "2px solid #2368af7a" : "transparent",
@@ -129,7 +128,7 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
                     <VariableHeightList items={list} assignElementToScroll={assignElementToScroll} searchIndexes={targetMessages}/>
                 </ul>
             </div>
-            <AdvancedContent list={list} scrollElement={scrollElementRef.current}/>
+            <AdvancedContent list={list} scrollElement={scrollElementRef.current} scrollIndexes={targetMessages}/>
         </div>
     );
 }

@@ -4,6 +4,7 @@ import styles from './HomePage.module.scss'
 import { Message1 } from "../../types/types";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { addSelectedMessage, deleteSelectedMessage } from "../../store/slices/appSlice";
+import { Checkbox } from "@mui/material";
 
 // type Props = {
 //     //showCheckbox: boolean,
@@ -58,13 +59,14 @@ const SelectMessageInput: FC<Props> = ({ messageInfo }) => {
 
     console.log('render checkbox')
 
-    return (  
-        <input 
-            type="checkbox" 
-            className={classNames({ [styles.showCheckbox]: showCheckbox })} 
-            checked={checked}
-            onChange={() => setChecked(!checked)}
-        />
+    return (
+        <Checkbox checked={checked} onChange={() => setChecked(!checked)} />  
+        // <input 
+        //     type="checkbox" 
+        //     className={classNames({ [styles.showCheckbox]: showCheckbox })} 
+        //     checked={checked}
+        //     onChange={() => setChecked(!checked)}
+        // />
     );
 }
 
