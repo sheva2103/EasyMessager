@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, KeyboardEventHandler, useEffect, useMemo, useRef, useState } from "react";
+import { ChangeEvent, FC, useEffect, useRef, useState } from "react";
 import styles from './HomePage.module.scss'
 import SendMessageIcon from '../../assets/send-fill.svg'
 import CloseIcon from '../../assets/closeDesktop.svg'
@@ -7,7 +7,6 @@ import { TextareaAutosize } from '@mui/base/TextareaAutosize';
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { changeMessage, setEmojiState, setSelectedEmoji } from "../../store/slices/appSlice";
 import { messagesAPI } from "../../API/api";
-import { createNewDate } from "../../utils/utils";
 import { Chat } from "../../types/types";
 import EmojiIcon from '../../assets/emoji-smile-fill.svg'
 
@@ -16,10 +15,9 @@ type Props = {
 }
 
 const EmojiControl: FC = () => {
-
     const dispatch = useAppDispatch()
     const isOpen = useAppSelector(state => state.app.emojiIsOpen)
-    const handleClick = () => isOpen ? dispatch(setEmojiState(false)) : dispatch(setEmojiState(true))
+    const handleClick = () => dispatch(setEmojiState(!isOpen))
 
     return (
         <div className={styles.inputNewMessage__activateEmoji} title='emoji'>
@@ -37,6 +35,7 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
     const isEditMessage = useAppSelector(state => state.app.changeMessage)
     const selectedEmoji = useAppSelector(state => state.app.selectedEmoji)
     const isCheckBox = useAppSelector(state => state.app.showCheckbox)
+    const replyToMessage = useAppSelector(state => state.app.replyToMessage)
 
     const [newMessage, setNewMessage] = useState('')
     const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -52,22 +51,27 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
     const sendMessage = () => {
         if (!newMessage.trim()) return
         Promise.all([messagesAPI.addChat(currentUser.email, selectedChat, chatInfo.chatID), messagesAPI.addChat(selectedChat.email, currentUser, chatInfo.chatID)])
-            .then(() => messagesAPI.sendMessage(chatInfo.chatID, currentUser, newMessage))
+            .then(() => messagesAPI.sendMessage(chatInfo.chatID, currentUser, newMessage, replyToMessage))
             .then(() => setNewMessage(''))
+            .then(() => {
+                if(replyToMessage) cancelEditing()
+            })
+            .catch((error) => console.error("Ошибка отправки сообщения:", error))
     }
 
     const sendEditMessage = () => {
         if (!editMessage.trim()) return
         messagesAPI.sendEditMessage(chatInfo.chatID, { ...isEditMessage, message: editMessage })
             .then(() => dispatch(changeMessage(null)))
+            .catch((error) => console.error("Ошибка отправки сообщения:", error))
     }
 
-    const cancelEiting = () => {
+    const cancelEditing = () => {
         dispatch(changeMessage(null))
     }
 
     const onKeyDown = (e: KeyboardEvent) => {
-        if (e.key === 'Escape' && isEditMessage) dispatch(changeMessage(null))
+        if (e.key === 'Escape' && (isEditMessage || replyToMessage)) dispatch(changeMessage(null))
         if (document.activeElement === refTextarea.current && e.key === 'Enter' && !isEditMessage) {
             sendMessage()
             refTextarea.current.blur()
@@ -84,14 +88,17 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
             //console.log('снимаю слушатель')
             return window.removeEventListener('keydown', onKeyDown)
         }
-    }, [newMessage, editMessage, isEditMessage]);
+    }, [newMessage, editMessage, isEditMessage, replyToMessage]);
 
     useEffect(() => {
         if (isEditMessage) {
             setEditMessage(isEditMessage.message)
-            refTextarea.current.focus()
+            refTextarea.current?.focus()
         }
-    }, [isEditMessage]);
+        if(replyToMessage) {
+            refTextarea.current?.focus()
+        }
+    }, [isEditMessage, replyToMessage]);
 
     useEffect(() => {
         dispatch(changeMessage(null))
@@ -100,12 +107,12 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
     useEffect(() => {
         if(selectedEmoji) {
             !isEditMessage ? setNewMessage(prev => prev + selectedEmoji) : setEditMessage(prev => prev + selectedEmoji)
-            refTextarea.current.focus()
+            refTextarea.current?.focus()
         }
         dispatch(setSelectedEmoji(''))
     }, [selectedEmoji]);
 
-    if(isCheckBox) return <></>
+    if(isCheckBox) return null
 
     return (
         <div className={styles.inputNewMessage}>
@@ -113,7 +120,13 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
                 {isEditMessage &&
                     <div className={styles.textarea__isEdit}>
                         <span>Редактирование</span>
-                        <CloseIcon onClick={cancelEiting} />
+                        <CloseIcon onClick={cancelEditing} />
+                    </div>
+                }
+                {replyToMessage &&
+                    <div className={styles.textarea__isEdit}>
+                        <span>Ответить</span>
+                        <CloseIcon onClick={cancelEditing} />
                     </div>
                 }
                 {!isEditMessage ?

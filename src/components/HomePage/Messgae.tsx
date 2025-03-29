@@ -75,6 +75,39 @@ type Props = {
     messageInfo: Message1,
 }
 
+const ReplyToMessage: FC<Message1> = (props) => {
+    const { replyToMessage, sender } = props
+    // const dispatch = useAppDispatch()
+    // const currentUser = useAppSelector(state => state.app.currentUser)
+    // const selectedChat = useAppSelector(state => state.app.selectedChat)
+
+    // const handleClick = () => {
+    //     if (sender.uid !== currentUser.uid && sender.uid !== selectedChat.uid) {
+    //         messagesAPI.getChatID(currentUser.email, sender.email)
+    //             .then(data => dispatch(setChat({ currentUserEmail: sender.email, guestInfo: { ...sender, chatID: data } })))
+    //     }
+    // }
+
+    function getFirst30Chars(inputString: string) {
+        if (!inputString) return ''
+        if (inputString.length > 30) {
+            return inputString.substring(0, 30) + '...'
+        }
+        return inputString
+    }
+
+    return (
+        <div className={styles.messageData__replyToMessage}>
+            <div className={classNames(styles.messageData__replyToMessage_name)}>
+                <span>{replyToMessage?.sender.displayName}</span>
+            </div>
+            <div style={{ paddingRight: '2px', fontSize: '0.9rem' }}>
+                <span>{getFirst30Chars(replyToMessage?.message)}</span>
+            </div>
+        </div>
+    )
+}
+
 const Message: FC<Props> = ({ messageInfo }) => {
 
     const owner = useAppSelector(state => state.app.currentUser)
@@ -89,7 +122,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
         top: offset.top + 'px',
         left: offset.left + 'px'
     }
-    const virtualizedListElementRef: {current: HTMLDivElement} = useRef(null)
+    const virtualizedListElementRef: { current: HTMLDivElement } = useRef(null)
 
     const messageRef = useRef(null)
 
@@ -98,9 +131,9 @@ const Message: FC<Props> = ({ messageInfo }) => {
         const styleContainer: HTMLDivElement = document.querySelector('.ReactVirtualized__Grid')
         const parentContainer: HTMLDivElement = document.querySelector('.ReactVirtualized__Grid__innerScrollContainer')
         //заблокировать скрлл при открытом меню
-            virtualizedListElementRef.current = styleContainer
-            styleContainer.style.willChange = 'auto'
-            styleContainer.style.overflow = 'hidden'
+        virtualizedListElementRef.current = styleContainer
+        styleContainer.style.willChange = 'auto'
+        styleContainer.style.overflow = 'hidden'
         const parentRect = parentContainer.getBoundingClientRect();
         const clickX = e.clientX - parentRect.left;
         const positionClickTop = e.clientY
@@ -123,11 +156,24 @@ const Message: FC<Props> = ({ messageInfo }) => {
         if (targetElement.nodeName !== 'A' && !isShowCheckbox) setContextMenu(true)
     }
 
+    // useEffect(() => {
+    //     refSpan.current.addEventListener('contextmenu', setPositionMenu)
+    //     refSpan.current.addEventListener('click', setPositionMenuForIOS)
+    //     if (!refSpan.current) return () => refSpan.current.removeEventListener('contextmenu', setPositionMenu)
+    // }, []);
+
     useEffect(() => {
-        refSpan.current.addEventListener('contextmenu', setPositionMenu)
-        refSpan.current.addEventListener('click', setPositionMenuForIOS)
-        if (!refSpan.current) return () => refSpan.current.removeEventListener('contextmenu', setPositionMenu)
-    }, []);
+        if (refSpan.current) {
+            refSpan.current.addEventListener('contextmenu', setPositionMenu)
+            refSpan.current.addEventListener('click', setPositionMenuForIOS)
+
+            return () => {
+                refSpan.current?.removeEventListener('contextmenu', setPositionMenu)
+                refSpan.current?.removeEventListener('click', setPositionMenuForIOS)
+            }
+        }
+    }, [])
+
 
     const [contextMenuIsOpen, setContextMenu] = useState(false)
     const openContextMenu = (e: React.MouseEvent) => {
@@ -152,7 +198,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
     console.log('message render')
     // сделать затенение для выбраного сообщения
     return (
-        <li className={classNames({ [styles.selectedMessage]: contextMenuIsOpen }, {[styles.guest]: !isOwner})} ref={messageRef}>
+        <li className={classNames({ [styles.selectedMessage]: contextMenuIsOpen }, { [styles.guest]: !isOwner })} ref={messageRef}>
             {contextMenuIsOpen && <div className={styles.selectedMessage__selected} />}
             <label data-id={messageInfo.messageID}>
                 {isShowCheckbox && <SelectMessageInput messageInfo={messageInfo} />}
@@ -170,6 +216,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
                     ref={refSpan}
                 >
                     {messageInfo.forwardedFrom && <ForwardedFrom user={messageInfo.forwardedFrom} />}
+                    {messageInfo.replyToMessage && <ReplyToMessage {...messageInfo} />}
                     <MessagesContentViewport onEnterViewport={readMessage} message={messageInfo.message} />
                     <div className={styles.messageData__info}>
                         <div className={styles.messageData__date}>

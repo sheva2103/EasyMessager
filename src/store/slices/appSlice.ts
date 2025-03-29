@@ -28,7 +28,8 @@ type AppState = {
     moreMessages: boolean,
     emojiIsOpen: boolean,
     selectedEmoji: string,
-    isSearchMessage: boolean
+    isSearchMessage: boolean,
+    replyToMessage: Message1 | null
 }
 
 const initialState: AppState = {
@@ -50,7 +51,8 @@ const initialState: AppState = {
     moreMessages: false,
     emojiIsOpen: false,
     selectedEmoji: '',
-    isSearchMessage: false
+    isSearchMessage: false,
+    replyToMessage: null
 
 }
 
@@ -66,6 +68,7 @@ export const appSlice = createSlice({
             state.menu.bar = false
             state.menu.cover = false
             state.menu.menuChild = ''
+            if(state.selectedMessages.length) state.selectedMessages = []
         },
         closeBar(state, action: PayloadAction<string>) {
             state.menu.bar = false
@@ -90,6 +93,10 @@ export const appSlice = createSlice({
         },
         changeMessage(state, action: PayloadAction<Message1 | null>) {
             state.changeMessage = action.payload
+            if(!action.payload) state.replyToMessage = null
+        },
+        setReplyToMessage(state, action: PayloadAction<Message1 | null>) {
+            state.replyToMessage = action.payload
         },
         isSendMessage(state, action: PayloadAction<boolean>) {
             state.isSendMessage = action.payload
@@ -172,6 +179,7 @@ export const {openMenu,
                 setBlacklist,
                 setEmojiState,
                 setSelectedEmoji,
-                setSearchMessages
+                setSearchMessages,
+                setReplyToMessage
             } = appSlice.actions
 export default appSlice.reducer

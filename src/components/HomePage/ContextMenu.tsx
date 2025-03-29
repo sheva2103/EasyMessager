@@ -5,14 +5,16 @@ import Copy from '../../assets/copy.svg'
 import Delete from '../../assets/delete.svg'
 import Select from '../../assets/check-all.svg'
 import Change from '../../assets/change.svg'
+import Reply from '../../assets/reply-fill.svg'
 
-import { FC, useEffect, useState } from "react";
+import { FC, memo, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from '../../hooks/hook';
 import { Message1, StyleContextMenu } from '../../types/types';
-import { addSelectedMessage, changeMessage, closeBar, isSendMessage, setShowCheckbox } from '../../store/slices/appSlice';
+import { addSelectedMessage, changeMessage, closeBar, isSendMessage, setReplyToMessage, setShowCheckbox } from '../../store/slices/appSlice';
 import { messagesAPI } from '../../API/api';
 import { CONTACTS } from '../../constants/constants';
 
+const ANIMATION_DURATION = 190
 
 type Props = {
     isOpen: boolean,
@@ -50,6 +52,7 @@ const ContextMenu: FC<Props> = ({ isOpen, closeContextMenu, isOwner, message, po
 
     const deleteMessage = () => {
         messagesAPI.deleteMessage(chatID, message)
+            .catch((error) => console.error("Ошибка при удалении сообщения:", error))
     }
 
     const forwardMessage = () => {
@@ -60,8 +63,14 @@ const ContextMenu: FC<Props> = ({ isOpen, closeContextMenu, isOwner, message, po
 
     const close = (e: React.MouseEvent) => {
         setAnimationOpen(false)
-        setTimeout(() => closeContextMenu(e), 190)
+        setTimeout(() => closeContextMenu(e), ANIMATION_DURATION)
     }
+
+    const replyToMessage = () => {
+        dispatch(setReplyToMessage(message))
+    }
+
+    console.log('render contextmenu')
 
     return (
         <div
@@ -71,6 +80,7 @@ const ContextMenu: FC<Props> = ({ isOpen, closeContextMenu, isOwner, message, po
         >
             <div style={positionMenu} className={styles.contextMenu}>
                 <ul className={classNames({ [styles.showAnimation]: animationOpen })}>
+                    <li onClick={replyToMessage}><Reply /><span>Ответить</span></li>
                     <li onClick={forwardMessage}><SendMessage /><span>Переслать</span></li>
                     <li onClick={copyMessage}><Copy /><span>Копировать текст</span></li>
                     {isOwner && !isForwarder &&
@@ -90,4 +100,4 @@ const ContextMenu: FC<Props> = ({ isOpen, closeContextMenu, isOwner, message, po
     );
 }
 
-export default ContextMenu;
+export default ContextMenu

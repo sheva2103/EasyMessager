@@ -21,14 +21,15 @@ type SearchAPI = {
 
 type MessagesAPI = {
     addChat: (user: string, recipient: CurrentUser, chatID?: string) => Promise<void>,
-    sendMessage: (chatID: string, sender: CurrentUser, message: string) => void,
+    sendMessage: (chatID: string, sender: CurrentUser, message: string, replyToMessage?: Message1) => void,
     getChatID: (name: string, searchName: string) => Promise<string | undefined>,
     sendEditMessage: (chatID: string, message: Message1) => Promise<void>,
     deleteMessage: (chatID: string, message: Message1) => Promise<void>,
     forwardedMessageFrom: (sender: CurrentUser, recipient: Chat, message: Message1) => Promise<void>,
     readMessage: (chatID: string, message: Message1) => Promise<void>,
     clearChat: (chatID: string) => Promise<void[]>,
-    deleteChat: (currentUser: string, selectedChat: Chat) => Promise<void>
+    deleteChat: (currentUser: string, selectedChat: Chat) => Promise<void>,
+    addToFavorites: (currentUser: string, message: Message1) => Promise<void>
 }
 
 type ContactsAPI = {
@@ -93,11 +94,12 @@ export const messagesAPI: MessagesAPI = {
         const chat: Chat = { chatID, displayName: recipient.displayName, email: recipient.email, uid: recipient.uid }
         await setDoc(doc(db, user, "chatList"), { [recipient.uid]: chat }, { merge: true });
     },
-    async sendMessage(chatID, sender, message) {
+    async sendMessage(chatID, sender, message, replyToMessage) {
         const date = JSON.stringify(new Date())
         console.log('send message')
         const id = uuidv4()
         const messageObj: Message1 = { message: message, messageID: id, date: date, read: false, sender: sender }
+        if(replyToMessage) messageObj.replyToMessage = replyToMessage
         await setDoc(doc(db, 'chats', chatID), { [id]: messageObj }, { merge: true });
     },
     async getChatID(name, searchName) {
@@ -173,6 +175,10 @@ export const messagesAPI: MessagesAPI = {
         if(chatGuestSnap.exists() && !createChatList(chatGuestSnap.data()).some(item => item.chatID === selectedChat.chatID)) {
             await deleteDoc(doc(db, "chats", selectedChat.chatID));
         }
+    },
+    async addToFavorites(currentUser, message) {
+        const id = uuidv4()
+        await setDoc(doc(db, currentUser, "favorites"), { [id]: message }, { merge: true });
     }
 }
 

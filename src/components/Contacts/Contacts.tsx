@@ -69,6 +69,18 @@ const Contacts: FC = () => {
         dispatch(closeMenu())
     }
 
+    const sendToFavorites = () => {
+        const allMessages: Promise<void>[] = []
+        selectedMessageList.forEach(item => allMessages.push(messagesAPI.addToFavorites(currentUser.email, item)))
+        setSending(true)
+            Promise.all(allMessages)
+                .then(() => {
+                    dispatch(closeMenu())
+                    dispatch(clearSelectedMessage())
+                })
+                .finally(() => setSending(false))
+    }
+
     const filter = contactsList.filter(item => item.displayName.includes(name))
 
     return (
@@ -84,6 +96,7 @@ const Contacts: FC = () => {
             </div>
             <div className={styles.item}>
                 <ul className={styles.list}>
+                    <li onClick={sendToFavorites}><span>Избранное</span></li>
                     {!contactsList.length && <span>Контакты не найдены</span>}
                     {filter.map((item, index) => (
                         <li key={String(item.uid)} onClick={() => handleClickName(item)}>

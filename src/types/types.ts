@@ -48,7 +48,8 @@ export type Message1 = {
     read: boolean,
     sender: CurrentUser,
     changed?: string,
-    forwardedFrom?: Chat
+    forwardedFrom?: Chat,
+    replyToMessage?: Message1
 }
 
 export type ListMessagesType = {
