@@ -6,7 +6,7 @@ import SettingsIcon from '../../assets/settings.svg'
 import ContactsIcon from '../../assets/contacts.svg'
 import FavoritesIcon from '../../assets/favorites.svg'
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
-import { closeBar, closeMenu } from "../../store/slices/appSlice";
+import { closeBar, closeMenu, setIsFavorites } from "../../store/slices/appSlice";
 import { CONTACTS, CREATE_CHANNEL, SETTINGS } from "../../constants/constants";
 import MenuChild from "./MenuChild";
 import UserInfo from "./UserInfo";
@@ -19,6 +19,10 @@ const MenuComponent: FC = () => {
 
     const stopPropagation = (e: React.MouseEvent) => {
         e.stopPropagation()
+    }
+
+    const toFavorites = () => {
+        dispatch(setIsFavorites(true))
     }
 
     return (
@@ -41,7 +45,9 @@ const MenuComponent: FC = () => {
                         <li onClick={() => dispatch(closeBar(CONTACTS))}>
                             <ContactsIcon /><span>Контакты</span>
                         </li>
-                        <li><FavoritesIcon /><span>Избранное</span></li>
+                        <li onClick={toFavorites}>
+                            <FavoritesIcon /><span>Избранное</span>
+                        </li>
                     </ul>
                 </div>
             </nav>

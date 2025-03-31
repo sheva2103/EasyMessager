@@ -30,7 +30,8 @@ type Props = {
 const ContextMenu: FC<Props> = ({ isOpen, closeContextMenu, isOwner, message, positionMenu, isForwarder }) => {
 
     const dispatch = useAppDispatch()
-    const chatID = useAppSelector(state => state.app.selectedChat.chatID)
+    const chat = useAppSelector(state => state.app.selectedChat)
+    const isFavorites = useAppSelector(state => state.app.isFavorites)
     const [animationOpen, setAnimationOpen] = useState(false)
 
     useEffect(() => {
@@ -51,7 +52,7 @@ const ContextMenu: FC<Props> = ({ isOpen, closeContextMenu, isOwner, message, po
     }
 
     const deleteMessage = () => {
-        messagesAPI.deleteMessage(chatID, message)
+        messagesAPI.deleteMessage(chat, message, isFavorites)
             .catch((error) => console.error("Ошибка при удалении сообщения:", error))
     }
 

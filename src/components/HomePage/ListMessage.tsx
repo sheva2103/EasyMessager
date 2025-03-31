@@ -4,7 +4,7 @@ import Message from './Messgae';
 import { DocumentSnapshot, doc, onSnapshot } from "firebase/firestore";
 import { db } from '../../firebase';
 import { Chat, ListMessagesType, Message1 } from '../../types/types';
-import { createMessageList, createNewDate, getDatefromDate, getQuantityNoReadMessages } from '../../utils/utils';
+import { createMessageList, createNewDate, getChatType, getDatefromDate, getQuantityNoReadMessages } from '../../utils/utils';
 import GetDateMessage from './GetDateMessage';
 import { useAppDispatch, useAppSelector } from '../../hooks/hook';
 import { setLoadChat } from '../../store/slices/appSlice';
@@ -104,6 +104,7 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
     const [targetMessages, setTargetMessages] = useState<Set<number>>(new Set())
     const dispatch = useAppDispatch()
     const isLoadChat = useAppSelector(state => state.app.loadChat)
+    const isFavorites = useAppSelector(state => state.app.isFavorites)
 
     const scrollElementRef = useRef<List>(null)
 
@@ -111,7 +112,9 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
 
     useEffect(() => {
         if (list.length) setList([])
-        const messages = onSnapshot(doc(db, "chats", selectedChat.chatID), (doc: DocumentSnapshot<Message1[]>) => {
+        const reference = getChatType(isFavorites, selectedChat)
+        const messages = onSnapshot(reference, (doc: DocumentSnapshot<Message1[]>) => {
+        // const messages = onSnapshot(doc(db, "test@test.com", 'favorites'), (doc: DocumentSnapshot<Message1[]>) => {
             setList(createMessageList(doc.data()))
             if (isLoadChat) dispatch(setLoadChat(false))
         });

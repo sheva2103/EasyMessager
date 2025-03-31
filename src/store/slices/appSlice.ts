@@ -29,7 +29,8 @@ type AppState = {
     emojiIsOpen: boolean,
     selectedEmoji: string,
     isSearchMessage: boolean,
-    replyToMessage: Message1 | null
+    replyToMessage: Message1 | null,
+    isFavorites: boolean
 }
 
 const initialState: AppState = {
@@ -52,7 +53,8 @@ const initialState: AppState = {
     emojiIsOpen: false,
     selectedEmoji: '',
     isSearchMessage: false,
-    replyToMessage: null
+    replyToMessage: null,
+    isFavorites: false
 
 }
 
@@ -142,11 +144,19 @@ export const appSlice = createSlice({
         },
         setSearchMessages(state, action: PayloadAction<boolean>) {
             state.isSearchMessage = action.payload
+        },
+        setIsFavorites(state, action: PayloadAction<boolean>) {
+            state.isFavorites = action.payload
+            if(action.payload) state.selectedChat = state.currentUser
+            else state.selectedChat = null
+            state.menu.bar = false
+            state.menu.cover = false
         }
     },
     extraReducers: (builder) => {
         builder
             .addCase(setChat.pending, (state) => {
+                if(state.isFavorites) state.isFavorites = false 
                 state.loadChat = true
                 if(state.emojiIsOpen) state.emojiIsOpen = false
             })
@@ -180,6 +190,7 @@ export const {openMenu,
                 setEmojiState,
                 setSelectedEmoji,
                 setSearchMessages,
-                setReplyToMessage
+                setReplyToMessage,
+                setIsFavorites
             } = appSlice.actions
 export default appSlice.reducer

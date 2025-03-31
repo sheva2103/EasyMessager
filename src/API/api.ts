@@ -4,7 +4,7 @@ import { UserInfo } from "firebase/auth";
 import { Chat, CurrentUser, Message1 } from "../types/types";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
-import { createChatList, createMessageList, createNewDate } from "../utils/utils";
+import { createChatList, createMessageList, createNewDate, getChatType } from "../utils/utils";
 
 
 type ProfileApi = {
@@ -21,13 +21,13 @@ type SearchAPI = {
 
 type MessagesAPI = {
     addChat: (user: string, recipient: CurrentUser, chatID?: string) => Promise<void>,
-    sendMessage: (chatID: string, sender: CurrentUser, message: string, replyToMessage?: Message1) => void,
+    sendMessage: (chat: Chat, sender: CurrentUser, message: string, isFavorites: boolean,replyToMessage?: Message1) => Promise<void>,
     getChatID: (name: string, searchName: string) => Promise<string | undefined>,
-    sendEditMessage: (chatID: string, message: Message1) => Promise<void>,
-    deleteMessage: (chatID: string, message: Message1) => Promise<void>,
+    sendEditMessage: (chat: Chat, message: Message1, isFavorites: boolean) => Promise<void>,
+    deleteMessage: (chat: Chat, message: Message1, isFavorites: boolean) => Promise<void>,
     forwardedMessageFrom: (sender: CurrentUser, recipient: Chat, message: Message1) => Promise<void>,
     readMessage: (chatID: string, message: Message1) => Promise<void>,
-    clearChat: (chatID: string) => Promise<void[]>,
+    clearChat: (chat: Chat, isFavorites: boolean) => Promise<void[]>,
     deleteChat: (currentUser: string, selectedChat: Chat) => Promise<void>,
     addToFavorites: (currentUser: string, message: Message1) => Promise<void>
 }
@@ -94,13 +94,16 @@ export const messagesAPI: MessagesAPI = {
         const chat: Chat = { chatID, displayName: recipient.displayName, email: recipient.email, uid: recipient.uid }
         await setDoc(doc(db, user, "chatList"), { [recipient.uid]: chat }, { merge: true });
     },
-    async sendMessage(chatID, sender, message, replyToMessage) {
+    async sendMessage(chat, sender, message, isFavorites,replyToMessage) {
         const date = JSON.stringify(new Date())
         console.log('send message')
         const id = uuidv4()
-        const messageObj: Message1 = { message: message, messageID: id, date: date, read: false, sender: sender }
+        const messageObj: Message1 = { message: message, messageID: id, date: date, sender: sender }
+        if(!isFavorites) messageObj.read = false
         if(replyToMessage) messageObj.replyToMessage = replyToMessage
-        await setDoc(doc(db, 'chats', chatID), { [id]: messageObj }, { merge: true });
+        const reference = getChatType(isFavorites, chat)
+        console.log(messageObj)
+        return await setDoc(reference, { [id]: messageObj }, { merge: true });
     },
     async getChatID(name, searchName) {
         let id = undefined
@@ -115,16 +118,17 @@ export const messagesAPI: MessagesAPI = {
         }
         return id
     },
-    async sendEditMessage(chatID, message) {
-        const messageRef = doc(db, "chats", chatID);
+    async sendEditMessage(chat, message, isFavorites) {
+        // const messageRef = doc(db, "chats", chatID);
+        const messageRef = getChatType(isFavorites, chat)
         const date = JSON.stringify(new Date())
         const editMessage = { ...message, message: message.message, changed: date }
         await updateDoc(messageRef, {
             [message.messageID]: editMessage
         });
     },
-    async deleteMessage(chatID, message) {
-        const messageRef = doc(db, "chats", chatID);
+    async deleteMessage(chat, message, isFavorites) {
+        const messageRef = getChatType(isFavorites, chat)
 
         await updateDoc(messageRef, {
             [message.messageID]: deleteField()
@@ -154,13 +158,13 @@ export const messagesAPI: MessagesAPI = {
             [message.messageID]: editMessage
         });
     },
-    async clearChat(chatID) {
-        const docRef = doc(db, "chats", chatID);
+    async clearChat(chat, isFavorites) {
+        const docRef = getChatType(isFavorites, chat)
         const docSnap = await getDoc(docRef)
         const promises: Promise<void>[] = []
         const list: any = docSnap.data()
         createMessageList(list).forEach(message => {
-            promises.push(messagesAPI.deleteMessage(chatID, message))
+            promises.push(messagesAPI.deleteMessage(chat, message, isFavorites))
         })
         return Promise.all(promises)
     },
@@ -177,8 +181,9 @@ export const messagesAPI: MessagesAPI = {
         }
     },
     async addToFavorites(currentUser, message) {
-        const id = uuidv4()
-        await setDoc(doc(db, currentUser, "favorites"), { [id]: message }, { merge: true });
+        console.log(message)
+        const date = JSON.stringify(new Date())
+        await setDoc(doc(db, currentUser, "favorites"), { [message.messageID]: {...message, date, forwardedFrom: message.sender} }, { merge: true });
     }
 }
 

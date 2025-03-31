@@ -117,6 +117,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
     const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent)
     const isOwner = owner.email === messageInfo.sender.email
     const isForwarder = Boolean(messageInfo?.forwardedFrom)
+    const isFavorites = messageInfo.hasOwnProperty('read')
     const positionMenu: StyleContextMenu = {
         position: 'relative',
         top: offset.top + 'px',
@@ -219,10 +220,10 @@ const Message: FC<Props> = ({ messageInfo }) => {
                     {messageInfo.replyToMessage && <ReplyToMessage {...messageInfo} />}
                     <MessagesContentViewport onEnterViewport={readMessage} message={messageInfo.message} />
                     <div className={styles.messageData__info}>
-                        <div className={styles.messageData__date}>
+                        <div className={styles.messageData__date} style={{paddingBottom: !isFavorites ? '4px' : '0'}}>
                             <span >{messageInfo.changed ? `ред.${getTimeFromDate(createNewDate(messageInfo.changed))}` : getTimeFromDate(createNewDate(messageInfo.date))}</span>
                         </div>
-                        {messageInfo.sender.email === owner.email &&
+                        {messageInfo.sender.email === owner.email && isFavorites &&
                             <div className={styles.messageData__status}>
                                 {messageInfo.read ? <ReadIcon /> : <UnreadIcon />}
                             </div>

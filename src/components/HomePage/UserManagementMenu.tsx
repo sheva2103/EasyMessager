@@ -12,13 +12,14 @@ type Props = {
     chatInfo: Chat
 }
 
-const UserManagementMenu: FC<Props> = ({chatInfo}) => {
+const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
 
     const [isOpen, setOpen] = useState(false)
     const currentUserEmail = useAppSelector(state => state.app.currentUser.email)
     const contactsList = useAppSelector(state => state.app.contacts)
     const blackList = useAppSelector(state => state.app.blackList)
     const selectedChat = useAppSelector(state => state.app.selectedChat)
+    const isFavorites = useAppSelector(state => state.app.isFavorites)
     const dispatch = useAppDispatch()
     const [animationOpen, setAnimationOpen] = useState(false)
 
@@ -44,7 +45,7 @@ const UserManagementMenu: FC<Props> = ({chatInfo}) => {
 
     const clearChat = () => {
         dispatch(setLoadChat(true))
-        messagesAPI.clearChat(selectedChat.chatID)
+        messagesAPI.clearChat(selectedChat, isFavorites)
             .then(() => setOpen(false))
             .catch(error => console.log(error))
             .finally(() => dispatch(setLoadChat(false)))
@@ -68,7 +69,7 @@ const UserManagementMenu: FC<Props> = ({chatInfo}) => {
     const isBlackList = useMemo(() => blackList.some(item => item.email === chatInfo.email), [blackList.length, selectedChat])
 
     const onKeyDown = (e: React.KeyboardEvent) => {
-        if(e.key === 'Enter') setOpen(!isOpen)
+        if (e.key === 'Enter') setOpen(!isOpen)
     }
 
     const setMenu = () => {
@@ -79,41 +80,48 @@ const UserManagementMenu: FC<Props> = ({chatInfo}) => {
 
     useEffect(() => {
         //setTimeout(() => setAnimationOpen(true), 10000)
-        if(isOpen) setAnimationOpen(true)
+        if (isOpen) setAnimationOpen(true)
         return () => setAnimationOpen(false)
     }, [isOpen]);
 
 
-    return (  
+    return (
         <>
-            <div 
-                className={classNames(styles.menu__cover, {[styles.menu_show]: isOpen}, {[styles.animationCover]: animationOpen})}
+            <div
+                className={classNames(styles.menu__cover, { [styles.menu_show]: isOpen }, { [styles.animationCover]: animationOpen })}
                 onClick={setMenu}
-                ></div>
+            ></div>
             <div className={styles.menu__button}>
-                <MenuIcon 
-                    cursor={'pointer'} 
+                <MenuIcon
+                    cursor={'pointer'}
                     fontSize={'1.3rem'}
                     onClick={() => setOpen(!isOpen)}
                     onKeyDown={onKeyDown}
                     tabIndex={8}
-                    />
-                <div className={classNames(styles.menu__list, {[styles.menu_show]: isOpen}, {[styles.animationMenu]: animationOpen})}>
-                    <ul>
-                        <li onClick={showSearchMessages}>Поиск</li>
-                        {isContact ? 
-                            <li onClick={deleteContact}>Удалить из контактов</li> 
-                            :
-                            <li onClick={addToContacts}>Добавить в контакты</li>
-                        }
-                        {isBlackList ?
-                            <li onClick={removeFromBlacklist}>Удалить из ЧС</li>
-                            :
-                            <li onClick={addToBlacklist}>Добавить в ЧС</li>
-                        }
-                        <li onClick={clearChat}>Очистить историю</li>
-                        <li onClick={deleteChat}>Удалить чат</li>
-                    </ul>
+                />
+                <div className={classNames(styles.menu__list, { [styles.menu_show]: isOpen }, { [styles.animationMenu]: animationOpen })}>
+                    {!isFavorites ?
+                        <ul>
+                            <li onClick={showSearchMessages}>Поиск</li>
+                            {isContact ?
+                                <li onClick={deleteContact}>Удалить из контактов</li>
+                                :
+                                <li onClick={addToContacts}>Добавить в контакты</li>
+                            }
+                            {isBlackList ?
+                                <li onClick={removeFromBlacklist}>Удалить из ЧС</li>
+                                :
+                                <li onClick={addToBlacklist}>Добавить в ЧС</li>
+                            }
+                            <li onClick={clearChat}>Очистить историю</li>
+                            <li onClick={deleteChat}>Удалить чат</li>
+                        </ul>
+                        :
+                        <ul>
+                            <li onClick={showSearchMessages}>Поиск</li>
+                            <li onClick={clearChat}>Очистить историю</li>
+                        </ul>
+                    }
                 </div>
             </div>
         </>

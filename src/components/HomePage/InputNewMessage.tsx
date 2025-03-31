@@ -21,7 +21,7 @@ const EmojiControl: FC = () => {
 
     return (
         <div className={styles.inputNewMessage__activateEmoji} title='emoji'>
-            <EmojiIcon fontSize={'1.2rem'} cursor={'pointer'} onClick={handleClick}/>
+            <EmojiIcon fontSize={'1.2rem'} cursor={'pointer'} onClick={handleClick} />
         </div>
     );
 }
@@ -36,6 +36,7 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
     const selectedEmoji = useAppSelector(state => state.app.selectedEmoji)
     const isCheckBox = useAppSelector(state => state.app.showCheckbox)
     const replyToMessage = useAppSelector(state => state.app.replyToMessage)
+    const isFavorites = useAppSelector(state => state.app.isFavorites)
 
     const [newMessage, setNewMessage] = useState('')
     const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -48,20 +49,48 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
         setEditMessage(e.target.value)
     }
 
+    //пофиксить отправку в избранное
+
     const sendMessage = () => {
+        // if (!newMessage.trim()) return
+        // if(!isFavorites) {
+        //     Promise.all([messagesAPI.addChat(currentUser.email, selectedChat, chatInfo.chatID), messagesAPI.addChat(selectedChat.email, currentUser, chatInfo.chatID)])
+        //     .then(() => messagesAPI.sendMessage(chatInfo, currentUser, newMessage, isFavorites,replyToMessage))
+        //     .then(() => setNewMessage(''))
+        //     .then(() => {
+        //         if(replyToMessage) cancelEditing()
+        //     })
+        //     .catch((error) => console.error("Ошибка отправки сообщения:", error))
+        // } else {
+        //     messagesAPI.sendMessage(chatInfo, currentUser, newMessage, isFavorites,replyToMessage)
+        //         .then(() => setNewMessage(''))
+        //         .catch((error) => {
+        //             console.error("Ошибка отправки сообщения:", error)
+        //             alert("Ошибка отправки сообщения. Попробуйте ещё раз.")
+        //         })
+        // }
         if (!newMessage.trim()) return
-        Promise.all([messagesAPI.addChat(currentUser.email, selectedChat, chatInfo.chatID), messagesAPI.addChat(selectedChat.email, currentUser, chatInfo.chatID)])
-            .then(() => messagesAPI.sendMessage(chatInfo.chatID, currentUser, newMessage, replyToMessage))
-            .then(() => setNewMessage(''))
-            .then(() => {
-                if(replyToMessage) cancelEditing()
-            })
-            .catch((error) => console.error("Ошибка отправки сообщения:", error))
+        const send = () =>
+            messagesAPI.sendMessage(chatInfo, currentUser, newMessage, isFavorites, replyToMessage)
+                .then(() => {
+                    setNewMessage('');
+                    if (replyToMessage) cancelEditing()
+                })
+                .catch((error) => console.error("Ошибка отправки сообщения:", error))
+
+        if (!isFavorites) {
+            Promise.all([
+                messagesAPI.addChat(currentUser.email, selectedChat, chatInfo.chatID),
+                messagesAPI.addChat(selectedChat.email, currentUser, chatInfo.chatID)
+            ]).then(send);
+        } else {
+            send()
+        }
     }
 
     const sendEditMessage = () => {
         if (!editMessage.trim()) return
-        messagesAPI.sendEditMessage(chatInfo.chatID, { ...isEditMessage, message: editMessage })
+        messagesAPI.sendEditMessage(chatInfo, { ...isEditMessage, message: editMessage }, isFavorites)
             .then(() => dispatch(changeMessage(null)))
             .catch((error) => console.error("Ошибка отправки сообщения:", error))
     }
@@ -95,7 +124,7 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
             setEditMessage(isEditMessage.message)
             refTextarea.current?.focus()
         }
-        if(replyToMessage) {
+        if (replyToMessage) {
             refTextarea.current?.focus()
         }
     }, [isEditMessage, replyToMessage]);
@@ -105,14 +134,14 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
     }, [selectedChat]);
 
     useEffect(() => {
-        if(selectedEmoji) {
+        if (selectedEmoji) {
             !isEditMessage ? setNewMessage(prev => prev + selectedEmoji) : setEditMessage(prev => prev + selectedEmoji)
             refTextarea.current?.focus()
         }
         dispatch(setSelectedEmoji(''))
     }, [selectedEmoji]);
 
-    if(isCheckBox) return null
+    if (isCheckBox) return null
 
     return (
         <div className={styles.inputNewMessage}>

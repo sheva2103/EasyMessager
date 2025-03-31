@@ -14,7 +14,8 @@ const BlockControl: FC = () => {
     const [deleting, setDeleting] = useState(false)
     const dispatch = useAppDispatch()
     const selectedMessage = useAppSelector(state => state.app.selectedMessages)
-    const chatID = useAppSelector(state => state.app.selectedChat.chatID)
+    const chat = useAppSelector(state => state.app.selectedChat)
+    const isFavorites = useAppSelector(state => state.app.isFavorites)
 
     const handleClickSendMessages = () => {
         if(!selectedMessage.length) return
@@ -27,7 +28,7 @@ const BlockControl: FC = () => {
         if(!selectedMessage.length) return
         setDeleting(true)
         const messages: Promise<void>[] = []
-        selectedMessage.forEach(item => messages.push(messagesAPI.deleteMessage(chatID, item)))
+        selectedMessage.forEach(item => messages.push(messagesAPI.deleteMessage(chat, item, isFavorites)))
         Promise.all(messages)
             .then(() => dispatch(clearSelectedMessage()))
             .catch(() => console.log('error deleting selected messages'))

@@ -26,6 +26,7 @@ const LoadChatComponent: FC = () => {
 const ChatContent: FC = () => {
 
     const selectedChat = useAppSelector(state => state.app.selectedChat)
+    const isFavorites = useAppSelector(state => state.app.isFavorites)
     const dispatch = useAppDispatch()
     const closeChat = () => {
         dispatch(setChat(null))
@@ -52,7 +53,7 @@ const ChatContent: FC = () => {
                     </div>
                     <div className={styles.contentHeader}>
                         <div className={styles.contentHeader__selectedChat}>
-                            <span>{selectedChat.displayName}</span>
+                            <span>{!isFavorites ? selectedChat.displayName : 'Избранное'}</span>
                         </div>
                         <ChatMenu selectedChat={selectedChat} />
                     </div>

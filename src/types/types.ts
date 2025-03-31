@@ -45,7 +45,7 @@ export type Message1 = {
     message: string,
     messageID: string,
     date: string,
-    read: boolean,
+    read?: boolean,
     sender: CurrentUser,
     changed?: string,
     forwardedFrom?: Chat,

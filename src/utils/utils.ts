@@ -1,5 +1,7 @@
+import { doc, DocumentReference } from "firebase/firestore"
 import { Chat, ListMessagesType, Message1, size } from "../types/types"
 import { format } from "@formkit/tempo"
+import { db } from "../firebase"
 
 
 export function createChatList(data: Chat[]) {
@@ -153,5 +155,11 @@ export function searchMessagesInList(array: Message1[], substring: string): Set<
         }
         return indicesSet
     }, new Set<number>());
+}
+
+export function getChatType(isFavorites: boolean, selectedChat: Chat): DocumentReference {
+
+    if(isFavorites) return doc(db, selectedChat.email, 'favorites')
+    return doc(db, "chats", selectedChat.chatID)
 }
 
