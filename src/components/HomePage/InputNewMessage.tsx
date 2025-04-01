@@ -49,26 +49,7 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
         setEditMessage(e.target.value)
     }
 
-    //пофиксить отправку в избранное
-
     const sendMessage = () => {
-        // if (!newMessage.trim()) return
-        // if(!isFavorites) {
-        //     Promise.all([messagesAPI.addChat(currentUser.email, selectedChat, chatInfo.chatID), messagesAPI.addChat(selectedChat.email, currentUser, chatInfo.chatID)])
-        //     .then(() => messagesAPI.sendMessage(chatInfo, currentUser, newMessage, isFavorites,replyToMessage))
-        //     .then(() => setNewMessage(''))
-        //     .then(() => {
-        //         if(replyToMessage) cancelEditing()
-        //     })
-        //     .catch((error) => console.error("Ошибка отправки сообщения:", error))
-        // } else {
-        //     messagesAPI.sendMessage(chatInfo, currentUser, newMessage, isFavorites,replyToMessage)
-        //         .then(() => setNewMessage(''))
-        //         .catch((error) => {
-        //             console.error("Ошибка отправки сообщения:", error)
-        //             alert("Ошибка отправки сообщения. Попробуйте ещё раз.")
-        //         })
-        // }
         if (!newMessage.trim()) return
         const send = () =>
             messagesAPI.sendMessage(chatInfo, currentUser, newMessage, isFavorites, replyToMessage)

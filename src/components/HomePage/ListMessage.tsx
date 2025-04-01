@@ -111,10 +111,9 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
     const assignElementToScroll = (element: List) => scrollElementRef.current = element 
 
     useEffect(() => {
-        if (list.length) setList([])
+        //if (list.length) setList([])
         const reference = getChatType(isFavorites, selectedChat)
         const messages = onSnapshot(reference, (doc: DocumentSnapshot<Message1[]>) => {
-        // const messages = onSnapshot(doc(db, "test@test.com", 'favorites'), (doc: DocumentSnapshot<Message1[]>) => {
             setList(createMessageList(doc.data()))
             if (isLoadChat) dispatch(setLoadChat(false))
         });

@@ -10,7 +10,6 @@ type Props = {
 }
 
 const ChatMenu: FC<Props> = ({selectedChat}) => {
-
     const showCheckbox = useAppSelector(state => state.app.showCheckbox)
 
     return (

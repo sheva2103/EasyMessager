@@ -46,7 +46,6 @@ const SearchMessages: FC<Props> = ({ list, setTargetMessages }) => {
     useEffect(() => {
         if (debouncedText) {
             const result = searchMessagesInList(list, text)
-            console.log('Поиск по:', result);
             setTargetMessages(result)
         }
     }, [debouncedText]);

@@ -8,13 +8,14 @@ import { setChat } from "../../store/slices/setChatIDSlice";
 import ChatMenu from "./ChatMenu";
 import MessageInputField from "./MessageInputField";
 import Preloader from '../../assets/preloader.svg'
+import { Chat } from "../../types/types";
 
 const LoadChatComponent: FC = () => {
 
     const isLoad = useAppSelector(state => state.app.loadChat)
 
     return (
-        <div className={styles.contentContainer} style={{position: 'absolute', display: isLoad? 'block' : 'none'}}>
+        <div className={styles.contentContainer} style={{ position: 'absolute', display: isLoad ? 'block' : 'none' }}>
             <div className={styles.preloaderBlock}>
                 <Preloader fontSize={'2.4rem'} />
             </div>
@@ -22,15 +23,33 @@ const LoadChatComponent: FC = () => {
     )
 }
 
+const HeaderChat: FC<{selectedChat: Chat}> = ({selectedChat}) => {
 
-const ChatContent: FC = () => {
-
-    const selectedChat = useAppSelector(state => state.app.selectedChat)
     const isFavorites = useAppSelector(state => state.app.isFavorites)
     const dispatch = useAppDispatch()
     const closeChat = () => {
         dispatch(setChat(null))
     }
+
+    return (
+        <header>
+            <div className={styles.closeIcon} onClick={closeChat}>
+                <ArrowLeftIcon fontSize={'2rem'} />
+            </div>
+            <div className={styles.contentHeader}>
+                <div className={styles.contentHeader__selectedChat}>
+                    <span>{!isFavorites ? selectedChat.displayName : 'Избранное'}</span>
+                </div>
+                <ChatMenu selectedChat={selectedChat} />
+            </div>
+        </header>
+    )
+}
+
+
+const ChatContent: FC = () => {
+
+    const selectedChat = useAppSelector(state => state.app.selectedChat)
 
     if (!selectedChat) {
         return (
@@ -47,22 +66,9 @@ const ChatContent: FC = () => {
         <div className={classNames(styles.contentContainer, { [styles.showContent]: selectedChat })}>
             <LoadChatComponent />
             <div className={styles.header}>
-                <header>
-                    <div className={styles.closeIcon} onClick={closeChat}>
-                        <ArrowLeftIcon fontSize={'2rem'} />
-                    </div>
-                    <div className={styles.contentHeader}>
-                        <div className={styles.contentHeader__selectedChat}>
-                            <span>{!isFavorites ? selectedChat.displayName : 'Избранное'}</span>
-                        </div>
-                        <ChatMenu selectedChat={selectedChat} />
-                    </div>
-                </header>
+                <HeaderChat selectedChat={selectedChat}/>
             </div>
             <div className={styles.chatWindow}>
-                {/* <template>
-                    <canvas id="canvas"></canvas>
-                </template> */}
                 <main>
                     <ListMessages selectedChat={selectedChat} />
                     <MessageInputField selectedChat={selectedChat} />

@@ -62,48 +62,62 @@
     }
 }
 
-
-.dropDawn {
-    list-style: none;
-    padding-left: 12px;
-    min-height: 0;
-    font-size: 0;
-    transition: all 0.2s;
-    margin: 4px 0;
-
-    & li {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+.listStyle {
+    background-color: var(--background-color-chatlist) !important;
+    width: 260px;
+    @media (max-width: 576px) {
+        width: 100%;
     }
+    overflow: hidden;
 
-    &.show li {
-        padding: 6px;
-        @media (max-width: 468px) {
-            padding: 10px;
+    & .close {
+        padding: 6px 10px 0 0;
+        display: flex;
+        justify-content: end;
+        color: var(--color);
+    } 
+
+    & ul {
+        //width: 260px;
+        color: var(--color);
+        list-style: none;
+        padding: 0;
+        height: 260px;
+        overflow: auto;
+
+        & svg {
+            font-size: 1.3rem;
+            @media (max-width: 576px) {
+                font-size: 1.5rem;
+            }
+        }
+
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 3px 12px;
             font-size: 1.2rem;
+            @media (max-width: 576px) {
+                padding: 7px 12px;
+            }
+        }
+
+        li:hover {
+            color: rgb(135, 116, 225);
+            border-bottom: 1px solid rgba(134, 116, 225, 0.363);
+            background-color: var(--background-color-input);;
         }
     }
-
-    & li:hover {
-        color: rgb(135, 116, 225);
-        border-bottom: 1px solid rgba(134, 116, 225, 0.363);
-    }
 }
+
+
 
 // .checkMenu:checked ~ .dropDawn {
 //     min-height: 100px;
 //     font-size: inherit;
 // }
-.show {
-    max-height: 200px;
-    font-size: 1.1rem;
-    overflow: auto;
 
-    & svg {
-        font-size: 1.2rem;
-    }
-}
 
 .button {
     width: 100px;

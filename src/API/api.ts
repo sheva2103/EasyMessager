@@ -39,10 +39,17 @@ type ContactsAPI = {
     removeFromBlacklist: (currentUser: string, contact: CurrentUser) => Promise<void>
 }
 
+const USERS = "users"
+const CHATLIST = "chatList"
+const CHATS = "chats"
+const FAVOTITES = "favorites"
+const BLACKLIST = "blacklist"
+const CONTACTS = "contacts"
+
 export const profileAPI: ProfileApi = {
 
     async createNewUserInDB(user) {
-        await setDoc(doc(db, "users", user.uid), {
+        await setDoc(doc(db, USERS, user.uid), {
             email: user.email,
             displayName: user.email.slice(0, user.email.indexOf('@')),
             uid: user.uid,
@@ -50,14 +57,14 @@ export const profileAPI: ProfileApi = {
         });
     },
     async changeUserInfo(data) {
-        const userRef = doc(db, "users", data.uid);
+        const userRef = doc(db, USERS, data.uid);
         await updateDoc(userRef, {
             photoURL: data.photoURL,
             displayName: data.displayName
         });
     },
     async getCurrentInfo(uid) {
-        const userRef = doc(db, "users", uid);
+        const userRef = doc(db, USERS, uid);
         const docSnap = await getDoc(userRef);
 
         if (docSnap.exists()) {
@@ -75,11 +82,10 @@ export const profileAPI: ProfileApi = {
 export const searchAPI: SearchAPI = {
     async searchUser(name) {
         const chats: CurrentUser[] = []
-        const q = query(collection(db, "users"), where("displayName", "==", name));
+        const q = query(collection(db, USERS), where("displayName", "==", name));
         const querySnapshot = await getDocs(q);
         querySnapshot.forEach((doc: QueryDocumentSnapshot<CurrentUser>) => {
             chats.push(doc.data())
-            //console.log(doc.id, " => ", doc.data());
         });
         return chats
     }
@@ -92,7 +98,7 @@ export const messagesAPI: MessagesAPI = {
 
     async addChat(user, recipient, chatID) {
         const chat: Chat = { chatID, displayName: recipient.displayName, email: recipient.email, uid: recipient.uid }
-        await setDoc(doc(db, user, "chatList"), { [recipient.uid]: chat }, { merge: true });
+        await setDoc(doc(db, user, CHATLIST), { [recipient.uid]: chat }, { merge: true });
     },
     async sendMessage(chat, sender, message, isFavorites,replyToMessage) {
         const date = JSON.stringify(new Date())
@@ -108,7 +114,7 @@ export const messagesAPI: MessagesAPI = {
     async getChatID(name, searchName) {
         let id = undefined
         console.log('getchatID')
-        const docRef = doc(db, name, "chatList");
+        const docRef = doc(db, name, CHATLIST);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
             const data: any = docSnap.data()
@@ -119,7 +125,6 @@ export const messagesAPI: MessagesAPI = {
         return id
     },
     async sendEditMessage(chat, message, isFavorites) {
-        // const messageRef = doc(db, "chats", chatID);
         const messageRef = getChatType(isFavorites, chat)
         const date = JSON.stringify(new Date())
         const editMessage = { ...message, message: message.message, changed: date }
@@ -142,16 +147,16 @@ export const messagesAPI: MessagesAPI = {
         const isID = await Promise.all([messagesAPI.getChatID(sender.email, recipient.email), messagesAPI.getChatID(recipient.email, sender.email)])
         if(isID[0] || isID[1]) {
             const currentID = isID[0] || isID[1]
-            await setDoc(doc(db, 'chats', currentID), { [id]: messageObj }, { merge: true });
+            await setDoc(doc(db, CHATS, currentID), { [id]: messageObj }, { merge: true });
             await Promise.all([messagesAPI.addChat(sender.email, recipient, currentID), messagesAPI.addChat(recipient.email, sender, currentID)])
         }
         else {
             await Promise.all([messagesAPI.addChat(sender.email, recipient, id), messagesAPI.addChat(recipient.email, sender, id)])
-            await setDoc(doc(db, 'chats', id), { [id]: messageObj }, { merge: true });
+            await setDoc(doc(db, CHATS, id), { [id]: messageObj }, { merge: true });
         }
     },
     async readMessage(chatID, message) {
-        const messageRef = doc(db, "chats", chatID);
+        const messageRef = doc(db, CHATS, chatID);
 
         const editMessage = { ...message, read: true }
         await updateDoc(messageRef, {
@@ -169,21 +174,20 @@ export const messagesAPI: MessagesAPI = {
         return Promise.all(promises)
     },
     async deleteChat(currentUser, selectedChat) {
-        const chatCurrentRef = doc(db, currentUser, 'chatList');
-        const chatGuestRef = doc(db, selectedChat.email, 'chatList');
+        const chatCurrentRef = doc(db, currentUser, CHATLIST);
+        const chatGuestRef = doc(db, selectedChat.email, CHATLIST);
         const chatGuestSnap: any = await getDoc(chatGuestRef);
         
         await updateDoc(chatCurrentRef, {
             [selectedChat.uid]: deleteField()
         });
         if(chatGuestSnap.exists() && !createChatList(chatGuestSnap.data()).some(item => item.chatID === selectedChat.chatID)) {
-            await deleteDoc(doc(db, "chats", selectedChat.chatID));
+            await deleteDoc(doc(db, CHATS, selectedChat.chatID));
         }
     },
     async addToFavorites(currentUser, message) {
-        console.log(message)
         const date = JSON.stringify(new Date())
-        await setDoc(doc(db, currentUser, "favorites"), { [message.messageID]: {...message, date, forwardedFrom: message.sender} }, { merge: true });
+        await setDoc(doc(db, currentUser, FAVOTITES), { [message.messageID]: {...message, date, forwardedFrom: message.sender} }, { merge: true });
     }
 }
 
@@ -192,20 +196,20 @@ export const messagesAPI: MessagesAPI = {
 
 export const contactsAPI: ContactsAPI = {
     async addToContacts(currentUser, newContact) {
-        await setDoc(doc(db, currentUser, "contacts"), { [newContact.uid]: newContact }, { merge: true });
+        await setDoc(doc(db, currentUser, CONTACTS), { [newContact.uid]: newContact }, { merge: true });
     },
     async removeFromContacts(currentUser, contact) {
-        const contactsRef = doc(db, currentUser, 'contacts');
+        const contactsRef = doc(db, currentUser, CONTACTS);
 
         await updateDoc(contactsRef, {
             [contact.uid]: deleteField()
         });
     },
     async addToBlacklist(currentUser, contact) {
-        await setDoc(doc(db, currentUser, "blacklist"), { [contact.uid]: contact }, { merge: true });
+        await setDoc(doc(db, currentUser, BLACKLIST), { [contact.uid]: contact }, { merge: true });
     },
     async removeFromBlacklist(currentUser, contact) {
-        const contactsRef = doc(db, currentUser, 'blacklist');
+        const contactsRef = doc(db, currentUser, BLACKLIST);
 
         await updateDoc(contactsRef, {
             [contact.uid]: deleteField()

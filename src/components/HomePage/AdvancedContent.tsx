@@ -40,6 +40,13 @@ const IndexesNavigator: React.FC<IndexesNavigatorProps> = ({ numbers, scrollElem
         scrollElement.scrollToRow(prevValue)
     }
 
+    useEffect(() => {
+        console.log(numberArray)
+        if(numberArray.length) scrollElement.scrollToRow(numberArray[numberArray.length - 1])
+    }, [numbers])
+
+    const currentIndex = numberArray.indexOf(currentValue) ? numberArray.indexOf(currentValue) : numberArray.length
+
     return (
         <div>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -49,7 +56,7 @@ const IndexesNavigator: React.FC<IndexesNavigatorProps> = ({ numbers, scrollElem
                     </Badge>
                 </div>
                 <div>
-                    <Badge badgeContent={numberArray.length}/>
+                    <Badge badgeContent={currentIndex}/>
                 </div>
                 <div onClick={goToNext}>
                     <Badge color="primary">
