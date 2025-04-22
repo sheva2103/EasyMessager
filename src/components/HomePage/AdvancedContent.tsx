@@ -2,14 +2,14 @@ import { FC, useEffect, useRef, useState } from "react";
 import styles from './HomePage.module.scss'
 import Arrow from '../../assets/arrow-down-circle-fill.svg'
 import Badge from '@mui/material/Badge';
-import { Message1 } from "../../types/types";
+import { Message1, NoReadMessagesType } from "../../types/types";
 import { getQuantityNoReadMessages } from "../../utils/utils";
 import { List } from "react-virtualized";
 import { useAppSelector } from "../../hooks/hook";
 import EmojiComponent from "./EmojiComponent";
 
 type Props = {
-    list: Message1[],
+    noRead: NoReadMessagesType,
     scrollElement?: List,
     scrollIndexes: Set<number>
 }
@@ -68,17 +68,17 @@ const IndexesNavigator: React.FC<IndexesNavigatorProps> = ({ numbers, scrollElem
     );
 };
 
-const ScrollButton: FC<Props> = ({ list, scrollElement, scrollIndexes }) => {
+const ScrollButton: FC<Props> = ({ noRead, scrollElement, scrollIndexes }) => {
 
     console.log('scrollbutton')
 
-    const [noRead, setNoRead] = useState({ quantity: 0, targetIndex: 0 })
-    const currentUserID = useAppSelector(state => state.app.currentUser.uid)
+    // const [noRead, setNoRead] = useState({ quantity: 0, targetIndex: 0 })
+    // const currentUserID = useAppSelector(state => state.app.currentUser.uid)
 
-    useEffect(() => {
-        const quantity = getQuantityNoReadMessages(list, currentUserID)
-        setNoRead(quantity)
-    }, [list]);
+    // useEffect(() => {
+    //     const quantity = getQuantityNoReadMessages(list, currentUserID)
+    //     setNoRead(quantity)
+    // }, [list]);
 
     const handleClick = () => scrollElement.scrollToRow(noRead.targetIndex)
 
@@ -93,7 +93,7 @@ const ScrollButton: FC<Props> = ({ list, scrollElement, scrollIndexes }) => {
     );
 }
 
-const AdvancedContent: FC<Props> = ({ list, scrollElement, scrollIndexes }) => {
+const AdvancedContent: FC<Props> = ({ noRead, scrollElement, scrollIndexes }) => {
 
     const parentRef = useRef<HTMLDivElement>(null)
     const [height, setHeight] = useState(350)
@@ -116,7 +116,7 @@ const AdvancedContent: FC<Props> = ({ list, scrollElement, scrollIndexes }) => {
                     <EmojiComponent height={height} />
                 </div>
                 <div className={styles.scrollControl}>
-                    <ScrollButton list={list} scrollElement={scrollElement} scrollIndexes={scrollIndexes} />
+                    <ScrollButton noRead={noRead} scrollElement={scrollElement} scrollIndexes={scrollIndexes} />
                 </div>
             </div>
         </>

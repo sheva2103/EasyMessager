@@ -88,11 +88,20 @@ export function buildLoaders(options: BuildOPtions): ModuleOptions['rules'] {
         ],
     }
 
+    const audioLoader = {
+            test: /\.(mp3|wav)$/,
+            type: 'asset/resource',
+            generator: {
+                filename: 'assets/[name][ext]',
+            },
+    }
+
     return [
         assetLoader,
         svgrLoader,
         scssLoader,
         tsLoader,
+        audioLoader
         //babelLoader
     ]
 }

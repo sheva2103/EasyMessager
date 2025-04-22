@@ -41,6 +41,17 @@ const VariableHeightList: FC<VariableHeightListProps> = ({ items, assignElementT
         }
     }, [items.length])
 
+    // useEffect(() => {
+    //     if (listRef.current && items.length) {
+    //         const position = getQuantityNoReadMessages(items, currentUserID);
+    //         // Проверяем, является ли последний отрендеренный элемент последним в массиве items
+    //         const lastRenderedIndex = listRef.current.Grid.state.scrollTop + listRef.current.props.height / cache.defaultHeight; // Пример вычисления
+    //         if (lastRenderedIndex >= items.length - 1) {
+    //             listRef.current.scrollToRow(position.targetIndex);
+    //         }
+    //     }
+    // }, [items.length]);
+
     useEffect(() => {
         assignElementToScroll(listRef.current)
     }, []);
@@ -100,7 +111,8 @@ const VariableHeightList: FC<VariableHeightListProps> = ({ items, assignElementT
 
 const ListMessages: FC<Props> = ({ selectedChat }) => {
 
-    const [list, setList] = useState<Message1[]>([])
+    //const [list, setList] = useState<Message1[]>([])
+    const list = useAppSelector(state => state.messages)
     const [targetMessages, setTargetMessages] = useState<Set<number>>(new Set())
     const dispatch = useAppDispatch()
     const isLoadChat = useAppSelector(state => state.app.loadChat)
@@ -110,27 +122,27 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
 
     const assignElementToScroll = (element: List) => scrollElementRef.current = element 
 
-    useEffect(() => {
-        //if (list.length) setList([])
-        const reference = getChatType(isFavorites, selectedChat)
-        const messages = onSnapshot(reference, (doc: DocumentSnapshot<Message1[]>) => {
-            setList(createMessageList(doc.data()))
-            if (isLoadChat) dispatch(setLoadChat(false))
-        });
-        return () => messages()
-    }, [selectedChat.uid]);
+    // useEffect(() => {
+    //     //if (list.length) setList([])
+    //     const reference = getChatType(isFavorites, selectedChat)
+    //     const messages = onSnapshot(reference, (doc: DocumentSnapshot<Message1[]>) => {
+    //         setList(createMessageList(doc.data()))
+    //         if (isLoadChat) dispatch(setLoadChat(false))
+    //     });
+    //     return () => messages()
+    // }, [selectedChat.uid]);
 
     console.log('render list messages')
 
     return (
         <div className={styles.contentWrapper}>
             <div className={styles.listMessages}>
-                <SearchMessages list={list} setTargetMessages={setTargetMessages}/>
+                <SearchMessages list={list.messages} setTargetMessages={setTargetMessages}/>
                 <ul id='listForMessages'>
-                    <VariableHeightList items={list} assignElementToScroll={assignElementToScroll} searchIndexes={targetMessages}/>
+                    <VariableHeightList items={list.messages} assignElementToScroll={assignElementToScroll} searchIndexes={targetMessages}/>
                 </ul>
             </div>
-            <AdvancedContent list={list} scrollElement={scrollElementRef.current} scrollIndexes={targetMessages}/>
+            <AdvancedContent noRead={list.noRead} scrollElement={scrollElementRef.current} scrollIndexes={targetMessages}/>
         </div>
     );
 }

@@ -1,25 +1,26 @@
-import { FC, memo, useCallback, useEffect, useRef, useState } from "react";
+import { FC, memo, useEffect, useRef, useState } from "react";
 import Avatar from "../Avatar/Avatar";
 import classNames from "classnames";
 import styles from './HomePage.module.scss'
 import ContextMenu from "./ContextMenu";
 import SelectMessageInput from "./SelectMessageInput";
-import { Chat, CurrentUser, Message1, StyleContextMenu } from "../../types/types";
+import { Chat, Message1, StyleContextMenu } from "../../types/types";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { checkMessage, createNewDate, getTimeFromDate } from "../../utils/utils";
-import handleViewport, { type InjectedViewportProps } from 'react-in-viewport';
 import UnreadIcon from '../../assets/check2.svg'
 import ReadIcon from '../../assets/check2-all.svg'
 import { messagesAPI } from "../../API/api";
 import { setChat } from "../../store/slices/setChatIDSlice";
+import { useInView } from 'react-intersection-observer';
+
 
 const HEIGHT_MENU_FOR_OWNER = 220
 const HEIGHT_MENU_FOR_GUEST = 168
 const WIDTH_MENU = 200
 const HEIGHT_HEADER = 66
 
-
-interface MessageContentProps extends InjectedViewportProps<HTMLDivElement> {
+interface IMessagesContent {
+    onEnterViewport: () => void,
     message: string
 }
 
@@ -49,22 +50,28 @@ const ForwardedFrom: FC<ForwardedFromProps> = ({ user }) => {
     );
 }
 
-const MessagesContent: FC = (props: MessageContentProps) => {
+const ViewportContent: FC<IMessagesContent> = ({ onEnterViewport, message }) => {
 
-    const { forwardedRef, message } = props
+    const { ref, inView } = useInView({
+        threshold: 0.1,
+    })
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+
+    useEffect(() => {
+        if (inView) {
+            onEnterViewport();
+        }
+    }, [inView])
 
     return (
         <span
             dangerouslySetInnerHTML={{ __html: checkMessage(message) }}
-            ref={forwardedRef}
+            ref={ref}
             className={classNames({ [styles.mobileDevice]: isMobile })}
         >
         </span>
     )
 }
-
-const MessagesContentViewport = handleViewport(MessagesContent);
 
 type Offset = {
     top: number,
@@ -77,16 +84,6 @@ type Props = {
 
 const ReplyToMessage: FC<Message1> = (props) => {
     const { replyToMessage, sender } = props
-    // const dispatch = useAppDispatch()
-    // const currentUser = useAppSelector(state => state.app.currentUser)
-    // const selectedChat = useAppSelector(state => state.app.selectedChat)
-
-    // const handleClick = () => {
-    //     if (sender.uid !== currentUser.uid && sender.uid !== selectedChat.uid) {
-    //         messagesAPI.getChatID(currentUser.email, sender.email)
-    //             .then(data => dispatch(setChat({ currentUserEmail: sender.email, guestInfo: { ...sender, chatID: data } })))
-    //     }
-    // }
 
     function getFirst30Chars(inputString: string) {
         if (!inputString) return ''
@@ -131,7 +128,6 @@ const Message: FC<Props> = ({ messageInfo }) => {
         const position = { top: 0, left: 0 }
         const styleContainer: HTMLDivElement = document.querySelector('.ReactVirtualized__Grid')
         const parentContainer: HTMLDivElement = document.querySelector('.ReactVirtualized__Grid__innerScrollContainer')
-        //заблокировать скрлл при открытом меню
         virtualizedListElementRef.current = styleContainer
         styleContainer.style.willChange = 'auto'
         styleContainer.style.overflow = 'hidden'
@@ -146,7 +142,6 @@ const Message: FC<Props> = ({ messageInfo }) => {
     }
 
     const setPositionMenuForIOS = (e: MouseEvent) => {
-        //const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent)
         if (isIOS) setPositionMenu(e)
     }
 
@@ -191,13 +186,15 @@ const Message: FC<Props> = ({ messageInfo }) => {
 
 
     const readMessage = () => {
-        if (messageInfo.sender.email !== owner.email && !messageInfo.read) messagesAPI.readMessage(chat.chatID, messageInfo)
+        if (messageInfo.sender.email !== owner.email && !messageInfo.read) {
+            messagesAPI.readMessage(chat.chatID, messageInfo)
+        }
     }
 
     const refSpan = useRef<HTMLDivElement>(null)
 
     console.log('message render')
-    // сделать затенение для выбраного сообщения
+
     return (
         <li className={classNames({ [styles.selectedMessage]: contextMenuIsOpen }, { [styles.guest]: !isOwner })} ref={messageRef}>
             {contextMenuIsOpen && <div className={styles.selectedMessage__selected} />}
@@ -218,9 +215,9 @@ const Message: FC<Props> = ({ messageInfo }) => {
                 >
                     {messageInfo.forwardedFrom && <ForwardedFrom user={messageInfo.forwardedFrom} />}
                     {messageInfo.replyToMessage && <ReplyToMessage {...messageInfo} />}
-                    <MessagesContentViewport onEnterViewport={readMessage} message={messageInfo.message} />
+                    <ViewportContent onEnterViewport={readMessage} message={messageInfo.message}/>
                     <div className={styles.messageData__info}>
-                        <div className={styles.messageData__date} style={{paddingBottom: !isFavorites ? '4px' : '0'}}>
+                        <div className={styles.messageData__date} style={{ paddingBottom: !isFavorites ? '4px' : '0' }}>
                             <span >{messageInfo.changed ? `ред.${getTimeFromDate(createNewDate(messageInfo.changed))}` : getTimeFromDate(createNewDate(messageInfo.date))}</span>
                         </div>
                         {messageInfo.sender.email === owner.email && isFavorites &&
@@ -234,11 +231,9 @@ const Message: FC<Props> = ({ messageInfo }) => {
                     <ContextMenu
                         isOpen={contextMenuIsOpen}
                         closeContextMenu={closeContextMenu}
-                        // isOwner={owner.email === messageInfo.sender.email}
                         isOwner={isOwner}
                         message={messageInfo}
                         positionMenu={positionMenu}
-                        // isForwarder={Boolean(messageInfo?.forwardedFrom)}
                         isForwarder={isForwarder}
                     />}
             </label>

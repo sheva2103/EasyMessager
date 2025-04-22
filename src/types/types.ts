@@ -61,3 +61,5 @@ export type size = {
     clientWidth: number,
     clientHeight: number
 }
+
+export type NoReadMessagesType = {quantity: number, targetIndex: number}

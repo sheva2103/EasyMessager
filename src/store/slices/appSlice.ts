@@ -157,7 +157,7 @@ export const appSlice = createSlice({
         builder
             .addCase(setChat.pending, (state) => {
                 if(state.isFavorites) state.isFavorites = false 
-                state.loadChat = true
+                //state.loadChat = true
                 if(state.emojiIsOpen) state.emojiIsOpen = false
             })
             .addCase(setChat.rejected, (state, action) => {

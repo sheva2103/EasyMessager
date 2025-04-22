@@ -88,6 +88,18 @@
                 overflow: hidden;
                 cursor: pointer;
 
+                &__noRead {
+                    // width: 20px;
+                    // height: 20px;
+                    // border-radius: 50%;
+                    // background-color: var(--purple-color);
+                    // display: flex;
+                    // justify-content: center;
+                    // align-items: center;
+                    margin-right: 10px;
+                    
+                }
+
                 &:hover {
                     background-color: var(--background-color-input);
                 }

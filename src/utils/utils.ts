@@ -1,5 +1,5 @@
 import { doc, DocumentReference } from "firebase/firestore"
-import { Chat, ListMessagesType, Message1, size } from "../types/types"
+import { Chat, ListMessagesType, Message1, NoReadMessagesType, size } from "../types/types"
 import { format } from "@formkit/tempo"
 import { db } from "../firebase"
 
@@ -129,7 +129,7 @@ export function createListLimitMessages(messages: ListMessagesType): ListMessage
     return { all: messages.all, limit: [].concat(messages.limit).concat(newLimit).slice(-100) }
 }
 
-export function getQuantityNoReadMessages(list: Message1[], currentId: string): {quantity: number, targetIndex: number} {
+export function getQuantityNoReadMessages(list: Message1[], currentId: string): NoReadMessagesType {
 
     let quantity = 0
     let targetIndex = list.length - 1
