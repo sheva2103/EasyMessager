@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, memo, useEffect, useState } from "react";
 import styles from './HomePage.module.scss'
 import Avatar from "../Avatar/Avatar";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
@@ -50,18 +50,6 @@ const ChatInfo: FC<Props> = (user) => {
     }
     const isSelected = selectedChat?.email === user.email
 
-    // useEffect(() => {
-    //     if (!user.globalSearch) {
-    //         setFetchingCurrentInfo(true)
-    //         profileAPI.getCurrentInfo(user.uid)
-    //             .then(data => {
-    //                 console.log(data)
-    //                 if (data) return setUpdateUser((prev) => ({ ...prev, ...data }))
-    //             })
-    //             .finally(() => setFetchingCurrentInfo(false))
-    //     }
-    // }, []);
-
     useEffect(() => {
         if (!user.globalSearch) {
             setFetchingCurrentInfo(true);
@@ -91,8 +79,6 @@ const ChatInfo: FC<Props> = (user) => {
         if (updateUser.chatID) {
             const reference = getChatType(false, { ...updateUser });
             unsubscribe = onSnapshot(reference, (doc: DocumentSnapshot<Message1[]>) => {
-                // dispatch(setMessages(createMessageList(doc.data())));
-                // console.log(createMessageList(doc.data()));
                 const list = createMessageList(doc.data())
                 const noRead = getQuantityNoReadMessages(list, currentUser.uid)
                 //handleAudioPlay()
@@ -127,4 +113,8 @@ const ChatInfo: FC<Props> = (user) => {
         </li>
     );
 }
-export default ChatInfo;
+
+function checkProps(prevProps: Props, nextProps: Props): boolean {
+    return prevProps.displayName === nextProps.displayName
+}
+export default memo(ChatInfo, checkProps);

@@ -5,12 +5,25 @@ import { db } from "../firebase"
 
 
 export function createChatList(data: Chat[]) {
-    const chatsArray: Chat[] = []
-    let key: keyof typeof data
+    const chatsArray: Chat[] = [];
+    let key: keyof typeof data;
+
     for (key in data) {
-        chatsArray.push(data[key])
+        chatsArray.push(data[key]);
     }
-    return chatsArray
+
+    return chatsArray.sort((a, b) => {
+        const dateOneToSecond = a.dateOfChange 
+            ? Date.parse(a.dateOfChange.replace(/"/g, "")) 
+            : 0
+        const dateTwoToSecond = b.dateOfChange 
+            ? Date.parse(b.dateOfChange.replace(/"/g, "")) 
+            : 0
+
+        if (dateOneToSecond < dateTwoToSecond) return 1;
+        else if (dateOneToSecond > dateTwoToSecond) return -1;
+        else return 0;
+    });
 }
 
 
@@ -134,7 +147,7 @@ export function getQuantityNoReadMessages(list: Message1[], currentId: string): 
     let quantity = 0
     let targetIndex = list.length - 1
     if(list.length && list[list.length - 1].sender.uid !== currentId) {
-        for (let i = list.length - 1; i > 0; i--) {
+        for (let i = list.length - 1; i >= 0; i--) {
             if(!list[i].read && list[i].sender.uid !== currentId) {               
                     quantity++
                     targetIndex = i

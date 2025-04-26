@@ -97,7 +97,8 @@ export const searchAPI: SearchAPI = {
 export const messagesAPI: MessagesAPI = {
 
     async addChat(user, recipient, chatID) {
-        const chat: Chat = { chatID, displayName: recipient.displayName, email: recipient.email, uid: recipient.uid }
+        const dateOfChange = JSON.stringify(new Date())
+        const chat: Chat = { chatID, displayName: recipient.displayName, email: recipient.email, uid: recipient.uid, dateOfChange }
         await setDoc(doc(db, user, CHATLIST), { [recipient.uid]: chat }, { merge: true });
     },
     async sendMessage(chat, sender, message, isFavorites,replyToMessage) {

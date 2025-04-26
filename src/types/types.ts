@@ -39,6 +39,7 @@ export interface CurrentUser extends CurrentUserData {
 
 export interface Chat extends CurrentUser  {
     chatID?: string,
+    dateOfChange?: string
 }
 
 export type Message1 = {
