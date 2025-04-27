@@ -1,72 +1,38 @@
-import classNames from "classnames";
-import { FC, memo, useEffect, useState } from "react";
-import styles from './HomePage.module.scss'
+import { FC, memo, useCallback } from "react";
 import { Message1 } from "../../types/types";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { addSelectedMessage, deleteSelectedMessage } from "../../store/slices/appSlice";
 import { Checkbox } from "@mui/material";
-
-// type Props = {
-//     //showCheckbox: boolean,
-//     message: Message
-// }
-
-// const SelectMessageInput: FC<Props> = ({ message}) => {
-
-//     const [checked, setChecked] = useState(false)
-//     const dispatch = useAppDispatch()
-//     const showCheckbox = useAppSelector(state => state.app.showCheckbox)
-
-//     useEffect(() => {
-//         if (checked) dispatch(addSelectedMessage(message))
-//         else dispatch(deleteSelectedMessage(message))
-//     }, [checked]);
-
-//     useEffect(() => {
-//         setChecked(false)
-//     }, [showCheckbox]);
-
-//     console.log('render checkbox')
-
-//     return (  
-//         <input 
-//             type="checkbox" 
-//             className={classNames({ [styles.showCheckbox]: showCheckbox })} 
-//             checked={checked}
-//             onChange={() => setChecked(!checked)}
-//         />
-//     );
-// }
+import { createSelector } from "@reduxjs/toolkit";
 
 type Props = {
     messageInfo: Message1
 }
 
+const selectIsMessageSelected = createSelector(
+    (state: any) => state.app.selectedMessages,
+    (_: any, messageID: string) => messageID,
+    (selectedMessages: Message1[], messageID) => selectedMessages.some(msg => msg.messageID === messageID)
+);
+
+
 const SelectMessageInput: FC<Props> = ({ messageInfo }) => {
 
-    const [checked, setChecked] = useState(false)
     const dispatch = useAppDispatch()
-    const showCheckbox = useAppSelector(state => state.app.showCheckbox)
+    const checked = useAppSelector(state => selectIsMessageSelected(state, messageInfo.messageID))
 
-    useEffect(() => {
-        if (checked) dispatch(addSelectedMessage(messageInfo))
-        else dispatch(deleteSelectedMessage(messageInfo))
-    }, [checked]);
-
-    useEffect(() => {
-        setChecked(false)
-    }, [showCheckbox]);
-
+    const handleChange = useCallback(() => {
+        if (checked) {
+            dispatch(deleteSelectedMessage(messageInfo));
+        } else {
+            dispatch(addSelectedMessage(messageInfo));
+        }
+    }, [checked, dispatch, messageInfo])
+    
     console.log('render checkbox')
 
     return (
-        <Checkbox checked={checked} onChange={() => setChecked(!checked)} />  
-        // <input 
-        //     type="checkbox" 
-        //     className={classNames({ [styles.showCheckbox]: showCheckbox })} 
-        //     checked={checked}
-        //     onChange={() => setChecked(!checked)}
-        // />
+        <Checkbox checked={checked} onChange={handleChange} />  
     );
 }
 

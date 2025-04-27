@@ -70,7 +70,7 @@ const ChatContent: FC = () => {
             </div>
             <div className={styles.chatWindow}>
                 <main>
-                    <ListMessages selectedChat={selectedChat} />
+                    <ListMessages />
                     <MessageInputField selectedChat={selectedChat} />
                 </main>
             </div>

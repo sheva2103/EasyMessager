@@ -9,7 +9,7 @@ import ChatList from './ChatList';
 import { useEffect } from 'react';
 import { DocumentSnapshot, doc, onSnapshot } from 'firebase/firestore';
 import { CurrentUser } from '../../types/types';
-import { createChatList, createNewDate } from '../../utils/utils';
+import { createChatList } from '../../utils/utils';
 import { db } from '../../firebase';
 
 const HomaPage = () => {
@@ -27,7 +27,6 @@ const HomaPage = () => {
 
     useEffect(() => {
         const getContacts = onSnapshot(doc(db, currentUserEmail, "contacts"), (doc: DocumentSnapshot<CurrentUser[]>) => {
-            //console.log("contacts: ", doc.data());
             if(doc.data()) dispatch(setContacts(createChatList(doc.data())))
         });
         return () => getContacts()

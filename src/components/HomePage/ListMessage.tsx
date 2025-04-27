@@ -1,14 +1,11 @@
 import styles from './HomePage.module.scss'
-import { createElement, FC, memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { FC, memo, useEffect, useRef, useState } from 'react';
 import Message from './Messgae';
-import { DocumentSnapshot, doc, onSnapshot } from "firebase/firestore";
-import { db } from '../../firebase';
-import { Chat, ListMessagesType, Message1 } from '../../types/types';
-import { createMessageList, createNewDate, getChatType, getDatefromDate, getQuantityNoReadMessages } from '../../utils/utils';
+import { Chat, Message1 } from '../../types/types';
+import { createNewDate, getDatefromDate, getQuantityNoReadMessages } from '../../utils/utils';
 import GetDateMessage from './GetDateMessage';
-import { useAppDispatch, useAppSelector } from '../../hooks/hook';
+import { useAppSelector } from '../../hooks/hook';
 import { setLoadChat } from '../../store/slices/appSlice';
-import InfititeLoader from 'react-window-infinite-loader'
 import Worker from 'web-worker';
 import { List, AutoSizer, CellMeasurer, CellMeasurerCache, ListRowRenderer } from 'react-virtualized'
 import AdvancedContent from './AdvancedContent';
@@ -40,17 +37,6 @@ const VariableHeightList: FC<VariableHeightListProps> = ({ items, assignElementT
             listRef.current.scrollToRow(position.targetIndex)
         }
     }, [items.length])
-
-    // useEffect(() => {
-    //     if (listRef.current && items.length) {
-    //         const position = getQuantityNoReadMessages(items, currentUserID);
-    //         // Проверяем, является ли последний отрендеренный элемент последним в массиве items
-    //         const lastRenderedIndex = listRef.current.Grid.state.scrollTop + listRef.current.props.height / cache.defaultHeight; // Пример вычисления
-    //         if (lastRenderedIndex >= items.length - 1) {
-    //             listRef.current.scrollToRow(position.targetIndex);
-    //         }
-    //     }
-    // }, [items.length]);
 
     useEffect(() => {
         assignElementToScroll(listRef.current)
@@ -109,28 +95,12 @@ const VariableHeightList: FC<VariableHeightListProps> = ({ items, assignElementT
     );
 };
 
-const ListMessages: FC<Props> = ({ selectedChat }) => {
+const ListMessages: FC = () => {
 
-    //const [list, setList] = useState<Message1[]>([])
     const list = useAppSelector(state => state.messages)
     const [targetMessages, setTargetMessages] = useState<Set<number>>(new Set())
-    const dispatch = useAppDispatch()
-    const isLoadChat = useAppSelector(state => state.app.loadChat)
-    const isFavorites = useAppSelector(state => state.app.isFavorites)
-
     const scrollElementRef = useRef<List>(null)
-
     const assignElementToScroll = (element: List) => scrollElementRef.current = element 
-
-    // useEffect(() => {
-    //     //if (list.length) setList([])
-    //     const reference = getChatType(isFavorites, selectedChat)
-    //     const messages = onSnapshot(reference, (doc: DocumentSnapshot<Message1[]>) => {
-    //         setList(createMessageList(doc.data()))
-    //         if (isLoadChat) dispatch(setLoadChat(false))
-    //     });
-    //     return () => messages()
-    // }, [selectedChat.uid]);
 
     console.log('render list messages')
 
@@ -148,5 +118,3 @@ const ListMessages: FC<Props> = ({ selectedChat }) => {
 }
 
 export default memo(ListMessages);
-
-//сделать скролл для выделеных сообщений, индексы брать из targetMessages
