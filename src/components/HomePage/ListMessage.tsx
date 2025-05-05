@@ -1,7 +1,7 @@
 import styles from './HomePage.module.scss'
 import { FC, memo, useEffect, useRef, useState } from 'react';
 import Message from './Messgae';
-import { Chat, Message1 } from '../../types/types';
+import { Chat, Message1, NoReadMessagesType } from '../../types/types';
 import { createNewDate, getDatefromDate, getQuantityNoReadMessages } from '../../utils/utils';
 import GetDateMessage from './GetDateMessage';
 import { useAppSelector } from '../../hooks/hook';
@@ -17,11 +17,12 @@ type Props = {
 
 interface VariableHeightListProps {
     items: Message1[],
+    noRead: NoReadMessagesType
     assignElementToScroll: (element: List) => List,
     searchIndexes: Set<number>
 }
 
-const VariableHeightList: FC<VariableHeightListProps> = ({ items, assignElementToScroll, searchIndexes }) => {
+const VariableHeightList: FC<VariableHeightListProps> = ({ items, noRead, assignElementToScroll, searchIndexes }) => {
 
     const currentUserID = useAppSelector(state => state.app.currentUser.uid)
     const cache = new CellMeasurerCache({
@@ -33,8 +34,9 @@ const VariableHeightList: FC<VariableHeightListProps> = ({ items, assignElementT
 
     useEffect(() => {
         if (listRef.current && items.length) {
-            const position = getQuantityNoReadMessages(items, currentUserID)
-            listRef.current.scrollToRow(position.targetIndex)
+            //const position = getQuantityNoReadMessages(items, currentUserID)
+            console.log('??????????????????????',noRead.targetIndex, items.length)
+            listRef.current.scrollToRow(noRead.targetIndex)
         }
     }, [items.length])
 
@@ -109,7 +111,11 @@ const ListMessages: FC = () => {
             <div className={styles.listMessages}>
                 <SearchMessages list={list.messages} setTargetMessages={setTargetMessages}/>
                 <ul id='listForMessages'>
-                    <VariableHeightList items={list.messages} assignElementToScroll={assignElementToScroll} searchIndexes={targetMessages}/>
+                    <VariableHeightList 
+                        items={list.messages}
+                        noRead={list.noRead} 
+                        assignElementToScroll={assignElementToScroll} 
+                        searchIndexes={targetMessages}/>
                 </ul>
             </div>
             <AdvancedContent noRead={list.noRead} scrollElement={scrollElementRef.current} scrollIndexes={targetMessages}/>

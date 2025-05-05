@@ -435,6 +435,22 @@
                 display: flex;
                 flex-direction: column;
 
+                &__img {
+                    display: block;
+                    align-self: flex-end;
+                    //width: 70%;
+
+                    & img {
+                        border-radius: 16px;
+                        padding-top: 4px;
+                        height: 150px;
+                        float: right;
+                        // @media (max-width: 568px) {
+                        //     width: 100%;
+                        // }
+                    }
+                }
+
                 .messageData__info {
                     display: flex;
                     gap: 4px;
@@ -497,7 +513,8 @@
             .owner {
                 border-radius: 16px;
                 border-bottom-left-radius: 0;
-                background-color: rgb(135, 116, 225);
+                //background-color: rgb(135, 116, 225);
+                background-color: rgb(123 118 147 / 88%);
                 padding: 4px 12px 0 12px;
                 color: #ffffff;
                 //max-width: 70%;

@@ -64,3 +64,14 @@ export type size = {
 }
 
 export type NoReadMessagesType = {quantity: number, targetIndex: number}
+
+export type CheckMessageType = {
+    message: string,
+    imgUrl: string | null
+}
+
+export type TypeChannel = {
+    name: string,
+    isOpen: boolean
+}
+

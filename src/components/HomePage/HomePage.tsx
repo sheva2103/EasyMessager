@@ -8,14 +8,16 @@ import ChatContent from './ChatContent';
 import ChatList from './ChatList';
 import { useEffect } from 'react';
 import { DocumentSnapshot, doc, onSnapshot } from 'firebase/firestore';
-import { CurrentUser } from '../../types/types';
-import { createChatList } from '../../utils/utils';
+import { CurrentUser, Message1 } from '../../types/types';
+import { createChatList, createMessageList } from '../../utils/utils';
 import { db } from '../../firebase';
+import { setMessages } from '../../store/slices/messagesSlice';
 
 const HomaPage = () => {
 
     const dispatch = useAppDispatch()
     const currentUserEmail = useAppSelector(state => state.app.currentUser.email)
+    const isFavorites = useAppSelector(state => state.app.isFavorites)
 
     const onKeyDown = (e: React.KeyboardEvent) => {
         if(e.key === 'Enter') dispatch(openMenu())
@@ -47,6 +49,23 @@ const HomaPage = () => {
         });
         return () => getBlackList()
     }, [currentUserEmail]);
+
+    useEffect(() => {
+        let getFavorites: () => void
+        if(isFavorites) {
+            getFavorites = onSnapshot(doc(db, currentUserEmail, 'favorites'), (doc: DocumentSnapshot<Message1[]>) => {
+                if(doc.data()) {
+                    const list = createMessageList(doc.data())
+                    dispatch(setMessages({messages: list, noRead: {quantity: 0, targetIndex: list.length}}))
+                } else {
+                    dispatch(setMessages({messages: [], noRead: {quantity: 0, targetIndex: 0}}))
+                }
+            });
+        }
+        return () => {
+            if(getFavorites) getFavorites()
+        }
+    }, [isFavorites]);
 
     return (  
         <div className={styles.wrapper}>

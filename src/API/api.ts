@@ -1,7 +1,7 @@
-import { QueryDocumentSnapshot, deleteDoc, deleteField, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { DocumentData, QueryDocumentSnapshot, QuerySnapshot, deleteDoc, deleteField, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { UserInfo } from "firebase/auth";
-import { Chat, CurrentUser, Message1 } from "../types/types";
+import { Chat, CurrentUser, Message1, TypeChannel } from "../types/types";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
 import { createChatList, createMessageList, createNewDate, getChatType } from "../utils/utils";
@@ -21,7 +21,7 @@ type SearchAPI = {
 
 type MessagesAPI = {
     addChat: (user: string, recipient: CurrentUser, chatID?: string) => Promise<void>,
-    sendMessage: (chat: Chat, sender: CurrentUser, message: string, isFavorites: boolean,replyToMessage?: Message1) => Promise<void>,
+    sendMessage: (chat: Chat, sender: CurrentUser, message: string, isFavorites: boolean, replyToMessage?: Message1) => Promise<void>,
     getChatID: (name: string, searchName: string) => Promise<string | undefined>,
     sendEditMessage: (chat: Chat, message: Message1, isFavorites: boolean) => Promise<void>,
     deleteMessage: (chat: Chat, message: Message1, isFavorites: boolean) => Promise<void>,
@@ -39,12 +39,16 @@ type ContactsAPI = {
     removeFromBlacklist: (currentUser: string, contact: CurrentUser) => Promise<void>
 }
 
+
+
 const USERS = "users"
 const CHATLIST = "chatList"
 const CHATS = "chats"
 const FAVOTITES = "favorites"
 const BLACKLIST = "blacklist"
 const CONTACTS = "contacts"
+const CHANNELS = "channels"
+const CHANNELS_INFO = "channelsInfo"
 
 export const profileAPI: ProfileApi = {
 
@@ -101,13 +105,13 @@ export const messagesAPI: MessagesAPI = {
         const chat: Chat = { chatID, displayName: recipient.displayName, email: recipient.email, uid: recipient.uid, dateOfChange }
         await setDoc(doc(db, user, CHATLIST), { [recipient.uid]: chat }, { merge: true });
     },
-    async sendMessage(chat, sender, message, isFavorites,replyToMessage) {
+    async sendMessage(chat, sender, message, isFavorites, replyToMessage) {
         const date = JSON.stringify(new Date())
         console.log('send message')
         const id = uuidv4()
         const messageObj: Message1 = { message: message, messageID: id, date: date, sender: sender }
-        if(!isFavorites) messageObj.read = false
-        if(replyToMessage) messageObj.replyToMessage = replyToMessage
+        if (!isFavorites) messageObj.read = false
+        if (replyToMessage) messageObj.replyToMessage = replyToMessage
         const reference = getChatType(isFavorites, chat)
         console.log(messageObj)
         return await setDoc(reference, { [id]: messageObj }, { merge: true });
@@ -140,13 +144,13 @@ export const messagesAPI: MessagesAPI = {
             [message.messageID]: deleteField()
         });
     },
-    
+
     async forwardedMessageFrom(sender, recipient, message) {
         const id = uuidv4()
         const date = JSON.stringify(new Date())
         const messageObj: Message1 = { message: message.message, messageID: id, date, read: false, sender, forwardedFrom: message.sender }
         const isID = await Promise.all([messagesAPI.getChatID(sender.email, recipient.email), messagesAPI.getChatID(recipient.email, sender.email)])
-        if(isID[0] || isID[1]) {
+        if (isID[0] || isID[1]) {
             const currentID = isID[0] || isID[1]
             await setDoc(doc(db, CHATS, currentID), { [id]: messageObj }, { merge: true });
             await Promise.all([messagesAPI.addChat(sender.email, recipient, currentID), messagesAPI.addChat(recipient.email, sender, currentID)])
@@ -178,17 +182,19 @@ export const messagesAPI: MessagesAPI = {
         const chatCurrentRef = doc(db, currentUser, CHATLIST);
         const chatGuestRef = doc(db, selectedChat.email, CHATLIST);
         const chatGuestSnap: any = await getDoc(chatGuestRef);
-        
+
         await updateDoc(chatCurrentRef, {
             [selectedChat.uid]: deleteField()
         });
-        if(chatGuestSnap.exists() && !createChatList(chatGuestSnap.data()).some(item => item.chatID === selectedChat.chatID)) {
+        if (chatGuestSnap.exists() && !createChatList(chatGuestSnap.data()).some(item => item.chatID === selectedChat.chatID)) {
             await deleteDoc(doc(db, CHATS, selectedChat.chatID));
         }
     },
     async addToFavorites(currentUser, message) {
         const date = JSON.stringify(new Date())
-        await setDoc(doc(db, currentUser, FAVOTITES), { [message.messageID]: {...message, date, forwardedFrom: message.sender} }, { merge: true });
+        let modMessage = { ...message }
+        delete modMessage.read
+        await setDoc(doc(db, currentUser, FAVOTITES), { [message.messageID]: { ...modMessage, date, forwardedFrom: message.sender, } }, { merge: true });
     }
 }
 
@@ -215,5 +221,35 @@ export const contactsAPI: ContactsAPI = {
         await updateDoc(contactsRef, {
             [contact.uid]: deleteField()
         });
+    }
+}
+
+type ChannelAPI = {
+    createChannel(owner: CurrentUser, data: TypeChannel): Promise<[void, void]>,
+    checkName(name: string): Promise<boolean>
+}
+
+export const channelAPI: ChannelAPI = {
+    async createChannel(owner: CurrentUser, data: TypeChannel) {
+        const channelID = uuidv4()
+        const chanel = await setDoc(doc(db, CHANNELS, channelID), {})
+        const chanelInfo = await setDoc(doc(db, CHANNELS_INFO, channelID), {
+            owner,
+            name: data.name,
+            isOpen: data.isOpen,
+            channelID,
+            registrationDate: new Date()
+        })
+        return Promise.all([chanel, chanelInfo])
+    },
+    async checkName(name: string) {
+        const q = query(collection(db, CHANNELS_INFO), where("name", "==", name));
+        const querySnapshot = await getDocs(q);
+        // querySnapshot.forEach((doc) => {
+        //     console.log(doc.id, " => ", doc.data());
+        // });
+        // console.log(querySnapshot)
+        const isFree = !Boolean(querySnapshot.size)
+        return isFree
     }
 }

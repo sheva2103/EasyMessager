@@ -1,5 +1,5 @@
 import { doc, DocumentReference } from "firebase/firestore"
-import { Chat, ListMessagesType, Message1, NoReadMessagesType, size } from "../types/types"
+import { Chat, CheckMessageType, ListMessagesType, Message1, NoReadMessagesType, size } from "../types/types"
 import { format } from "@formkit/tempo"
 import { db } from "../firebase"
 
@@ -122,15 +122,32 @@ export function getDatefromDate(date: string): string {
 
 
 
-export function checkMessage(str: string): string {
-    const reg = /(https?:\/\/|ftps?:\/\/|www\.)((?![.,?!;:()]*(\s|$))[^\s]){2,}/gim
-    if (!reg.test(str)) return str
-    const message = str.split(' ')
-    let newStr = message.map(item => {
-        if (reg.test(item)) return `<a href='${item}' target='blank'>${item}</a>`
+// export function checkMessage(str: string): string {
+//     const reg = /(https?:\/\/|ftps?:\/\/|www\.)((?![.,?!;:()]*(\s|$))[^\s]){2,}/gim
+//     if (!reg.test(str)) return str
+//     const message = str.split(' ')
+//     let newStr = message.map(item => {
+//         if (reg.test(item)) return `<a href='${item}' target='blank'>${item}</a>`
+//         return item
+//     })
+//     return newStr.join(' ')
+// }
+
+export function checkMessage(str: string): CheckMessageType {
+    const reg = /(https?:\/\/|ftps?:\/\/|www\.)((?![.,?!;:()]*(\s|$))[^\s]){2,}/gim;
+    const imageExtReg = /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i;
+    let imgUrl = null
+    const message = str.split(' ');
+    const newStr = message.map((item) => {
+        if (reg.test(item)) {
+            if(imageExtReg.test(item)) imgUrl = item
+            const url = item.startsWith('www.') ? `http://${item}` : item;
+            return `<a href="${url}" target="_blank" rel="noopener noreferrer">${item}</a>`;
+        }
         return item
-    })
-    return newStr.join(' ')
+    });
+    return ({message: newStr.join(' '), imgUrl})
+    //return newStr.join(' ')
 }
 
 export function createListLimitMessages(messages: ListMessagesType): ListMessagesType {

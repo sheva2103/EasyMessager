@@ -50,12 +50,32 @@ const ForwardedFrom: FC<ForwardedFromProps> = ({ user }) => {
     );
 }
 
+const ImageLoader: FC<{ src: string | null }> = ({ src }) => {
+    const [loaded, setLoaded] = useState(false);
+
+    useEffect(() => {
+        const img = new Image(100, 100);
+        img.src = src;
+        img.onload = () => setLoaded(true)
+        img.onerror = () => setLoaded(false);
+    }, [src]);
+
+    if (!src) return null
+
+    return (
+        <div className={styles.messageData__img}>
+            {loaded ? <a href={src} target="blanc"><img src={src} alt="Загруженное изображение" /></a> : null}
+        </div>
+    );
+}
+
 const ViewportContent: FC<IMessagesContent> = ({ onEnterViewport, message }) => {
 
     const { ref, inView } = useInView({
         threshold: 0.1,
     })
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+    const checkMessageObj = checkMessage(message)
 
     useEffect(() => {
         if (inView) {
@@ -64,12 +84,15 @@ const ViewportContent: FC<IMessagesContent> = ({ onEnterViewport, message }) => 
     }, [inView])
 
     return (
-        <span
-            dangerouslySetInnerHTML={{ __html: checkMessage(message) }}
-            ref={ref}
-            className={classNames({ [styles.mobileDevice]: isMobile })}
-        >
-        </span>
+        <>
+            <span
+                dangerouslySetInnerHTML={{ __html: checkMessageObj.message }}
+                ref={ref}
+                className={classNames({ [styles.mobileDevice]: isMobile })}
+            >
+            </span>
+            {checkMessageObj.imgUrl && <ImageLoader src={checkMessageObj.imgUrl} />}
+        </>
     )
 }
 
@@ -186,7 +209,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
 
 
     const readMessage = () => {
-        if (messageInfo.sender.email !== owner.email && !messageInfo.read) {
+        if (messageInfo.sender.email !== owner.email && isFavorites && !messageInfo.read) {
             messagesAPI.readMessage(chat.chatID, messageInfo)
         }
     }
@@ -215,7 +238,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
                 >
                     {messageInfo.forwardedFrom && <ForwardedFrom user={messageInfo.forwardedFrom} />}
                     {messageInfo.replyToMessage && <ReplyToMessage {...messageInfo} />}
-                    <ViewportContent onEnterViewport={readMessage} message={messageInfo.message}/>
+                    <ViewportContent onEnterViewport={readMessage} message={messageInfo.message} />
                     <div className={styles.messageData__info}>
                         <div className={styles.messageData__date} style={{ paddingBottom: !isFavorites ? '4px' : '0' }}>
                             <span >{messageInfo.changed ? `ред.${getTimeFromDate(createNewDate(messageInfo.changed))}` : getTimeFromDate(createNewDate(messageInfo.date))}</span>
