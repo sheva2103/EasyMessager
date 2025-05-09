@@ -2,7 +2,7 @@ import { FC, memo, useEffect, useState } from "react";
 import styles from './HomePage.module.scss'
 import Avatar from "../Avatar/Avatar";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
-import { Chat, CurrentUser, CurrentUserData, Message1, NoReadMessagesType } from "../../types/types";
+import { Chat, Message1, NoReadMessagesType } from "../../types/types";
 import { setChat } from "../../store/slices/setChatIDSlice";
 import { messagesAPI, profileAPI } from "../../API/api";
 import classNames from "classnames";
@@ -51,7 +51,6 @@ const ChatInfo: FC<Props> = (user) => {
     const isSelected = selectedChat?.email === user.email
 
     useEffect(() => {
-        if (!user.globalSearch) {
             setFetchingCurrentInfo(true);
             const getInfo = async () => {
                 try {
@@ -71,7 +70,6 @@ const ChatInfo: FC<Props> = (user) => {
                 }
             }
             getInfo()
-        }
     }, []);
 
     useEffect(() => {
@@ -93,7 +91,6 @@ const ChatInfo: FC<Props> = (user) => {
     }, [updateUser])
 
     useEffect(() => {
-        
         if (selectedChat?.uid === updateUser.uid) dispatch(setMessages(messages))
     }, [messages, selectedChat]);
 

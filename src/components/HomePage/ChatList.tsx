@@ -1,10 +1,11 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import styles from './HomePage.module.scss'
 import ChatInfo from "./ChatInfo";
 import { searchAPI } from "../../API/api";
 import { useAppSelector } from "../../hooks/hook";
 import { Chat } from "../../types/types";
 import { useDebounce } from "use-debounce";
+import InputComponent from "../../InputComponent/InputComponent";
 
 
 const ChatList: FC = () => {
@@ -12,55 +13,65 @@ const ChatList: FC = () => {
     const [name, setName] = useState('')
     const [globalSearchUsers, setGlobalSearchUsers] = useState([])
     const myChats = useAppSelector(state => state.app.chatsList)
-    const currentUserEmail = useAppSelector(state => state.app.currentUser.email)
-    const [debouncedText] = useDebounce(name, 1000);
+    const currentUserID = useAppSelector(state => state.app.currentUser.uid)
+    //const [debouncedText] = useDebounce(name, 1000);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value)
     }
 
     // useEffect(() => {
-    //     searchAPI.searchUser(name)
-    //         .then(chat => {
-    //             setGlobalSearchUsers([...chat])
-    //         })
-    // }, [name]);
+    //     if (debouncedText) {
+    //         searchAPI.searchUser(name)
+    //             .then(chat => {
+    //                 setGlobalSearchUsers([...chat])
+    //             })
+    //     }
+    // }, [debouncedText]);
 
     useEffect(() => {
-        if (debouncedText) {
+        if(name) {
             searchAPI.searchUser(name)
                 .then(chat => {
-                    setGlobalSearchUsers([...chat])
+                    const filterChat = chat.filter(item => item.uid !== currentUserID)
+                    setGlobalSearchUsers(filterChat)
                 })
         }
-    }, [debouncedText]);
+    }, [name]);
 
-    const filterMyChats = [...myChats].filter(item => item.displayName?.includes(name))
+    const filterMyChats = useMemo(() => {
+        if(!name) return [...myChats].filter(item => item.displayName?.includes(name))
+    }, [name, myChats])
+
+    console.log('rerender !!!!!!!!!!!!!!1')
 
     return (
         <>
             <div className={styles.item}>
-                <div className={styles.blockInput}>
+                <InputComponent classes={styles.blockInput} returnValue={setName} inputProps={{maxLength: 16}} isCleanIcon/>
+                {/* <div className={styles.blockInput} style={{position: 'relative'}}>
                     <input type="text" value={name} onChange={handleChange} />
-                </div>
+                    <div style={{position: 'absolute', right: '10px', top: '10px'}}>x</div>
+                </div> */}
             </div>
             <div style={{ height: 'calc(100% - 102px)' }}>
                 <ul className={styles.chatList}>
-                    {filterMyChats.map((item) => (
-                        <ChatInfo key={item.uid}
-                            {...item}
-                        />
-                    ))}
-                    {Boolean(name.length) && <div className={styles.hr} />}
-                    {globalSearchUsers.map((item: Chat) => {
-                        if (currentUserEmail !== item.email) return (
-                            <ChatInfo key={item.uid + 'global'}
-                                {...item}
-                                globalSearch
-                            />
+                    {name.length ?
+                        globalSearchUsers.map((item: Chat) => (
+                                <ChatInfo key={item.uid + 'global'}
+                                    {...item}
+                                    globalSearch
+                                />
                         )
-                    })}
-                    {filterMyChats.length === 0 && globalSearchUsers.length === 0 &&
+                        )
+                        :
+                        filterMyChats.map((item) => (
+                            <ChatInfo key={item.uid}
+                                {...item}
+                            />
+                        ))
+                    }
+                    {name && globalSearchUsers.length === 0 &&
                         <li className={styles.chatInfo}>Ничего не найдено</li>
                     }
                 </ul>

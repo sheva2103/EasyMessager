@@ -5,15 +5,11 @@ import { Chat, Message1, NoReadMessagesType } from '../../types/types';
 import { createNewDate, getDatefromDate, getQuantityNoReadMessages } from '../../utils/utils';
 import GetDateMessage from './GetDateMessage';
 import { useAppSelector } from '../../hooks/hook';
-import { setLoadChat } from '../../store/slices/appSlice';
 import Worker from 'web-worker';
 import { List, AutoSizer, CellMeasurer, CellMeasurerCache, ListRowRenderer } from 'react-virtualized'
 import AdvancedContent from './AdvancedContent';
 import SearchMessages from './SearchMessages';
 
-type Props = {
-    selectedChat: Chat
-}
 
 interface VariableHeightListProps {
     items: Message1[],
@@ -24,7 +20,6 @@ interface VariableHeightListProps {
 
 const VariableHeightList: FC<VariableHeightListProps> = ({ items, noRead, assignElementToScroll, searchIndexes }) => {
 
-    const currentUserID = useAppSelector(state => state.app.currentUser.uid)
     const cache = new CellMeasurerCache({
         fixedWidth: true,
         defaultHeight: 57,
@@ -34,8 +29,6 @@ const VariableHeightList: FC<VariableHeightListProps> = ({ items, noRead, assign
 
     useEffect(() => {
         if (listRef.current && items.length) {
-            //const position = getQuantityNoReadMessages(items, currentUserID)
-            console.log('??????????????????????',noRead.targetIndex, items.length)
             listRef.current.scrollToRow(noRead.targetIndex)
         }
     }, [items.length])

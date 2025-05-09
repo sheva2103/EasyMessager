@@ -2,10 +2,11 @@ import { FC, useState } from "react";
 import styles from './Contacts.module.scss'
 import RemoveFromContacts from '../../assets/person-dash.svg'
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
-import { clearSelectedMessage, closeMenu } from "../../store/slices/appSlice";
+import { clearSelectedMessage, closeMenu, setIsFavorites } from "../../store/slices/appSlice";
 import { Chat, CurrentUser } from "../../types/types";
 import { contactsAPI, messagesAPI } from "../../API/api";
 import { setChat } from "../../store/slices/setChatIDSlice";
+import InputComponent from "../../InputComponent/InputComponent";
 
 const test: CurrentUser[] = [
     { displayName: 'alexdb', photoURL: '', email: 'test1rt@test.com', uid: 'uhrtugjfghdhc' },
@@ -36,9 +37,9 @@ const Contacts: FC = () => {
     const selectedMessageList = useAppSelector(state => state.app.selectedMessages)
     const currentUser = useAppSelector(state => state.app.currentUser)
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setName(e.target.value)
-    }
+    // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     setName(e.target.value)
+    // }
 
     const removeFromContacts = (e: React.MouseEvent, contact: Chat) => {
         e.stopPropagation()
@@ -70,6 +71,11 @@ const Contacts: FC = () => {
     }
 
     const sendToFavorites = () => {
+        if(!isSend) {
+            dispatch(setIsFavorites(true))
+            dispatch(closeMenu())
+            return
+        }
         const allMessages: Promise<void>[] = []
         selectedMessageList.forEach(item => allMessages.push(messagesAPI.addToFavorites(currentUser.email, item)))
         setSending(true)
@@ -88,12 +94,13 @@ const Contacts: FC = () => {
             <div className={styles.item}>
                 <span>Контакты</span>
             </div>
-            <div className={styles.item}>
+            <InputComponent classes={styles.item} returnValue={setName}/>
+            {/* <div className={styles.item}>
                 <input type="text"
                     value={name}
                     onChange={handleChange}
                 />
-            </div>
+            </div> */}
             <div className={styles.item}>
                 <ul className={styles.list}>
                     <li onClick={sendToFavorites}><span>Избранное</span></li>
