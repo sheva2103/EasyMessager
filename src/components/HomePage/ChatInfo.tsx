@@ -40,7 +40,7 @@ const ChatInfo: FC<Props> = (user) => {
 
     const [updateUser, setUpdateUser] = useState<Chat>({ ...user })
     const [messages, setMessagesList] = useState<{ messages: Message1[], noRead: NoReadMessagesType }>({ messages: [], noRead: { quantity: 0, targetIndex: 0 } })
-    const [fetchingCurrentInfo, setFetchingCurrentInfo] = useState(false)
+    const [fetchingCurrentInfo, setFetchingCurrentInfo] = useState(true)
     const dispatch = useAppDispatch()
     const selectedChat = useAppSelector(state => state.app.selectedChat)
     const currentUser = useAppSelector(state => state.app.currentUser)
@@ -48,12 +48,12 @@ const ChatInfo: FC<Props> = (user) => {
         if (selectedChat?.uid === updateUser.uid) return
         dispatch(setChat({ currentUserEmail: currentUser.email, guestInfo: updateUser }))
     }
-    const isSelected = selectedChat?.email === user.email
+    const isSelected = selectedChat?.uid === user.uid
 
     useEffect(() => {
-            setFetchingCurrentInfo(true);
             const getInfo = async () => {
                 try {
+                    
                     const currentInfo = await profileAPI.getCurrentInfo(user.uid);
                     const chatID = await Promise.all([messagesAPI.getChatID(currentUser.email, currentInfo.email), messagesAPI.getChatID(currentInfo.email, currentUser.email)])
                     if (currentInfo) {
@@ -90,9 +90,17 @@ const ChatInfo: FC<Props> = (user) => {
         };
     }, [updateUser])
 
-    useEffect(() => {
-        if (selectedChat?.uid === updateUser.uid) dispatch(setMessages(messages))
+    useEffect(() => {       
+        if (isSelected) {
+            dispatch(setMessages(messages))
+        }
     }, [messages, selectedChat]);
+
+    useEffect(() => {
+        if(isSelected && !updateUser?.chatID) {
+            setUpdateUser((prev) => ({...prev, chatID: selectedChat.chatID}))
+        }
+    }, [selectedChat?.chatID]);
 
     if (fetchingCurrentInfo) return <Skeleton />
 
@@ -115,3 +123,5 @@ function checkProps(prevProps: Props, nextProps: Props): boolean {
     return prevProps.displayName === nextProps.displayName
 }
 export default memo(ChatInfo, checkProps);
+
+//пофиксить отправку сообщения когда саисок пуст

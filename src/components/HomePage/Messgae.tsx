@@ -32,9 +32,11 @@ const ForwardedFrom: FC<ForwardedFromProps> = ({ user }) => {
     const dispatch = useAppDispatch()
     const currentUser = useAppSelector(state => state.app.currentUser)
     const selectedChat = useAppSelector(state => state.app.selectedChat)
+    const name = user?.channel ? user.channel.displayName : user.displayName
 
     const handleClick = () => {
 
+        if(user?.channel) return
         if (user.uid !== currentUser.uid && user.uid !== selectedChat.uid) {
             messagesAPI.getChatID(currentUser.email, user.email)
                 .then(data => dispatch(setChat({ currentUserEmail: user.email, guestInfo: { ...user, chatID: data } })))
@@ -45,7 +47,7 @@ const ForwardedFrom: FC<ForwardedFromProps> = ({ user }) => {
         <div className={styles.messageData__forwardedFrom} onClick={handleClick}>
             <span>переслано от:</span>
             <br />
-            <span style={{ fontWeight: 500 }}>{user.displayName}</span>
+            <span style={{ fontWeight: 500 }}>{name}</span>
         </div>
     );
 }

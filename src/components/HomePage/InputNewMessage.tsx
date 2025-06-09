@@ -37,6 +37,7 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
     const isCheckBox = useAppSelector(state => state.app.showCheckbox)
     const replyToMessage = useAppSelector(state => state.app.replyToMessage)
     const isFavorites = useAppSelector(state => state.app.isFavorites)
+    const isChannel = chatInfo.channel ? true : false
 
     const [newMessage, setNewMessage] = useState('')
     const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -59,10 +60,10 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
                 })
                 .catch((error) => console.error("Ошибка отправки сообщения:", error))
 
-        if (!isFavorites) {
+        if (!isFavorites && !isChannel) {
             Promise.all([
-                messagesAPI.addChat(currentUser.email, selectedChat, chatInfo.chatID),
-                messagesAPI.addChat(selectedChat.email, currentUser, chatInfo.chatID)
+                messagesAPI.addChat(currentUser, selectedChat, chatInfo.chatID),
+                messagesAPI.addChat(selectedChat, currentUser, chatInfo.chatID)
             ]).then(send);
         } else {
             send()
@@ -123,6 +124,8 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
     }, [selectedEmoji]);
 
     if (isCheckBox) return null
+
+    if(chatInfo?.channel && chatInfo?.channel.owner.uid !== currentUser.uid) return null
 
     return (
         <div className={styles.inputNewMessage}>

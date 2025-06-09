@@ -1,7 +1,7 @@
-import { DocumentData, QueryDocumentSnapshot, QuerySnapshot, deleteDoc, deleteField, doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { DocumentData, QueryDocumentSnapshot, QuerySnapshot, deleteDoc, deleteField, doc, getDoc, setDoc, updateDoc, increment, arrayRemove, arrayUnion } from "firebase/firestore";
 import { db } from "../firebase";
 import { UserInfo } from "firebase/auth";
-import { Chat, CurrentUser, Message1, TypeChannel } from "../types/types";
+import { Chat, CurrentUser, Message1, TypeChannel, TypeCreateChannel } from "../types/types";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
 import { createChatList, createMessageList, createNewDate, getChatType } from "../utils/utils";
@@ -14,13 +14,14 @@ type ProfileApi = {
 }
 
 type SearchAPI = {
-    searchUser: (name: string) => Promise<CurrentUser[]>
+    searchUser: (name: string) => Promise<CurrentUser[]>,
+    searchChannel: (name: string) => Promise<TypeChannel[]>
 }
 
 
 
 type MessagesAPI = {
-    addChat: (user: string, recipient: CurrentUser, chatID?: string) => Promise<void>,
+    addChat: (user: CurrentUser, recipient: Chat, chatID?: string) => Promise<void>,
     sendMessage: (chat: Chat, sender: CurrentUser, message: string, isFavorites: boolean, replyToMessage?: Message1) => Promise<void>,
     getChatID: (name: string, searchName: string) => Promise<string | undefined>,
     sendEditMessage: (chat: Chat, message: Message1, isFavorites: boolean) => Promise<void>,
@@ -28,7 +29,7 @@ type MessagesAPI = {
     forwardedMessageFrom: (sender: CurrentUser, recipient: Chat, message: Message1) => Promise<void>,
     readMessage: (chatID: string, message: Message1) => Promise<void>,
     clearChat: (chat: Chat, isFavorites: boolean) => Promise<void[]>,
-    deleteChat: (currentUser: string, selectedChat: Chat) => Promise<void>,
+    deleteChat: (currentUser: CurrentUser, selectedChat: Chat) => Promise<void>,
     addToFavorites: (currentUser: string, message: Message1) => Promise<void>
 }
 
@@ -48,7 +49,9 @@ const FAVOTITES = "favorites"
 const BLACKLIST = "blacklist"
 const CONTACTS = "contacts"
 const CHANNELS = "channels"
-const CHANNELS_INFO = "channelsInfo"
+const ADD_TO_LIST_SUBSCRIBERS = 'ADD_TO_LIST_SUBSCRIBERS'
+const REMOVE_FROM_LIST_SUBSCRIBERS = 'REMOVE_FROM_LIST_SUBSCRIBERS'
+export const CHANNELS_INFO = "channelsInfo"
 
 export const profileAPI: ProfileApi = {
 
@@ -86,12 +89,23 @@ export const profileAPI: ProfileApi = {
 export const searchAPI: SearchAPI = {
     async searchUser(name) {
         const chats: CurrentUser[] = []
-        const q = query(collection(db, USERS), where("displayName", "==", name));
+        const q = query(collection(db, USERS));
         const querySnapshot = await getDocs(q);
         querySnapshot.forEach((doc: QueryDocumentSnapshot<CurrentUser>) => {
-            chats.push(doc.data())
+            const displayName = doc.data().displayName
+            if (displayName.includes(name)) chats.push(doc.data())
         });
         return chats
+    },
+    async searchChannel(name) {
+        const channels: TypeChannel[] = []
+        const querySnapshot = await getDocs(collection(db, CHANNELS_INFO));
+        querySnapshot.forEach((doc: QueryDocumentSnapshot<TypeChannel>) => {
+            const displayName = doc.data().displayName
+            if (displayName.includes(name)) channels.push(doc.data())
+
+        });
+        return channels
     }
 }
 
@@ -103,22 +117,31 @@ export const messagesAPI: MessagesAPI = {
     async addChat(user, recipient, chatID) {
         const dateOfChange = JSON.stringify(new Date())
         const chat: Chat = { chatID, displayName: recipient.displayName, email: recipient.email, uid: recipient.uid, dateOfChange }
-        await setDoc(doc(db, user, CHATLIST), { [recipient.uid]: chat }, { merge: true });
+        if (recipient?.channel) {
+            chat.channel = { owner: recipient.channel.owner, channelID: recipient.channel.channelID, displayName: recipient.channel.displayName, isOpen: recipient.channel.isOpen }
+            chat.chatID = recipient.channel.channelID
+        }
+        await setDoc(doc(db, user.email, CHATLIST), { [recipient.uid]: chat }, { merge: true });
+        if (recipient?.channel) {
+            await channelAPI.changeSubscribers(chat.chatID, 1)
+            await channelAPI.changeListSubscribers(ADD_TO_LIST_SUBSCRIBERS, chat.chatID, user)
+
+        }
     },
     async sendMessage(chat, sender, message, isFavorites, replyToMessage) {
         const date = JSON.stringify(new Date())
+        const reference = getChatType(isFavorites, chat)
         console.log('send message')
         const id = uuidv4()
-        const messageObj: Message1 = { message: message, messageID: id, date: date, sender: sender }
-        if (!isFavorites) messageObj.read = false
+        const messageObj: Message1 = { message: message, messageID: id, date: date, sender: { ...sender } }
+        if (!isFavorites && !chat?.channel) messageObj.read = false
+        if (chat?.channel) messageObj.sender.channel = chat.channel
         if (replyToMessage) messageObj.replyToMessage = replyToMessage
-        const reference = getChatType(isFavorites, chat)
-        console.log(messageObj)
+
         return await setDoc(reference, { [id]: messageObj }, { merge: true });
     },
     async getChatID(name, searchName) {
         let id = undefined
-        console.log('getchatID')
         const docRef = doc(db, name, CHATLIST);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
@@ -153,13 +176,14 @@ export const messagesAPI: MessagesAPI = {
         if (isID[0] || isID[1]) {
             const currentID = isID[0] || isID[1]
             await setDoc(doc(db, CHATS, currentID), { [id]: messageObj }, { merge: true });
-            await Promise.all([messagesAPI.addChat(sender.email, recipient, currentID), messagesAPI.addChat(recipient.email, sender, currentID)])
+            await Promise.all([messagesAPI.addChat(sender, recipient, currentID), messagesAPI.addChat(recipient, sender, currentID)])
         }
         else {
-            await Promise.all([messagesAPI.addChat(sender.email, recipient, id), messagesAPI.addChat(recipient.email, sender, id)])
+            await Promise.all([messagesAPI.addChat(sender, recipient, id), messagesAPI.addChat(recipient, sender, id)])
             await setDoc(doc(db, CHATS, id), { [id]: messageObj }, { merge: true });
         }
     },
+
     async readMessage(chatID, message) {
         const messageRef = doc(db, CHATS, chatID);
 
@@ -179,15 +203,19 @@ export const messagesAPI: MessagesAPI = {
         return Promise.all(promises)
     },
     async deleteChat(currentUser, selectedChat) {
-        const chatCurrentRef = doc(db, currentUser, CHATLIST);
+        const chatCurrentRef = doc(db, currentUser.email, CHATLIST);
         const chatGuestRef = doc(db, selectedChat.email, CHATLIST);
         const chatGuestSnap: any = await getDoc(chatGuestRef);
 
         await updateDoc(chatCurrentRef, {
             [selectedChat.uid]: deleteField()
         });
-        if (chatGuestSnap.exists() && !createChatList(chatGuestSnap.data()).some(item => item.chatID === selectedChat.chatID)) {
+        if (!selectedChat?.channel && chatGuestSnap.exists() && !createChatList(chatGuestSnap.data()).some(item => item.chatID === selectedChat.chatID)) {
             await deleteDoc(doc(db, CHATS, selectedChat.chatID));
+        }
+        if (selectedChat?.channel) {
+            await channelAPI.changeSubscribers(selectedChat.channel.channelID, -1)
+            await channelAPI.changeListSubscribers(REMOVE_FROM_LIST_SUBSCRIBERS, selectedChat.channel.channelID, currentUser)
         }
     },
     async addToFavorites(currentUser, message) {
@@ -225,31 +253,62 @@ export const contactsAPI: ContactsAPI = {
 }
 
 type ChannelAPI = {
-    createChannel(owner: CurrentUser, data: TypeChannel): Promise<[void, void]>,
-    checkName(name: string): Promise<boolean>
+    createChannel(owner: CurrentUser, data: TypeCreateChannel): Promise<[void, void]>,
+    checkName(name: string): Promise<boolean>,
+    getCurrentInfo: (uid: string) => Promise<TypeChannel | null>,
+    changeSubscribers: (channelId: string, value: number) => Promise<void>,
+    changeListSubscribers: (typeChange: string, channelId: string, user: CurrentUser) => Promise<void>
 }
 
 export const channelAPI: ChannelAPI = {
-    async createChannel(owner: CurrentUser, data: TypeChannel) {
+    async createChannel(owner: CurrentUser, data: TypeCreateChannel) {
         const channelID = uuidv4()
         const chanel = await setDoc(doc(db, CHANNELS, channelID), {})
         const chanelInfo = await setDoc(doc(db, CHANNELS_INFO, channelID), {
             owner,
-            name: data.name,
+            displayName: data.displayName,
             isOpen: data.isOpen,
             channelID,
-            registrationDate: new Date()
+            registrationDate: new Date().toLocaleDateString(),
+            subscribers: 0
         })
         return Promise.all([chanel, chanelInfo])
     },
     async checkName(name: string) {
         const q = query(collection(db, CHANNELS_INFO), where("name", "==", name));
         const querySnapshot = await getDocs(q);
-        // querySnapshot.forEach((doc) => {
-        //     console.log(doc.id, " => ", doc.data());
-        // });
-        // console.log(querySnapshot)
         const isFree = !Boolean(querySnapshot.size)
         return isFree
+    },
+    async getCurrentInfo(channelID) {
+        const channelRef = doc(db, CHANNELS_INFO, channelID);
+        const docSnap = await getDoc(channelRef);
+
+        if (docSnap.exists()) {
+            const info: TypeChannel = docSnap.data() as TypeChannel
+            return info
+        } else {
+            return null
+        }
+    },
+    async changeSubscribers(channelId, value) {
+        const ref = doc(db, CHANNELS_INFO, channelId);
+        await updateDoc(ref, {
+            subscribers: increment(value)
+        });
+    },
+    async changeListSubscribers(typeChange, channelID, user) {
+        const ref = doc(db, CHANNELS_INFO, channelID)
+
+        if (typeChange === ADD_TO_LIST_SUBSCRIBERS) {
+            await updateDoc(ref, {
+                listOfSubscribers: arrayUnion(user)
+            });
+        }
+        if (typeChange === REMOVE_FROM_LIST_SUBSCRIBERS) {
+            await updateDoc(ref, {
+                listOfSubscribers: arrayRemove(user)
+            });
+        }
     }
 }

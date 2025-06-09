@@ -221,9 +221,10 @@
                         justify-content: start;
                     }
 
-                    .contentHeader__selectedChat {
+                    &__selectedChat {
                         width: 50%;
                         display: flex;
+                        flex-direction: column;
                         @media (max-width: 672px) {
                             width: 35%;
                         }
@@ -236,6 +237,11 @@
                             text-overflow: ellipsis;
                             overflow: hidden;
                         }
+                        .subscribers {
+                            font-size: 0.8rem;
+                            font-style: italic;
+                            font-weight: 300;
+                        } 
                     }
                 }
             }

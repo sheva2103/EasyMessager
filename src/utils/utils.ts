@@ -1,7 +1,8 @@
 import { doc, DocumentReference } from "firebase/firestore"
-import { Chat, CheckMessageType, ListMessagesType, Message1, NoReadMessagesType, size } from "../types/types"
+import { Chat, CheckMessageType, ListMessagesType, Message1, NoReadMessagesType, size, TypeChannel } from "../types/types"
 import { format } from "@formkit/tempo"
 import { db } from "../firebase"
+import { searchAPI } from "../API/api";
 
 
 export function createChatList(data: Chat[]) {
@@ -187,9 +188,20 @@ export function searchMessagesInList(array: Message1[], substring: string): Set<
     }, new Set<number>());
 }
 
-export function getChatType(isFavorites: boolean, selectedChat: Chat): DocumentReference {
+export function getChatType(isFavorites: boolean, selectedChat: Chat | null): DocumentReference {
 
     if(isFavorites) return doc(db, selectedChat.email, 'favorites')
+    if(selectedChat?.channel) return doc(db, 'channels', selectedChat.channel.channelID)
     return doc(db, "chats", selectedChat.chatID)
+}
+
+
+export async function globalSearch(name: string, currentUserID: string) {
+
+    const response = await Promise.all([searchAPI.searchUser(name), searchAPI.searchChannel(name)])
+    const chats: Chat[] = response[0].filter(item => item.uid !== currentUserID)
+    const channel: TypeChannel[] = response[1]
+    const channelToChat: Chat[] = channel.map(item => ({uid: item.channelID, displayName: item.displayName, email: item.owner.email, channel: item, chatID: item.channelID}))
+    return [...chats, ...channelToChat].sort((a, b) => String(a.displayName).localeCompare(String(b.displayName)))
 }
 

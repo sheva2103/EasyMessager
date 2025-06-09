@@ -43,7 +43,7 @@ const CreateChannel: FC = () => {
         const isFreeName = await channelAPI.checkName(data.name)
         if (isFreeName) {
             const isOpen = defineTypeChannel(data)
-            await channelAPI.createChannel(currentUser, { name: data.name, isOpen })
+            await channelAPI.createChannel(currentUser, { displayName: data.name, isOpen })
             
         } else {
             setError('name', {message: 'Такое имя уже существует'})

@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { Chat, CurrentUser, CurrentUserData, Message1 } from "../../types/types";
+import { Chat, CurrentUser, CurrentUserData, Message1, TypeChannel } from "../../types/types";
 import { setChat } from "./setChatIDSlice";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -23,15 +23,24 @@ type AppState = {
     currentUser: null | CurrentUser,
     blackList: CurrentUser[],
     contacts: Chat[],
-    chatsList: CurrentUser[],
+    chatsList: Chat[],
     loadChat: boolean,
     moreMessages: boolean,
     emojiIsOpen: boolean,
     selectedEmoji: string,
     isSearchMessage: boolean,
     replyToMessage: Message1 | null,
-    isFavorites: boolean
+    isFavorites: boolean,
 }
+
+const resetChatState = (state: AppState) => {
+    const isMobile = /Mobi|Android|iPhone/i.test(window.navigator.userAgent)
+
+    if (state.selectedMessages?.length) state.selectedMessages = []
+    if (state.showCheckbox) state.showCheckbox = false
+    if (state.isFavorites) state.isFavorites = false
+    if (isMobile) state.emojiIsOpen = false
+};
 
 const initialState: AppState = {
     menu: {
@@ -42,7 +51,7 @@ const initialState: AppState = {
     selectedChat: null,
     selectedMessages: [],
     changeMessage: null,
-    isSendMessage: false, 
+    isSendMessage: false,
     showCheckbox: false,
     currentUser: null,
     blackList: [],
@@ -54,7 +63,7 @@ const initialState: AppState = {
     selectedEmoji: '',
     isSearchMessage: false,
     replyToMessage: null,
-    isFavorites: false
+    isFavorites: false,
 
 }
 
@@ -70,32 +79,32 @@ export const appSlice = createSlice({
             state.menu.bar = false
             state.menu.cover = false
             state.menu.menuChild = ''
-            if(state.selectedMessages.length) state.selectedMessages = []
+            if (state.selectedMessages.length) state.selectedMessages = []
         },
         closeBar(state, action: PayloadAction<string>) {
             state.menu.bar = false
             state.menu.menuChild = action.payload
-            if(!state.menu.cover) state.menu.cover = true
+            if (!state.menu.cover) state.menu.cover = true
         },
         // selectChat(state, action: PayloadAction<Chat>) {
         //     state.selectedChat = action.payload
         //     state.selectedMessages = []
         // },
         addSelectedMessage(state, action: PayloadAction<Message1>) {
-            if(state.selectedMessages.some(item => item.messageID === action.payload.messageID)) return //изменил
+            if (state.selectedMessages.some(item => item.messageID === action.payload.messageID)) return //изменил
             state.selectedMessages.push(action.payload)
         },
         clearSelectedMessage(state) {
             state.selectedMessages = []
             state.isSendMessage = false,
-            state.showCheckbox = false
+                state.showCheckbox = false
         },
         deleteSelectedMessage(state, action: PayloadAction<Message1>) {
             state.selectedMessages = state.selectedMessages.filter(message => message.messageID !== action.payload.messageID)
         },
         changeMessage(state, action: PayloadAction<Message1 | null>) {
             state.changeMessage = action.payload
-            if(!action.payload) state.replyToMessage = null
+            if (!action.payload) state.replyToMessage = null
         },
         setReplyToMessage(state, action: PayloadAction<Message1 | null>) {
             state.replyToMessage = action.payload
@@ -108,9 +117,9 @@ export const appSlice = createSlice({
         },
         setUser(state, action: PayloadAction<CurrentUser | null>) {
             state.currentUser = action.payload
-            if(!action.payload) {
+            if (!action.payload) {
                 state.selectedChat = null
-                state.menu = {cover: false, bar: false, menuChild: ''}
+                state.menu = { cover: false, bar: false, menuChild: '' }
                 state.isSendMessage = null
                 state.changeMessage = null
                 state.showCheckbox = false
@@ -146,51 +155,59 @@ export const appSlice = createSlice({
             state.isSearchMessage = action.payload
         },
         setIsFavorites(state, action: PayloadAction<boolean>) {
+            resetChatState(state)
             state.isFavorites = action.payload
-            if(action.payload) state.selectedChat = state.currentUser
+            if (action.payload) state.selectedChat = state.currentUser
             else state.selectedChat = null
             state.menu.bar = false
             state.menu.cover = false
+        },
+        setSelectedChannel(state, action: PayloadAction<Chat | null>) {
+            //state.selectedChannel = action.payload
+            resetChatState(state)
+            state.selectedChat = action.payload
         }
     },
     extraReducers: (builder) => {
         builder
             .addCase(setChat.pending, (state) => {
-                if(state.isFavorites) state.isFavorites = false 
+                //if (state.isFavorites) state.isFavorites = false
                 //state.loadChat = true
-                if(state.emojiIsOpen) state.emojiIsOpen = false
+                //if (state.emojiIsOpen) state.emojiIsOpen = false
             })
             .addCase(setChat.rejected, (state, action) => {
-                state.selectedChat = {...action.payload, chatID: uuidv4()}
+                state.selectedChat = { ...action.payload, chatID: uuidv4() }
             })
             .addCase(setChat.fulfilled, (state, action) => {
+                resetChatState(state)
                 state.selectedChat = action.payload
-                if(state.selectedMessages) state.selectedMessages = []
-                if(state.showCheckbox) state.showCheckbox = false
+                // if (state.selectedMessages) state.selectedMessages = []
+                // if (state.showCheckbox) state.showCheckbox = false
             })
     }
 })
 
-export const {openMenu,
-                closeMenu,
-                closeBar, 
-                //selectChat, 
-                addSelectedMessage, 
-                deleteSelectedMessage, 
-                changeMessage, 
-                clearSelectedMessage, 
-                isSendMessage, 
-                setShowCheckbox,
-                setUser,
-                setUserData,
-                setChatList,
-                setLoadChat,
-                setContacts,
-                setBlacklist,
-                setEmojiState,
-                setSelectedEmoji,
-                setSearchMessages,
-                setReplyToMessage,
-                setIsFavorites
-            } = appSlice.actions
+export const { openMenu,
+    closeMenu,
+    closeBar,
+    //selectChat, 
+    addSelectedMessage,
+    deleteSelectedMessage,
+    changeMessage,
+    clearSelectedMessage,
+    isSendMessage,
+    setShowCheckbox,
+    setUser,
+    setUserData,
+    setChatList,
+    setLoadChat,
+    setContacts,
+    setBlacklist,
+    setEmojiState,
+    setSelectedEmoji,
+    setSearchMessages,
+    setReplyToMessage,
+    setIsFavorites,
+    setSelectedChannel
+} = appSlice.actions
 export default appSlice.reducer

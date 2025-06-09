@@ -39,7 +39,8 @@ export interface CurrentUser extends CurrentUserData {
 
 export interface Chat extends CurrentUser  {
     chatID?: string,
-    dateOfChange?: string
+    dateOfChange?: string,
+    channel?: TypeChannel
 }
 
 export type Message1 = {
@@ -47,10 +48,14 @@ export type Message1 = {
     messageID: string,
     date: string,
     read?: boolean,
-    sender: CurrentUser,
+    sender: SenderMessageType,
     changed?: string,
     forwardedFrom?: Chat,
     replyToMessage?: Message1
+}
+
+export type SenderMessageType = CurrentUser & {
+    channel?: TypeChannel
 }
 
 export type ListMessagesType = {
@@ -70,8 +75,15 @@ export type CheckMessageType = {
     imgUrl: string | null
 }
 
-export type TypeChannel = {
-    name: string,
+export type TypeCreateChannel = {
+    displayName: string,
     isOpen: boolean
+}
+
+export interface TypeChannel extends TypeCreateChannel  {
+    owner?: CurrentUser,
+    registrationDate?: Date,
+    channelID: string,
+    subscribers?: number
 }
 

@@ -5,8 +5,9 @@ import classNames from "classnames";
 import { Chat } from "../../types/types";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { contactsAPI, messagesAPI } from "../../API/api";
-import { setLoadChat, setSearchMessages } from "../../store/slices/appSlice";
+import { closeBar, setLoadChat, setSearchMessages } from "../../store/slices/appSlice";
 import { setChat } from "../../store/slices/setChatIDSlice";
+import { SETTINGS, SHOW_CHANNEL_INFO } from "../../constants/constants";
 
 type Props = {
     chatInfo: Chat
@@ -15,31 +16,32 @@ type Props = {
 const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
 
     const [isOpen, setOpen] = useState(false)
-    const currentUserEmail = useAppSelector(state => state.app.currentUser.email)
+    const currentUser = useAppSelector(state => state.app.currentUser)
     const contactsList = useAppSelector(state => state.app.contacts)
     const blackList = useAppSelector(state => state.app.blackList)
+    const myChatList = useAppSelector(state => state.app.chatsList)
     const selectedChat = useAppSelector(state => state.app.selectedChat)
     const isFavorites = useAppSelector(state => state.app.isFavorites)
     const dispatch = useAppDispatch()
     const [animationOpen, setAnimationOpen] = useState(false)
 
     const addToContacts = () => {
-        contactsAPI.addToContacts(currentUserEmail, chatInfo)
+        contactsAPI.addToContacts(currentUser.email, chatInfo)
             .then(() => setOpen(false))
     }
 
     const deleteContact = () => {
-        contactsAPI.removeFromContacts(currentUserEmail, chatInfo)
+        contactsAPI.removeFromContacts(currentUser.email, chatInfo)
             .then(() => setOpen(false))
     }
 
     const addToBlacklist = () => {
-        contactsAPI.addToBlacklist(currentUserEmail, chatInfo)
+        contactsAPI.addToBlacklist(currentUser.email, chatInfo)
             .then(() => setOpen(false))
     }
 
     const removeFromBlacklist = () => {
-        contactsAPI.removeFromBlacklist(currentUserEmail, chatInfo)
+        contactsAPI.removeFromBlacklist(currentUser.email, chatInfo)
             .then(() => setOpen(false))
     }
 
@@ -52,7 +54,7 @@ const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
     }
 
     const deleteChat = () => {
-        messagesAPI.deleteChat(currentUserEmail, selectedChat)
+        messagesAPI.deleteChat(currentUser, selectedChat)
             .then(() => {
                 setOpen(false)
                 dispatch(setChat(null))
@@ -60,13 +62,31 @@ const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
             .catch(error => console.log('ошибка удаления чата >>>>>', error))
     }
 
+    const subscribe = () => {
+        messagesAPI.addChat(currentUser, selectedChat)
+            .then(() => setOpen(false))
+            .catch((err) => console.log('Произошла ошибка', err))
+    }
+
+    const unsubscribe = () => {
+        messagesAPI.deleteChat(currentUser, selectedChat)
+            .then(() => setOpen(false))
+            .catch((err) => console.log('Произошла ошибка', err))
+    }
+
     const showSearchMessages = () => {
         dispatch(setSearchMessages(true))
         setOpen(false)
     }
 
+    const showInformation = () => {
+        setOpen(false)
+        dispatch(closeBar(SHOW_CHANNEL_INFO))
+    }
+
     const isContact = useMemo(() => contactsList.some(item => item.email === chatInfo.email), [selectedChat, contactsList.length])
     const isBlackList = useMemo(() => blackList.some(item => item.email === chatInfo.email), [blackList.length, selectedChat])
+    const isMyChat = useMemo(() => myChatList.some(item => item.uid === chatInfo.channel?.channelID), [myChatList.length, selectedChat])
 
     const onKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter') setOpen(!isOpen)
@@ -84,6 +104,44 @@ const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
         return () => setAnimationOpen(false)
     }, [isOpen]);
 
+    const targetNode = () => {
+        if (isFavorites) return (
+            <ul>
+                <li onClick={showSearchMessages}>Поиск</li>
+                <li onClick={clearChat}>Очистить историю</li>
+            </ul>
+        )
+        else if (selectedChat?.channel) return (
+            <ul>
+                <li onClick={showSearchMessages}>Поиск</li>
+                {isMyChat ?
+                    <li onClick={unsubscribe}>Покинуть канал</li>
+                    :
+                    <li onClick={subscribe}>Подписаться</li>
+                }
+                <li onClick={showInformation}>Информация</li>
+                
+            </ul>
+        )
+        else return (
+            <ul>
+                <li onClick={showSearchMessages}>Поиск</li>
+                {isContact ?
+                    <li onClick={deleteContact}>Удалить из контактов</li>
+                    :
+                    <li onClick={addToContacts}>Добавить в контакты</li>
+                }
+                {isBlackList ?
+                    <li onClick={removeFromBlacklist}>Удалить из ЧС</li>
+                    :
+                    <li onClick={addToBlacklist}>Добавить в ЧС</li>
+                }
+                <li onClick={clearChat}>Очистить историю</li>
+                <li onClick={deleteChat}>Удалить чат</li>
+            </ul>
+        )
+    }
+
 
     return (
         <>
@@ -100,28 +158,7 @@ const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
                     tabIndex={8}
                 />
                 <div className={classNames(styles.menu__list, { [styles.menu_show]: isOpen }, { [styles.animationMenu]: animationOpen })}>
-                    {!isFavorites ?
-                        <ul>
-                            <li onClick={showSearchMessages}>Поиск</li>
-                            {isContact ?
-                                <li onClick={deleteContact}>Удалить из контактов</li>
-                                :
-                                <li onClick={addToContacts}>Добавить в контакты</li>
-                            }
-                            {isBlackList ?
-                                <li onClick={removeFromBlacklist}>Удалить из ЧС</li>
-                                :
-                                <li onClick={addToBlacklist}>Добавить в ЧС</li>
-                            }
-                            <li onClick={clearChat}>Очистить историю</li>
-                            <li onClick={deleteChat}>Удалить чат</li>
-                        </ul>
-                        :
-                        <ul>
-                            <li onClick={showSearchMessages}>Поиск</li>
-                            <li onClick={clearChat}>Очистить историю</li>
-                        </ul>
-                    }
+                    {targetNode()}
                 </div>
             </div>
         </>
