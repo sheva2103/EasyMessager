@@ -47,7 +47,10 @@ const ChannelInfo: FC<Props> = (channel) => {
         const getInfo = async () => {
             try {
                 const currentInfo = await channelAPI.getCurrentInfo(channel.channel.channelID)
-                if (currentInfo) setUpdateChannel(currentInfo)
+                if (currentInfo) {
+                    if('listOfSubscribers' in currentInfo) delete currentInfo.listOfSubscribers
+                    setUpdateChannel(currentInfo)
+                }
             } catch (error) {
                 console.error('Error fetching current info:', error);
             } finally {
@@ -85,7 +88,7 @@ const ChannelInfo: FC<Props> = (channel) => {
             {isSelected &&
                 <div className={styles.selected}></div>
             }
-            <Avatar url={updateChannel?.owner.photoURL} name={updateChannel.displayName[0]} />
+            <Avatar url={updateChannel?.photoURL} name={updateChannel.displayName[0]} />
             <span className={styles.name}>{updateChannel.displayName}</span>
             <div className={styles.chatInfo__noRead}>
                 <Badge badgeContent={messages.noRead.quantity} color="primary" />

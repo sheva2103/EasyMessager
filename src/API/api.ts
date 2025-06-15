@@ -123,7 +123,7 @@ export const messagesAPI: MessagesAPI = {
         }
         await setDoc(doc(db, user.email, CHATLIST), { [recipient.uid]: chat }, { merge: true });
         if (recipient?.channel) {
-            await channelAPI.changeSubscribers(chat.chatID, 1)
+            //await channelAPI.changeSubscribers(chat.chatID, 1)
             await channelAPI.changeListSubscribers(ADD_TO_LIST_SUBSCRIBERS, chat.chatID, user)
 
         }
@@ -214,7 +214,7 @@ export const messagesAPI: MessagesAPI = {
             await deleteDoc(doc(db, CHATS, selectedChat.chatID));
         }
         if (selectedChat?.channel) {
-            await channelAPI.changeSubscribers(selectedChat.channel.channelID, -1)
+            //await channelAPI.changeSubscribers(selectedChat.channel.channelID, -1)
             await channelAPI.changeListSubscribers(REMOVE_FROM_LIST_SUBSCRIBERS, selectedChat.channel.channelID, currentUser)
         }
     },
@@ -256,8 +256,9 @@ type ChannelAPI = {
     createChannel(owner: CurrentUser, data: TypeCreateChannel): Promise<[void, void]>,
     checkName(name: string): Promise<boolean>,
     getCurrentInfo: (uid: string) => Promise<TypeChannel | null>,
-    changeSubscribers: (channelId: string, value: number) => Promise<void>,
-    changeListSubscribers: (typeChange: string, channelId: string, user: CurrentUser) => Promise<void>
+    //changeSubscribers: (channelId: string, value: number) => Promise<void>,
+    changeListSubscribers: (typeChange: string, channelId: string, user: CurrentUser) => Promise<void>,
+    changeCannelInfo: (channel: TypeChannel) => Promise<void>,
 }
 
 export const channelAPI: ChannelAPI = {
@@ -291,12 +292,13 @@ export const channelAPI: ChannelAPI = {
             return null
         }
     },
-    async changeSubscribers(channelId, value) {
-        const ref = doc(db, CHANNELS_INFO, channelId);
-        await updateDoc(ref, {
-            subscribers: increment(value)
-        });
-    },
+    // async changeSubscribers(channelId, value) {
+    //     const ref = doc(db, CHANNELS_INFO, channelId);
+    //     await updateDoc(ref, {
+    //         subscribers: increment(value)
+    //         // 1 || -1
+    //     });
+    // },
     async changeListSubscribers(typeChange, channelID, user) {
         const ref = doc(db, CHANNELS_INFO, channelID)
 
@@ -310,5 +312,12 @@ export const channelAPI: ChannelAPI = {
                 listOfSubscribers: arrayRemove(user)
             });
         }
+    },
+    async changeCannelInfo(channel) {
+        const channelRef = doc(db, CHANNELS_INFO, channel.channelID)
+        await updateDoc(channelRef, {
+            photoURL: channel.photoURL,
+            displayName: channel.displayName
+        });
     }
 }

@@ -14,9 +14,6 @@ import soundFile from '../../assets/sound.mp3';
 
 
 
-interface Props extends Chat {
-    globalSearch?: boolean
-}
 
 const handleAudioPlay = () => {
     const audio = new Audio(soundFile);
@@ -36,7 +33,7 @@ const Skeleton: FC = () => {
     )
 }
 
-const ChatInfo: FC<Props> = (user) => {
+const ChatInfo: FC<Chat> = (user) => {
 
     const [updateUser, setUpdateUser] = useState<Chat>({ ...user })
     const [messages, setMessagesList] = useState<{ messages: Message1[], noRead: NoReadMessagesType }>({ messages: [], noRead: { quantity: 0, targetIndex: 0 } })
@@ -119,7 +116,7 @@ const ChatInfo: FC<Props> = (user) => {
     );
 }
 
-function checkProps(prevProps: Props, nextProps: Props): boolean {
+function checkProps(prevProps: Chat, nextProps: Chat): boolean {
     return prevProps.displayName === nextProps.displayName
 }
 export default memo(ChatInfo, checkProps);

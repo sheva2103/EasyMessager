@@ -16,6 +16,7 @@ const MenuComponent: FC = () => {
 
     const isOpen = useAppSelector(state => state.app.menu)
     const dispatch = useAppDispatch()
+    const currentUser = useAppSelector(state => state.app.currentUser)
 
     const stopPropagation = (e: React.MouseEvent) => {
         e.stopPropagation()
@@ -33,7 +34,7 @@ const MenuComponent: FC = () => {
             </div>
             <nav className={classNames(styles.appBar, { [styles.showAppBar]: isOpen.bar })}>
                 <CloseMenu />
-                <UserInfo />
+                <UserInfo currentInfo={currentUser}/>
                 <div>
                     <ul className={styles.list}>
                         <li onClick={() => dispatch(closeBar(CREATE_CHANNEL))}>

@@ -4,23 +4,27 @@ import Avatar from "../Avatar/Avatar";
 import ChangeIcon from '../../assets/change.svg'
 import ChangeUserInfoForm from "../forms/ChangeUserInfoForm";
 import { useAppSelector } from "../../hooks/hook";
+import { Chat } from "../../types/types";
 
 type Props = {
-    isSettings?: boolean
+    isSettings?: boolean,
+    currentInfo: Chat
 }
 
-const UserInfo: FC<Props> = ({ isSettings }) => {
+const UserInfo: FC<Props> = ({ isSettings, currentInfo }) => {
 
     const [changeInfo, setChangeInfo] = useState(false)
     const currentUserInfo = useAppSelector(state => state.app.currentUser)
+    const avatarUrl = currentInfo?.channel ? currentInfo.channel.photoURL : currentInfo.photoURL
+    const displayName = currentInfo?.channel ? currentInfo.channel.displayName : currentInfo.displayName
 
     return (
         <div className={styles.userInfoContainer}>
             <div className={styles.userInfo}>
-                <Avatar url={currentUserInfo.photoURL} name={currentUserInfo?.displayName || currentUserInfo.email} />
+                <Avatar url={avatarUrl} name={displayName} />
                 <div className={styles.nameBlock}>
-                    <span className={styles.name}>{currentUserInfo?.displayName || 'Имя не указано'}</span>
-                    <span className={styles.login}>{currentUserInfo.email}</span>
+                    <span className={styles.name}>{displayName}</span>
+                    {!currentInfo?.channel && <span className={styles.login}>{currentUserInfo.email}</span>}
                 </div>
                 {isSettings &&
                     <div className={styles.userInfo__change} title="Изменить">
@@ -31,7 +35,7 @@ const UserInfo: FC<Props> = ({ isSettings }) => {
             {isSettings && <ChangeUserInfoForm 
                                 changeInfo={changeInfo} 
                                 setChangeInfo={setChangeInfo} 
-                                currentUserInfo={currentUserInfo}
+                                currentUserInfo={currentInfo}
                                 />}
         </div>
     );

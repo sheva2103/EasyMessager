@@ -1,4 +1,4 @@
-import { FC, memo } from "react";
+import { FC, memo, useEffect, useState } from "react";
 import styles from './Avatar.module.scss'
 import classNames from "classnames";
 
@@ -9,9 +9,19 @@ type Props = {
 
 const Avatar: FC<Props> = ({url, name}) => {
 
+    const [isLoad, setIsLoad] = useState(false)
+
+    useEffect(() => {
+        if(url) {
+            const img = new Image()
+            img.src = url
+            img.onload = () => setIsLoad(true)
+        }
+    }, [url]);
+
     return (  
         <div>
-            {Boolean(url) ?
+            {Boolean(isLoad) ?
                 <img src={url} alt={name[0]} className={styles.container}/>
                 :
                 <div className={classNames(styles.container, styles.noAvatar)}>

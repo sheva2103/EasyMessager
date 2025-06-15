@@ -84,6 +84,7 @@ export interface TypeChannel extends TypeCreateChannel  {
     owner?: CurrentUser,
     registrationDate?: Date,
     channelID: string,
-    subscribers?: number
+    listOfSubscribers?: CurrentUser[],
+    photoURL?: string
 }
 

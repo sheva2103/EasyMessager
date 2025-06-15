@@ -6,12 +6,16 @@ import Select from "./Select";
 import LangIcon from '../../assets/translate.svg'
 import BlackList from "./BlackList";
 import SignOutButton from "./SignOutButton";
+import { useAppSelector } from "../../hooks/hook";
 
 
 const Settings: FC = () => {
+
+    const currentUser = useAppSelector(state => state.app.currentUser)
+
     return (  
         <div className={styles.settings}>
-            <UserInfo isSettings/>
+            <UserInfo isSettings currentInfo={currentUser}/>
             <hr className={styles.hr}/>
             <div className={styles.group}>
                 <div className={styles.item}>

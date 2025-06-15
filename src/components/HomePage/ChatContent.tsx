@@ -32,7 +32,7 @@ const SubscribersComponent: FC<{channelID: string}> = ({channelID}) => {
 
     useEffect(() => {
         const unsubscribe = onSnapshot(doc(db, CHANNELS_INFO, channelID), (doc: DocumentSnapshot<TypeChannel>) => {
-            if(doc.data()) setQuantity(doc.data().subscribers)
+            if(doc.data()) setQuantity(doc.data().listOfSubscribers.length)
         });
         return () => unsubscribe()
     }, []);

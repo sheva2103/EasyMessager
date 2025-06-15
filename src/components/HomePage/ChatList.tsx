@@ -1,9 +1,8 @@
 import { FC, useEffect, useMemo, useState } from "react";
 import styles from './HomePage.module.scss'
 import ChatInfo from "./ChatInfo";
-import { searchAPI } from "../../API/api";
 import { useAppSelector } from "../../hooks/hook";
-import { Chat, TypeChannel } from "../../types/types";
+import { Chat } from "../../types/types";
 import InputComponent from "../../InputComponent/InputComponent";
 import { globalSearch } from "../../utils/utils";
 import ChannelInfo from "./ChannelInfo";
@@ -21,7 +20,6 @@ const ListComponent: FC<{ list: Chat[] }> = ({ list }) => {
                 return (
                     <ChatInfo key={item.uid + 'global'}
                         {...item}
-                        globalSearch
                     />
                 );
             }
