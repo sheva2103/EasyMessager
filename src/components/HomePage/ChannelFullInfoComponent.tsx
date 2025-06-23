@@ -8,9 +8,11 @@ import { closeMenu } from "../../store/slices/appSlice";
 import { Chat, CurrentUser, TypeChannel } from "../../types/types";
 import RemoveFromChannelIcon from '../../assets/person-dash.svg'
 import UserInfo from "../MenuComponent/UserInfo";
-import { CHANNELS_INFO, messagesAPI } from "../../API/api";
+import { channelAPI, messagesAPI } from "../../API/api";
 import { doc, DocumentSnapshot, onSnapshot } from "firebase/firestore";
 import { db } from "../../firebase";
+import { CHANNELS_INFO } from "../../constants/constants";
+import { createObjectChannel } from "../../utils/utils";
 
 const test: CurrentUser[] = [
     { displayName: 'alexdb', photoURL: '', email: 'test1rt@test.com', uid: 'uhrtugjfghdhc' },
@@ -30,12 +32,13 @@ const test: CurrentUser[] = [
     { displayName: 'test1', photoURL: '', email: 'test1dete@test.com', uid: 'uhuhjhggjfghdhc' },
 ]
 
+//
+
 const ChannelFullInfoComponent: FC = () => {
 
     const [name, setName] = useState('')
-    const [list, setList] = useState([])
     const dispatch = useAppDispatch()
-    const channel = useAppSelector(state => state.app.selectedChat.channel)
+    const channel = useAppSelector(state => state.app.selectedChannel)
     const currentUser = useAppSelector(state => state.app.currentUser)
     const isOwner = currentUser.uid === channel.owner.uid
 
@@ -45,10 +48,9 @@ const ChannelFullInfoComponent: FC = () => {
         dispatch(closeMenu())
     }
 
-    const removeFromChannel = (e: React.MouseEvent, contact: Chat) => {
+    const removeFromChannel = (e: React.MouseEvent, contact: CurrentUser) => {
         e.stopPropagation()
-        //contactsAPI.removeFromContacts(currentUser.email, contact)
-        console.log('удалить из канала')
+        messagesAPI.deleteChat(contact, createObjectChannel(channel))
     }
 
     const handleClick = () => {
@@ -61,14 +63,9 @@ const ChannelFullInfoComponent: FC = () => {
         }
     }
     
-    const filter = list.filter(item => item.displayName.includes(name))
+    const filter = channel.listOfSubscribers?.filter(item => item.displayName.includes(name))
 
-    useEffect(() => {
-        const unsubscribe = onSnapshot(doc(db, CHANNELS_INFO, channel.channelID), (doc: DocumentSnapshot<TypeChannel>) => {
-            if (doc.data()) setList(doc.data().listOfSubscribers)
-        });
-        return () => unsubscribe()
-    }, [])
+    
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
@@ -103,7 +100,7 @@ const ChannelFullInfoComponent: FC = () => {
                 </div>
                 <InputComponent classes={stylesContacts.item} returnValue={setName} />
                 <ul className={stylesContacts.list} style={{ display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
-                    {!list.length && <span>Учасники не найдены</span>}
+                    {!channel.listOfSubscribers.length && <span>Учасники не найдены</span>}
                     {filter.map((item, index) => (
                         <li style={{ margin: '2px 8px' }} key={String(item.uid)} onClick={() => handleClickName(item)}>
                             <span >{item.displayName}</span>

@@ -3,7 +3,8 @@ import styles from './Styles.module.scss'
 import { SubmitHandler, useForm } from "react-hook-form";
 import ButtonSubmit from "./ButtonSubmit";
 import { channelAPI } from "../../API/api";
-import { useAppSelector } from "../../hooks/hook";
+import { useAppDispatch, useAppSelector } from "../../hooks/hook";
+import { closeMenu } from "../../store/slices/appSlice";
 
 type Form = {
     name: string,
@@ -20,11 +21,13 @@ function defineTypeChannel(data: Form): boolean {
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-const NAME_REGEXP = /^[a-zA-Z0-9_*-@ ]{4,20}$/;
+//const NAME_REGEXP = /^[a-zA-Z0-9_*-@ ]{4,20}$/;
+const NAME_REGEXP = /^[\p{L}0-9_*\s-]{4,20}$/u;
 
 const CreateChannel: FC = () => {
 
     const currentUser = useAppSelector(state => state.app.currentUser)
+    const dispatch = useAppDispatch()
     const { register, handleSubmit, formState: { errors, isSubmitting }, reset, setError } = useForm<Form>({
         mode: 'onSubmit',
         defaultValues: {
@@ -44,7 +47,8 @@ const CreateChannel: FC = () => {
         if (isFreeName) {
             const isOpen = defineTypeChannel(data)
             await channelAPI.createChannel(currentUser, { displayName: data.name, isOpen })
-            
+                .then((() => dispatch(closeMenu())))
+            //установить чат как текущий после регистрации
         } else {
             setError('name', {message: 'Такое имя уже существует'})
         }

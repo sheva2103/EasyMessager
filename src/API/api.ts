@@ -4,7 +4,8 @@ import { UserInfo } from "firebase/auth";
 import { Chat, CurrentUser, Message1, TypeChannel, TypeCreateChannel } from "../types/types";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
-import { createChatList, createMessageList, createNewDate, getChatType } from "../utils/utils";
+import { createChatList, createMessageList, createNewDate, createObjectChannel, getChatType } from "../utils/utils";
+import { ADD_TO_LIST_SUBSCRIBERS, BLACKLIST, CHANNELS, CHANNELS_INFO, CHATLIST, CHATS, CONTACTS, FAVOTITES, REMOVE_FROM_LIST_SUBSCRIBERS, USERS } from "../constants/constants";
 
 
 type ProfileApi = {
@@ -41,17 +42,17 @@ type ContactsAPI = {
 }
 
 
+// const USERS = "users"
+// const CHATLIST = "chatList"
+// const CHATS = "chats"
+// const FAVOTITES = "favorites"
+// const BLACKLIST = "blacklist"
+// const CONTACTS = "contacts"
+// const CHANNELS = "channels"
+// const ADD_TO_LIST_SUBSCRIBERS = 'ADD_TO_LIST_SUBSCRIBERS'
+// const REMOVE_FROM_LIST_SUBSCRIBERS = 'REMOVE_FROM_LIST_SUBSCRIBERS'
+// export const CHANNELS_INFO = "channelsInfo"
 
-const USERS = "users"
-const CHATLIST = "chatList"
-const CHATS = "chats"
-const FAVOTITES = "favorites"
-const BLACKLIST = "blacklist"
-const CONTACTS = "contacts"
-const CHANNELS = "channels"
-const ADD_TO_LIST_SUBSCRIBERS = 'ADD_TO_LIST_SUBSCRIBERS'
-const REMOVE_FROM_LIST_SUBSCRIBERS = 'REMOVE_FROM_LIST_SUBSCRIBERS'
-export const CHANNELS_INFO = "channelsInfo"
 
 export const profileAPI: ProfileApi = {
 
@@ -258,7 +259,8 @@ type ChannelAPI = {
     getCurrentInfo: (uid: string) => Promise<TypeChannel | null>,
     //changeSubscribers: (channelId: string, value: number) => Promise<void>,
     changeListSubscribers: (typeChange: string, channelId: string, user: CurrentUser) => Promise<void>,
-    changeCannelInfo: (channel: TypeChannel) => Promise<void>,
+    changeCannelInfo: (channel: TypeChannel, updateDateOfChange?: boolean) => Promise<void>,
+    //addChannelToChatlist: (email: string, channel: TypeChannel) => Promise<void>,
 }
 
 export const channelAPI: ChannelAPI = {
@@ -271,12 +273,12 @@ export const channelAPI: ChannelAPI = {
             isOpen: data.isOpen,
             channelID,
             registrationDate: new Date().toLocaleDateString(),
-            subscribers: 0
+            listOfSubscribers: []
         })
         return Promise.all([chanel, chanelInfo])
     },
     async checkName(name: string) {
-        const q = query(collection(db, CHANNELS_INFO), where("name", "==", name));
+        const q = query(collection(db, CHANNELS_INFO), where("displayName", "==", name));
         const querySnapshot = await getDocs(q);
         const isFree = !Boolean(querySnapshot.size)
         return isFree
@@ -313,11 +315,20 @@ export const channelAPI: ChannelAPI = {
             });
         }
     },
-    async changeCannelInfo(channel) {
+    async changeCannelInfo(channel, updateDateOfChange) {
         const channelRef = doc(db, CHANNELS_INFO, channel.channelID)
-        await updateDoc(channelRef, {
-            photoURL: channel.photoURL,
-            displayName: channel.displayName
-        });
-    }
+        const dateOfChange = JSON.stringify(new Date())
+        const obj: any = {}
+        if (updateDateOfChange) obj.dateOfChange = dateOfChange
+        else {
+            obj.photoURL = channel.photoURL
+            obj.displayName = channel.displayName
+        }
+
+        await updateDoc(channelRef, obj);
+    },
+    // async addChannelToChatlist(email, channel) {
+    //     const channelObj: Chat = {...createObjectChannel(channel)}
+    //     await setDoc(doc(db, email, CHATLIST), { [channelObj.channel.channelID]: channelObj }, { merge: true });
+    // }
 }

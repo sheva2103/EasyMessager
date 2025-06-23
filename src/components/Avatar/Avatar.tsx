@@ -16,6 +16,7 @@ const Avatar: FC<Props> = ({url, name}) => {
             const img = new Image()
             img.src = url
             img.onload = () => setIsLoad(true)
+            img.onerror = () => setIsLoad(false)
         }
     }, [url]);
 

@@ -11,11 +11,10 @@ import Preloader from '../../assets/preloader.svg'
 import { Chat, CurrentUser, TypeChannel } from "../../types/types";
 import { doc, DocumentSnapshot, onSnapshot } from "firebase/firestore";
 import { db } from "../../firebase";
-import { CHANNELS_INFO } from "../../API/api";
+import { CHANNELS_INFO } from "../../constants/constants";
+import ShowNameChat from "./ShowNameChat";
 
-const LoadChatComponent: FC = () => {
-
-    const isLoad = useAppSelector(state => state.app.loadChat)
+export const LoadChatComponent: FC<{isLoad: boolean}> = ({isLoad}) => {
 
     return (
         <div className={styles.contentContainer} style={{ position: 'absolute', display: isLoad ? 'block' : 'none' }}>
@@ -26,20 +25,13 @@ const LoadChatComponent: FC = () => {
     )
 }
 
-const SubscribersComponent: FC<{channelID: string}> = ({channelID}) => {
+const SubscribersComponent: FC = () => {
 
-    const [quantity, setQuantity] = useState(0)
-
-    useEffect(() => {
-        const unsubscribe = onSnapshot(doc(db, CHANNELS_INFO, channelID), (doc: DocumentSnapshot<TypeChannel>) => {
-            if(doc.data()) setQuantity(doc.data().listOfSubscribers.length)
-        });
-        return () => unsubscribe()
-    }, []);
+    const subscribers = useAppSelector(state => state.app.selectedChannel?.listOfSubscribers)
 
     return (
         <span className={styles.subscribers}>
-            Подписчики:  <span style={{ fontWeight: 500 }}>{quantity}</span>
+            Подписчики:  <span style={{ fontWeight: 500 }}>{subscribers?.length || 0}</span>
         </span>
     );
 }
@@ -52,6 +44,7 @@ const HeaderChat: FC<{ selectedChat: Chat }> = ({ selectedChat }) => {
     const closeChat = () => {
         dispatch(setChat(null))
     }
+    const isChannel = !!selectedChat?.channel
 
     return (
         <header>
@@ -60,13 +53,16 @@ const HeaderChat: FC<{ selectedChat: Chat }> = ({ selectedChat }) => {
             </div>
             <div className={styles.contentHeader}>
                 <div className={styles.contentHeader__selectedChat}>
-                    <span>{!isFavorites ? selectedChat.displayName : 'Избранное'}</span>
+                    <span>{!isFavorites ? 
+                        isChannel ? <ShowNameChat /> : selectedChat.displayName
+                        : 
+                        'Избранное'}</span>
                     {selectedChat?.channel &&
                         // <span className={styles.subscribers}>
                         //     Подписчики:
                         //     <span style={{ fontWeight: 500 }}>  {selectedChat.channel.subscribers}</span>
                         // </span>
-                        <SubscribersComponent channelID={selectedChat.channel.channelID}/>
+                        <SubscribersComponent />
                     }
                 </div>
                 <ChatMenu selectedChat={selectedChat} />
@@ -93,7 +89,7 @@ const ChatContent: FC = () => {
 
     return (
         <div className={classNames(styles.contentContainer, { [styles.showContent]: selectedChat })}>
-            <LoadChatComponent />
+            {/* <LoadChatComponent /> */}
             <div className={styles.header}>
                 <HeaderChat selectedChat={selectedChat} />
             </div>

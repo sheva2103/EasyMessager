@@ -6,12 +6,13 @@ import ContextMenu from "./ContextMenu";
 import SelectMessageInput from "./SelectMessageInput";
 import { Chat, Message1, StyleContextMenu } from "../../types/types";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
-import { checkMessage, createNewDate, getTimeFromDate } from "../../utils/utils";
+import { checkMessage, createNewDate, createObjectChannel, getTimeFromDate } from "../../utils/utils";
 import UnreadIcon from '../../assets/check2.svg'
 import ReadIcon from '../../assets/check2-all.svg'
 import { messagesAPI } from "../../API/api";
 import { setChat } from "../../store/slices/setChatIDSlice";
 import { useInView } from 'react-intersection-observer';
+import { setSelectedChannel } from "../../store/slices/appSlice";
 
 
 const HEIGHT_MENU_FOR_OWNER = 220
@@ -35,8 +36,10 @@ const ForwardedFrom: FC<ForwardedFromProps> = ({ user }) => {
     const name = user?.channel ? user.channel.displayName : user.displayName
 
     const handleClick = () => {
-
-        if(user?.channel) return
+        if(user?.channel) {
+            dispatch(setSelectedChannel(createObjectChannel(user.channel)))
+            return
+        }
         if (user.uid !== currentUser.uid && user.uid !== selectedChat.uid) {
             messagesAPI.getChatID(currentUser.email, user.email)
                 .then(data => dispatch(setChat({ currentUserEmail: user.email, guestInfo: { ...user, chatID: data } })))

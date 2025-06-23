@@ -6,7 +6,7 @@ import CloseIcon from '../../assets/closeDesktop.svg'
 import { TextareaAutosize } from '@mui/base/TextareaAutosize';
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { changeMessage, setEmojiState, setSelectedEmoji } from "../../store/slices/appSlice";
-import { messagesAPI } from "../../API/api";
+import { channelAPI, messagesAPI } from "../../API/api";
 import { Chat } from "../../types/types";
 import EmojiIcon from '../../assets/emoji-smile-fill.svg'
 
@@ -67,6 +67,9 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
             ]).then(send);
         } else {
             send()
+            // .then(() => {
+            //     if(isChannel) channelAPI.changeCannelInfo(chatInfo.channel, true)
+            // })
         }
     }
 

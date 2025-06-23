@@ -1,3 +1,4 @@
+import { DocumentReference } from "firebase/firestore"
 
 
 export type useThemeType = {
@@ -40,7 +41,8 @@ export interface CurrentUser extends CurrentUserData {
 export interface Chat extends CurrentUser  {
     chatID?: string,
     dateOfChange?: string,
-    channel?: TypeChannel
+    channel?: TypeChannel,
+    ref?: DocumentReference
 }
 
 export type Message1 = {
@@ -85,6 +87,7 @@ export interface TypeChannel extends TypeCreateChannel  {
     registrationDate?: Date,
     channelID: string,
     listOfSubscribers?: CurrentUser[],
-    photoURL?: string
+    photoURL?: string,
+    dateOfChange?: string
 }
 

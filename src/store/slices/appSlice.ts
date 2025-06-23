@@ -31,6 +31,7 @@ type AppState = {
     isSearchMessage: boolean,
     replyToMessage: Message1 | null,
     isFavorites: boolean,
+    selectedChannel: TypeChannel | null
 }
 
 const resetChatState = (state: AppState) => {
@@ -40,6 +41,7 @@ const resetChatState = (state: AppState) => {
     if (state.showCheckbox) state.showCheckbox = false
     if (state.isFavorites) state.isFavorites = false
     if (isMobile) state.emojiIsOpen = false
+    if (state.selectedChannel) state.selectedChannel = null
 };
 
 const initialState: AppState = {
@@ -64,6 +66,7 @@ const initialState: AppState = {
     isSearchMessage: false,
     replyToMessage: null,
     isFavorites: false,
+    selectedChannel: null
 
 }
 
@@ -166,6 +169,9 @@ export const appSlice = createSlice({
             //state.selectedChannel = action.payload
             resetChatState(state)
             state.selectedChat = action.payload
+        },
+        updateSelectedChannel(state, action: PayloadAction<TypeChannel | null>) {
+            state.selectedChannel = action.payload
         }
     },
     extraReducers: (builder) => {
@@ -208,6 +214,7 @@ export const { openMenu,
     setSearchMessages,
     setReplyToMessage,
     setIsFavorites,
-    setSelectedChannel
+    setSelectedChannel,
+    updateSelectedChannel
 } = appSlice.actions
 export default appSlice.reducer

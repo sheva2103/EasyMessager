@@ -3,6 +3,7 @@ import { Chat, CheckMessageType, ListMessagesType, Message1, NoReadMessagesType,
 import { format } from "@formkit/tempo"
 import { db } from "../firebase"
 import { searchAPI } from "../API/api";
+import { CHANNELS, CHANNELS_INFO, CHATS, FAVOTITES, USERS } from "../constants/constants";
 
 
 export function createChatList(data: Chat[]) {
@@ -190,9 +191,9 @@ export function searchMessagesInList(array: Message1[], substring: string): Set<
 
 export function getChatType(isFavorites: boolean, selectedChat: Chat | null): DocumentReference {
 
-    if(isFavorites) return doc(db, selectedChat.email, 'favorites')
-    if(selectedChat?.channel) return doc(db, 'channels', selectedChat.channel.channelID)
-    return doc(db, "chats", selectedChat.chatID)
+    if(isFavorites) return doc(db, selectedChat.email, FAVOTITES)
+    if(selectedChat?.channel) return doc(db, CHANNELS, selectedChat.channel.channelID)
+    return doc(db, CHATS, selectedChat.chatID)
 }
 
 
@@ -203,5 +204,15 @@ export async function globalSearch(name: string, currentUserID: string) {
     const channel: TypeChannel[] = response[1]
     const channelToChat: Chat[] = channel.map(item => ({uid: item.channelID, displayName: item.displayName, email: item.owner.email, channel: item, chatID: item.channelID}))
     return [...chats, ...channelToChat].sort((a, b) => String(a.displayName).localeCompare(String(b.displayName)))
+}
+
+export function createObjectChannel(chat: TypeChannel): Chat {
+    return({
+        displayName: chat.displayName,
+        email: chat.owner.email,
+        chatID: chat.channelID,
+        uid: chat.channelID,
+        channel: chat
+    })
 }
 

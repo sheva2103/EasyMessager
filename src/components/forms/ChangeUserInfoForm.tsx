@@ -14,7 +14,8 @@ type Props = {
 }
 
 const LOGIN_REGEXP = /^[a-zA-Z0-9_*-]{4,20}$/;
-const NAME_CHANNEL_REGEXP = /^[a-zA-Z0-9_*\s-]{4,20}$/;
+const NAME_CHANNEL_REGEXP = /^[\p{L}0-9_*\s-]{4,20}$/u;
+//const NAME_CHANNEL_REGEXP = /^[a-zA-Z0-9_*\s-]{4,20}$/;
 const URL_REGEXP = /^((ftp|http|https):\/\/)?(www\.)?([A-Za-zА-Яа-я0-9]{1}[A-Za-zА-Яа-я0-9\-]*\.?)*\.{1}[A-Za-zА-Яа-я0-9-]{2,8}(\/([\w#!:.?+=&%@!\-\/])*)?/;
 
 const ChangeUserInfoForm: FC<Props> = ({ changeInfo, setChangeInfo, currentUserInfo }) => {
