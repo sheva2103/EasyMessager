@@ -93,8 +93,8 @@ export const searchAPI: SearchAPI = {
         const q = query(collection(db, USERS));
         const querySnapshot = await getDocs(q);
         querySnapshot.forEach((doc: QueryDocumentSnapshot<CurrentUser>) => {
-            const displayName = doc.data().displayName
-            if (displayName.includes(name)) chats.push(doc.data())
+            const displayName = doc.data().displayName.toLowerCase()
+            if (displayName.includes(name.toLowerCase())) chats.push(doc.data())
         });
         return chats
     },
@@ -102,8 +102,8 @@ export const searchAPI: SearchAPI = {
         const channels: TypeChannel[] = []
         const querySnapshot = await getDocs(collection(db, CHANNELS_INFO));
         querySnapshot.forEach((doc: QueryDocumentSnapshot<TypeChannel>) => {
-            const displayName = doc.data().displayName
-            if (displayName.includes(name)) channels.push(doc.data())
+            const displayName = doc.data().displayName.toLowerCase()
+            if (displayName.includes(name.toLowerCase())) channels.push(doc.data())
 
         });
         return channels
@@ -254,28 +254,32 @@ export const contactsAPI: ContactsAPI = {
 }
 
 type ChannelAPI = {
-    createChannel(owner: CurrentUser, data: TypeCreateChannel): Promise<[void, void]>,
+    createChannel(owner: CurrentUser, data: TypeCreateChannel): Promise<TypeChannel>,
     checkName(name: string): Promise<boolean>,
     getCurrentInfo: (uid: string) => Promise<TypeChannel | null>,
     //changeSubscribers: (channelId: string, value: number) => Promise<void>,
     changeListSubscribers: (typeChange: string, channelId: string, user: CurrentUser) => Promise<void>,
     changeCannelInfo: (channel: TypeChannel, updateDateOfChange?: boolean) => Promise<void>,
     //addChannelToChatlist: (email: string, channel: TypeChannel) => Promise<void>,
+    deleteChannel: (id: string) => Promise<[void, void]>
 }
 
 export const channelAPI: ChannelAPI = {
     async createChannel(owner: CurrentUser, data: TypeCreateChannel) {
         const channelID = uuidv4()
-        const chanel = await setDoc(doc(db, CHANNELS, channelID), {})
-        const chanelInfo = await setDoc(doc(db, CHANNELS_INFO, channelID), {
+        const info: TypeChannel = {
             owner,
             displayName: data.displayName,
             isOpen: data.isOpen,
             channelID,
             registrationDate: new Date().toLocaleDateString(),
             listOfSubscribers: []
-        })
-        return Promise.all([chanel, chanelInfo])
+        }
+        await setDoc(doc(db, CHANNELS, channelID), {})
+        await setDoc(doc(db, CHANNELS_INFO, channelID), info)
+        await messagesAPI.addChat(owner, createObjectChannel(info))
+        //Promise.all([chanel, chanelInfo])
+        return info
     },
     async checkName(name: string) {
         const q = query(collection(db, CHANNELS_INFO), where("displayName", "==", name));
@@ -331,4 +335,9 @@ export const channelAPI: ChannelAPI = {
     //     const channelObj: Chat = {...createObjectChannel(channel)}
     //     await setDoc(doc(db, email, CHATLIST), { [channelObj.channel.channelID]: channelObj }, { merge: true });
     // }
+    async deleteChannel(id) {
+        const infoChannelRef = doc(db, CHANNELS_INFO, id)
+        const channelRef = doc(db, CHANNELS, id)
+        return Promise.all([deleteDoc(infoChannelRef), deleteDoc(channelRef)])
+    }
 }

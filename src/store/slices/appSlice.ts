@@ -31,7 +31,8 @@ type AppState = {
     isSearchMessage: boolean,
     replyToMessage: Message1 | null,
     isFavorites: boolean,
-    selectedChannel: TypeChannel | null
+    selectedChannel: TypeChannel | null,
+    clearGlobalSearchUser: boolean
 }
 
 const resetChatState = (state: AppState) => {
@@ -66,7 +67,8 @@ const initialState: AppState = {
     isSearchMessage: false,
     replyToMessage: null,
     isFavorites: false,
-    selectedChannel: null
+    selectedChannel: null,
+    clearGlobalSearchUser: false
 
 }
 
@@ -172,6 +174,9 @@ export const appSlice = createSlice({
         },
         updateSelectedChannel(state, action: PayloadAction<TypeChannel | null>) {
             state.selectedChannel = action.payload
+        },
+        setClearGlobalSearchUser(state, action: PayloadAction<boolean>) {
+            state.clearGlobalSearchUser = action.payload
         }
     },
     extraReducers: (builder) => {
@@ -215,6 +220,7 @@ export const { openMenu,
     setReplyToMessage,
     setIsFavorites,
     setSelectedChannel,
-    updateSelectedChannel
+    updateSelectedChannel,
+    setClearGlobalSearchUser
 } = appSlice.actions
 export default appSlice.reducer

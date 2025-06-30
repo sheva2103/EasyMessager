@@ -4,7 +4,9 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import ButtonSubmit from "./ButtonSubmit";
 import { channelAPI } from "../../API/api";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
-import { closeMenu } from "../../store/slices/appSlice";
+import { closeMenu, setSelectedChannel } from "../../store/slices/appSlice";
+import { createObjectChannel } from "../../utils/utils";
+import { Chat } from "../../types/types";
 
 type Form = {
     name: string,
@@ -47,8 +49,11 @@ const CreateChannel: FC = () => {
         if (isFreeName) {
             const isOpen = defineTypeChannel(data)
             await channelAPI.createChannel(currentUser, { displayName: data.name, isOpen })
-                .then((() => dispatch(closeMenu())))
-            //установить чат как текущий после регистрации
+                .then(((info) => {
+                    const chanelObj: Chat = createObjectChannel(info)
+                    dispatch(closeMenu())
+                    dispatch(setSelectedChannel(chanelObj))
+                }))
         } else {
             setError('name', {message: 'Такое имя уже существует'})
         }

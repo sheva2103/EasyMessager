@@ -4,7 +4,7 @@ import stylesSettings from '../Settings/Settings.module.scss'
 import InputComponent from "../../InputComponent/InputComponent";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { setChat } from "../../store/slices/setChatIDSlice";
-import { closeMenu } from "../../store/slices/appSlice";
+import { closeMenu, setClearGlobalSearchUser } from "../../store/slices/appSlice";
 import { Chat, CurrentUser, TypeChannel } from "../../types/types";
 import RemoveFromChannelIcon from '../../assets/person-dash.svg'
 import UserInfo from "../MenuComponent/UserInfo";
@@ -13,6 +13,7 @@ import { doc, DocumentSnapshot, onSnapshot } from "firebase/firestore";
 import { db } from "../../firebase";
 import { CHANNELS_INFO } from "../../constants/constants";
 import { createObjectChannel } from "../../utils/utils";
+import DialogComponent, { ConfirmComponent } from "../Settings/DialogComponent";
 
 const test: CurrentUser[] = [
     { displayName: 'alexdb', photoURL: '', email: 'test1rt@test.com', uid: 'uhrtugjfghdhc' },
@@ -37,8 +38,9 @@ const test: CurrentUser[] = [
 const ChannelFullInfoComponent: FC = () => {
 
     const [name, setName] = useState('')
+    const [isOpenDialog, setIsOpenDialog] = useState(false)
     const dispatch = useAppDispatch()
-    const channel = useAppSelector(state => state.app.selectedChannel)
+    const channel = useAppSelector(state => state.app.selectedChannel || state.app.selectedChat.channel)
     const currentUser = useAppSelector(state => state.app.currentUser)
     const isOwner = currentUser.uid === channel.owner.uid
 
@@ -57,26 +59,34 @@ const ChannelFullInfoComponent: FC = () => {
         if (channel.owner.uid !== currentUser.uid) {
             messagesAPI.getChatID(currentUser.email, channel.owner.email)
                 .then(data => {
+                    dispatch(setClearGlobalSearchUser(true))
                     dispatch(closeMenu(null))
                     dispatch(setChat({ currentUserEmail: currentUser.email, guestInfo: { ...channel.owner, chatID: data } }))
                 })
         }
     }
+
+    const deleteChannel = () => {
+        channelAPI.deleteChannel(channel.channelID)
+            .then(() => {
+                setIsOpenDialog(false)
+                dispatch(closeMenu())
+                dispatch(setChat(null))
+            })
+    }
     
     const filter = channel.listOfSubscribers?.filter(item => item.displayName.includes(name))
-
-    
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
             <div>
-                {currentUser.uid === channel.owner.uid &&
+                {isOwner &&
                     <div className={stylesSettings.settings}>
                         <UserInfo isSettings currentInfo={{...currentUser, channel}}/>
+                        <hr className={stylesSettings.hr} />
                     </div>
                 }
             </div>
-            <hr className={stylesSettings.hr} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }} className={stylesContacts.item}>
                 <div style={{ width: '100%', textAlign: 'start', marginBottom: '4px' }}>
                     <span style={{ fontSize: '1rem', fontWeight: 500 }}>
@@ -104,7 +114,7 @@ const ChannelFullInfoComponent: FC = () => {
                     {filter.map((item, index) => (
                         <li style={{ margin: '2px 8px' }} key={String(item.uid)} onClick={() => handleClickName(item)}>
                             <span >{item.displayName}</span>
-                            {isOwner && <div title="Удалить из канала"
+                            {isOwner && item.uid !== currentUser.uid && <div title="Удалить из канала"
                                 onClick={(e) => removeFromChannel(e, item)}
                                         >
                                             <RemoveFromChannelIcon />
@@ -114,6 +124,17 @@ const ChannelFullInfoComponent: FC = () => {
                     {/* </ul> */}
                 </ul>
             </div>
+            {isOwner &&
+                <>
+                    <hr className={stylesSettings.hr} />
+                    <div className={stylesContacts.item}>
+                        <button onClick={() => setIsOpenDialog(true)}>Удалить канал</button>
+                        <DialogComponent isOpen={isOpenDialog} onClose={setIsOpenDialog}>
+                            <ConfirmComponent confirmFunc={deleteChannel} />
+                        </DialogComponent>
+                    </div>
+                </>
+            }
         </div>
     );
 }

@@ -1,6 +1,8 @@
 import { FC, useEffect, useState } from "react";
 import CleanIcon from '../assets/x-circle-fill.svg'
 import { useDebounce } from "use-debounce";
+import { useAppDispatch, useAppSelector } from "../hooks/hook";
+import { setClearGlobalSearchUser } from "../store/slices/appSlice";
 
 type Props = {
     inputProps?: React.InputHTMLAttributes<HTMLInputElement>,
@@ -12,6 +14,8 @@ type Props = {
 const InputComponent: FC<Props> = ({ inputProps, classes, returnValue, isCleanIcon }) => {
 
     const [name, setName] = useState('')
+    const isClearGlobalSearchUser = useAppSelector(state => state.app.clearGlobalSearchUser)
+    const dispatch = useAppDispatch()
     const [debouncedText] = useDebounce(name, 1000);
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setName(e.target.value)
@@ -22,6 +26,14 @@ const InputComponent: FC<Props> = ({ inputProps, classes, returnValue, isCleanIc
             returnValue(debouncedText)
         }
     }, [debouncedText]);
+
+    useEffect(() => {
+        if(isClearGlobalSearchUser) {
+            setName('')
+            //returnValue(name)
+            dispatch(setClearGlobalSearchUser(false))
+        }
+    }, [isClearGlobalSearchUser]);
 
     return (
         <div className={classes} style={{ position: 'relative' }}>

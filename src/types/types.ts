@@ -84,7 +84,7 @@ export type TypeCreateChannel = {
 
 export interface TypeChannel extends TypeCreateChannel  {
     owner?: CurrentUser,
-    registrationDate?: Date,
+    registrationDate?: Date | string,
     channelID: string,
     listOfSubscribers?: CurrentUser[],
     photoURL?: string,

@@ -14,12 +14,12 @@ import { db } from '../firebase';
 export const App = () => {
 
     const { theme, setTheme } = useTheme()
-    const [load, setLoad] = useState(false)
+    const [load, setLoad] = useState(true)
 
     const currentUser = useAppSelector(state => state.app.currentUser)
     const dispatch = useAppDispatch()
     useLayoutEffect(() => {
-        setLoad(true)
+        //setLoad(true)
         const auth = getAuth();
         onAuthStateChanged(auth, (user) => {
             if (user) {

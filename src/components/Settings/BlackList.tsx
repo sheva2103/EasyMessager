@@ -9,6 +9,7 @@ import { useAppSelector } from "../../hooks/hook";
 import { Dialog } from "@mui/material";
 import { CurrentUser } from "../../types/types";
 import CloseMenuIcon from '../../assets/closeDesktop.svg'
+import DialogComponent from "./DialogComponent";
 
 const dialogStyle = styles.listStyle
 
@@ -19,17 +20,38 @@ interface ListProps {
     currentUserEmail: string
 }
 
-function List(props: ListProps) {
-    const { onClose, open, list, currentUserEmail } = props;
+// function List(props: ListProps) {
+//     const { onClose, open, list, currentUserEmail } = props;
 
-    const handleClose = () => {
-        onClose(false);
-    };
+//     const handleClose = () => {
+//         onClose(false);
+//     };
+
+//     return (
+//         <>
+//         <Dialog onClose={handleClose} open={open} classes={{paper: dialogStyle}}>
+//             <div className={styles.close}><CloseMenuIcon cursor={'pointer'} fontSize={'1.3rem'} onClick={handleClose}/></div>
+//             <ul >
+//                 {list.map(item => <ListItem key={item.uid} user={item} currentUserEmail={currentUserEmail} />)}
+//                         {/* {list.map(item => <ListItem key={item.uid} user={item} currentUserEmail={currentUserEmail}/>)}
+//                     {list.map(item => <ListItem key={item.uid} user={item} currentUserEmail={currentUserEmail}/>)}
+//                     {list.map(item => <ListItem key={item.uid} user={item} currentUserEmail={currentUserEmail}/>)}
+//                     {list.map(item => <ListItem key={item.uid} user={item} currentUserEmail={currentUserEmail}/>)}
+//                     {list.map(item => <ListItem key={item.uid} user={item} currentUserEmail={currentUserEmail}/>)}
+//                     {list.map(item => <ListItem key={item.uid} user={item} currentUserEmail={currentUserEmail}/>)}
+//                     {list.map(item => <ListItem key={item.uid} user={item} currentUserEmail={currentUserEmail}/>)}
+//                     {list.map(item => <ListItem key={item.uid} user={item} currentUserEmail={currentUserEmail}/>)}
+//                     {list.map(item => <ListItem key={item.uid} user={item} currentUserEmail={currentUserEmail}/>)} */}
+//             </ul>
+//         </Dialog>
+//         </>
+//     );
+// }
+
+function List(props: {list: CurrentUser[], currentUserEmail: string}) {
+    const { list, currentUserEmail } = props;
 
     return (
-        <>
-        <Dialog onClose={handleClose} open={open} classes={{paper: dialogStyle}}>
-            <div className={styles.close}><CloseMenuIcon cursor={'pointer'} fontSize={'1.3rem'} onClick={handleClose}/></div>
             <ul >
                 {list.map(item => <ListItem key={item.uid} user={item} currentUserEmail={currentUserEmail} />)}
                         {/* {list.map(item => <ListItem key={item.uid} user={item} currentUserEmail={currentUserEmail}/>)}
@@ -42,8 +64,6 @@ function List(props: ListProps) {
                     {list.map(item => <ListItem key={item.uid} user={item} currentUserEmail={currentUserEmail}/>)}
                     {list.map(item => <ListItem key={item.uid} user={item} currentUserEmail={currentUserEmail}/>)} */}
             </ul>
-        </Dialog>
-        </>
     );
 }
 
@@ -72,7 +92,10 @@ const BlackList: FC = () => {
                 </div>
             </div>
             <div className={styles.dropDawnContainer}>
-                <List open={open} onClose={setOpen} list={list} currentUserEmail={currentUserEmail}/>
+                {/* <List open={open} onClose={setOpen} list={list} currentUserEmail={currentUserEmail}/> */}
+                <DialogComponent isOpen={open} onClose={setOpen}>
+                    <List list={list} currentUserEmail={currentUserEmail}/>
+                </DialogComponent>
             </div>
         </div>
     );

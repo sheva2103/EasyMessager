@@ -3,10 +3,9 @@ import styles from './HomePage.module.scss'
 import Avatar from "../Avatar/Avatar";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { Chat, Message1, NoReadMessagesType, TypeChannel } from "../../types/types";
-import { setChat } from "../../store/slices/setChatIDSlice";
 import { channelAPI, messagesAPI, profileAPI } from "../../API/api";
 import classNames from "classnames";
-import { createMessageList, createObjectChannel, getChatType, getQuantityNoReadMessages } from "../../utils/utils";
+import { createMessageList, createObjectChannel, getChatType } from "../../utils/utils";
 import { doc, DocumentSnapshot, onSnapshot } from "firebase/firestore";
 import { setMessages } from "../../store/slices/messagesSlice";
 import { Badge } from "@mui/material";
@@ -14,7 +13,8 @@ import { setSelectedChannel, updateSelectedChannel } from "../../store/slices/ap
 import { db } from "../../firebase";
 import { CHANNELS_INFO } from "../../constants/constants";
 import ShowNameChat from "./ShowNameChat";
-import ShowAvatarInfo from "./ShowAvatarInfo";
+import DialogComponent, { NotFoundChannel } from "../Settings/DialogComponent";
+import { setChat } from "../../store/slices/setChatIDSlice";
 
 
 
@@ -37,9 +37,10 @@ const ChannelInfo: FC<Props> = (channel) => {
 
     const [updateChannel, setUpdateChannel] = useState<TypeChannel>({ ...channel.channel })
     const [messages, setMessagesList] = useState<{ messages: Message1[], noRead: NoReadMessagesType }>({ messages: [], noRead: { quantity: 0, targetIndex: 0 } })
+    const [notFoundChannel, setNotFoundChannel] = useState(false)
     const [fetchingCurrentInfo, setFetchingCurrentInfo] = useState(true)
     const selectedChat = useAppSelector(state => state.app.selectedChat)
-    const currentUserEmail = useAppSelector(state => state.app.currentUser.email)
+    const currentUser = useAppSelector(state => state.app.currentUser)
     const dispatch = useAppDispatch()
     const isSelected = selectedChat?.channel?.channelID === updateChannel.channelID
     const handleClick = () => {
@@ -49,6 +50,11 @@ const ChannelInfo: FC<Props> = (channel) => {
             dispatch(setSelectedChannel(chanelObj))
         }
     }
+    const unsubscribe = () => {
+        messagesAPI.deleteChat(currentUser, createObjectChannel(channel.channel))
+            .catch((err) => console.log('Произошла ошибка', err))
+            .finally(() => dispatch(setChat(null)))
+    }
 
     useEffect(() => {
         const getInfo = async () => {
@@ -57,6 +63,8 @@ const ChannelInfo: FC<Props> = (channel) => {
                 if (currentInfo) {
                     if('listOfSubscribers' in currentInfo) delete currentInfo.listOfSubscribers
                     setUpdateChannel(currentInfo)
+                } else {
+                    setNotFoundChannel(true)
                 }
             } catch (error) {
                 console.error('Error fetching current info:', error);
@@ -111,6 +119,12 @@ const ChannelInfo: FC<Props> = (channel) => {
     }, [isSelected, messages]);
 
     if (fetchingCurrentInfo) return <Skeleton />
+
+    if(notFoundChannel && isSelected) return (
+        <DialogComponent isOpen={notFoundChannel} onClose={setNotFoundChannel}>
+            <NotFoundChannel confirmFunc={unsubscribe}/>
+        </DialogComponent>
+    )
 
     return (
         <li className={styles.chatInfo} onClick={handleClick}>
