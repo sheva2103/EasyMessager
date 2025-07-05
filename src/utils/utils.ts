@@ -1,5 +1,5 @@
 import { doc, DocumentReference } from "firebase/firestore"
-import { Chat, CheckMessageType, ListMessagesType, Message1, NoReadMessagesType, size, TypeChannel } from "../types/types"
+import { Chat, CheckMessageType, ListMessagesType, Message1, NoReadMessagesType, OnlineStatusUserType, size, TypeChannel } from "../types/types"
 import { format } from "@formkit/tempo"
 import { db } from "../firebase"
 import { searchAPI } from "../API/api";
@@ -15,11 +15,11 @@ export function createChatList(data: Chat[]) {
     }
 
     return chatsArray.sort((a, b) => {
-        const dateOneToSecond = a.dateOfChange 
-            ? Date.parse(a.dateOfChange.replace(/"/g, "")) 
+        const dateOneToSecond = a.dateOfChange
+            ? Date.parse(a.dateOfChange.replace(/"/g, ""))
             : 0
-        const dateTwoToSecond = b.dateOfChange 
-            ? Date.parse(b.dateOfChange.replace(/"/g, "")) 
+        const dateTwoToSecond = b.dateOfChange
+            ? Date.parse(b.dateOfChange.replace(/"/g, ""))
             : 0
 
         if (dateOneToSecond < dateTwoToSecond) return 1;
@@ -51,7 +51,7 @@ export function createMessageList(list: Message1[]) {
 
 export function createLimitMessagesList(list: ListMessagesType): Message1[] {
 
-    
+
 
     if (list.limit.length) {
         const startIndex = list.all.findIndex(item => item.messageID === list.limit[0].messageID)
@@ -142,18 +142,18 @@ export function checkMessage(str: string): CheckMessageType {
     const message = str.split(' ');
     const newStr = message.map((item) => {
         if (reg.test(item)) {
-            if(imageExtReg.test(item)) imgUrl = item
+            if (imageExtReg.test(item)) imgUrl = item
             const url = item.startsWith('www.') ? `http://${item}` : item;
             return `<a href="${url}" target="_blank" rel="noopener noreferrer">${item}</a>`;
         }
         return item
     });
-    return ({message: newStr.join(' '), imgUrl})
+    return ({ message: newStr.join(' '), imgUrl })
     //return newStr.join(' ')
 }
 
 export function createListLimitMessages(messages: ListMessagesType): ListMessagesType {
-    
+
     if (messages.limit.length === 0) return { all: messages.all, limit: [] }
 
     const lastIndex = messages.all.findIndex(item => item.messageID === messages.limit[messages.limit.length - 1].messageID)
@@ -165,15 +165,15 @@ export function getQuantityNoReadMessages(list: Message1[], currentId: string): 
 
     let quantity = 0
     let targetIndex = list.length - 1
-    if(list.length && list[list.length - 1].sender.uid !== currentId) {
+    if (list.length && list[list.length - 1].sender.uid !== currentId) {
         for (let i = list.length - 1; i >= 0; i--) {
-            if(!list[i].read && list[i].sender.uid !== currentId) {               
-                    quantity++
-                    targetIndex = i
+            if (!list[i].read && list[i].sender.uid !== currentId) {
+                quantity++
+                targetIndex = i
             }
         }
     }
-    return {quantity, targetIndex}
+    return { quantity, targetIndex }
 }
 
 // export function searchMessagesInList(list: Message1[], text: string) {
@@ -191,8 +191,8 @@ export function searchMessagesInList(array: Message1[], substring: string): Set<
 
 export function getChatType(isFavorites: boolean, selectedChat: Chat | null): DocumentReference {
 
-    if(isFavorites) return doc(db, selectedChat.email, FAVOTITES)
-    if(selectedChat?.channel) return doc(db, CHANNELS, selectedChat.channel.channelID)
+    if (isFavorites) return doc(db, selectedChat.email, FAVOTITES)
+    if (selectedChat?.channel) return doc(db, CHANNELS, selectedChat.channel.channelID)
     return doc(db, CHATS, selectedChat.chatID)
 }
 
@@ -202,12 +202,12 @@ export async function globalSearch(name: string, currentUserID: string) {
     const response = await Promise.all([searchAPI.searchUser(name), searchAPI.searchChannel(name)])
     const chats: Chat[] = response[0].filter(item => item.uid !== currentUserID)
     const channel: TypeChannel[] = response[1]
-    const channelToChat: Chat[] = channel.map(item => ({uid: item.channelID, displayName: item.displayName, email: item.owner.email, channel: item, chatID: item.channelID}))
+    const channelToChat: Chat[] = channel.map(item => ({ uid: item.channelID, displayName: item.displayName, email: item.owner.email, channel: item, chatID: item.channelID }))
     return [...chats, ...channelToChat].sort((a, b) => String(a.displayName).localeCompare(String(b.displayName)))
 }
 
 export function createObjectChannel(chat: TypeChannel): Chat {
-    return({
+    return ({
         displayName: chat.displayName,
         email: chat.owner.email,
         chatID: chat.channelID,
@@ -215,4 +215,39 @@ export function createObjectChannel(chat: TypeChannel): Chat {
         channel: chat
     })
 }
+
+export function createOnlineStatusUser(date: number): OnlineStatusUserType {
+    const currentDate = Date.now()
+    const isOnline = currentDate - date < 60000 ? true : false
+    return ({ isOnline, last_seen: date })
+}
+
+
+export const formatStyle = (timestamp: number): string => {
+    const now = Date.now();
+    const diff = now - timestamp;
+
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (seconds < 60) return "только что";
+    if (minutes < 60) return `${minutes} ${pluralize(minutes, "минуту", "минуты", "минут")} назад`;
+    if (hours < 24) return `${hours} ${pluralize(hours, "час", "часа", "часов")} назад`;
+    if (days === 1) return "вчера";
+    if (days < 7) return `${days} ${pluralize(days, "день", "дня", "дней")} назад`;
+
+    const date = new Date(timestamp);
+    return `${date.toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}`;
+};
+
+const pluralize = (count: number, one: string, few: string, many: string): string => {
+    const mod10 = count % 10;
+    const mod100 = count % 100;
+
+    if (mod10 === 1 && mod100 !== 11) return one;
+    if (mod10 >= 2 && mod10 <= 4 && !(mod100 >= 12 && mod100 <= 14)) return few;
+    return many;
+};
 

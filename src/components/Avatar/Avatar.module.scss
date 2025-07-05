@@ -1,3 +1,8 @@
+
+.wrapper {
+    margin: 0 auto;
+}
+
 .container {
     width: 40px;
     height: 40px;
@@ -17,3 +22,12 @@
     font-size: 1.5rem;
     color:rgb(233, 233, 233)
 }
+
+.avatar_isOnline {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgb(15, 197, 15);     
+        padding: 2px;                
+        border-radius: 50%;
+    }

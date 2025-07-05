@@ -76,6 +76,9 @@
         display: flex;
         justify-content: end;
         color: var(--color);
+        &:hover {
+            color: rgb(135, 116, 225);
+        }
     } 
 
     & ul {

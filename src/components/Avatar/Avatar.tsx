@@ -2,12 +2,19 @@ import { FC, memo, useEffect, useState } from "react";
 import styles from './Avatar.module.scss'
 import classNames from "classnames";
 
-type Props = {
-    url: undefined | string,
-    name: string
+const zoomStyle: React.CSSProperties = {
+    width: '250px',
+    height: '250px'
 }
 
-const Avatar: FC<Props> = ({url, name}) => {
+type Props = {
+    url: undefined | string,
+    name: string,
+    zoom?: boolean,
+    isOnline?: boolean
+}
+
+const Avatar: FC<Props> = ({url, name, zoom, isOnline}) => {
 
     const [isLoad, setIsLoad] = useState(false)
 
@@ -21,12 +28,16 @@ const Avatar: FC<Props> = ({url, name}) => {
     }, [url]);
 
     return (  
-        <div>
+        <div className={zoom && styles.wrapper}>
             {Boolean(isLoad) ?
-                <img src={url} alt={name[0]} className={styles.container}/>
+                <div className={isOnline ? styles.avatar_isOnline : ''}>
+                    <img src={url} alt={name[0]} className={styles.container} style={zoom && zoomStyle}/>
+                </div>
                 :
-                <div className={classNames(styles.container, styles.noAvatar)}>
-                    <span>{name[0].toUpperCase()}</span>
+                <div className={isOnline ? styles.avatar_isOnline : ''}>
+                    <div className={classNames(styles.container, styles.noAvatar)}>
+                        <span>{name[0].toUpperCase()}</span>
+                    </div>
                 </div>
             }
         </div>

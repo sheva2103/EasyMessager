@@ -12,12 +12,15 @@ import { CurrentUser, Message1 } from '../../types/types';
 import { createChatList, createMessageList } from '../../utils/utils';
 import { db } from '../../firebase';
 import { setMessages } from '../../store/slices/messagesSlice';
+import useUserPresence from '../../hooks/useUserPresence';
 
 const HomaPage = () => {
 
     const dispatch = useAppDispatch()
     const currentUserEmail = useAppSelector(state => state.app.currentUser.email)
     const isFavorites = useAppSelector(state => state.app.isFavorites)
+
+    useUserPresence()
 
     const onKeyDown = (e: React.KeyboardEvent) => {
         if(e.key === 'Enter') dispatch(openMenu())

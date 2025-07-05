@@ -24,6 +24,7 @@ const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
     const isFavorites = useAppSelector(state => state.app.isFavorites)
     const dispatch = useAppDispatch()
     const [animationOpen, setAnimationOpen] = useState(false)
+    const isOwner = currentUser.uid === chatInfo?.channel?.owner.uid
 
     const addToContacts = () => {
         contactsAPI.addToContacts(currentUser.email, chatInfo)
@@ -115,7 +116,7 @@ const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
             <ul>
                 <li onClick={showSearchMessages}>Поиск</li>
                 {isMyChat ?
-                    <li onClick={unsubscribe}>Покинуть канал</li>
+                    !isOwner && <li onClick={unsubscribe}>Покинуть канал</li>
                     :
                     <li onClick={subscribe}>Подписаться</li>
                 }

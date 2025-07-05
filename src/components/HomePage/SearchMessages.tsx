@@ -40,7 +40,11 @@ const SearchMessages: FC<Props> = ({ list, setTargetMessages }) => {
 
     useEffect(() => {
         const delay = setTimeout(show, 100)
-        return () => clearTimeout(delay)
+        return () => {
+            setText('')
+            setTargetMessages(new Set())
+            clearTimeout(delay)
+        }
     }, [isOpen]);
 
     useEffect(() => {

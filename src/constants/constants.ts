@@ -8,6 +8,8 @@ export const CREATE_CHANNEL = 'CREATE_CHANNEL'
 export const SETTINGS = 'SETTINGS'
 //export const CONTACTS = 'CONTACTS'
 export const SHOW_CHANNEL_INFO = 'SHOW_CHANNEL_INFO'
+export const SHOW_USER_INFO = 'SHOW_USER_INFO'
+
 
 export const USERS = "users"
 export const CHATLIST = "chatList"

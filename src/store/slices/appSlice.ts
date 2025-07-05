@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { Chat, CurrentUser, CurrentUserData, Message1, TypeChannel } from "../../types/types";
+import { Chat, CurrentUser, CurrentUserData, Message1, OnlineStatusUserType, TypeChannel, UsePresenceReturn } from "../../types/types";
 import { setChat } from "./setChatIDSlice";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -32,7 +32,8 @@ type AppState = {
     replyToMessage: Message1 | null,
     isFavorites: boolean,
     selectedChannel: TypeChannel | null,
-    clearGlobalSearchUser: boolean
+    clearGlobalSearchUser: boolean,
+    onlineStatusSelectedUser: UsePresenceReturn
 }
 
 const resetChatState = (state: AppState) => {
@@ -43,6 +44,8 @@ const resetChatState = (state: AppState) => {
     if (state.isFavorites) state.isFavorites = false
     if (isMobile) state.emojiIsOpen = false
     if (state.selectedChannel) state.selectedChannel = null
+    if(state.isSearchMessage) state.isSearchMessage = false 
+    state.onlineStatusSelectedUser = null
 };
 
 const initialState: AppState = {
@@ -68,7 +71,8 @@ const initialState: AppState = {
     replyToMessage: null,
     isFavorites: false,
     selectedChannel: null,
-    clearGlobalSearchUser: false
+    clearGlobalSearchUser: false,
+    onlineStatusSelectedUser: null
 
 }
 
@@ -177,6 +181,9 @@ export const appSlice = createSlice({
         },
         setClearGlobalSearchUser(state, action: PayloadAction<boolean>) {
             state.clearGlobalSearchUser = action.payload
+        },
+        setOnlineStatusSelectedUser(state, action: PayloadAction<UsePresenceReturn>) {
+            state.onlineStatusSelectedUser = action.payload
         }
     },
     extraReducers: (builder) => {
@@ -221,6 +228,7 @@ export const { openMenu,
     setIsFavorites,
     setSelectedChannel,
     updateSelectedChannel,
-    setClearGlobalSearchUser
+    setClearGlobalSearchUser,
+    setOnlineStatusSelectedUser
 } = appSlice.actions
 export default appSlice.reducer

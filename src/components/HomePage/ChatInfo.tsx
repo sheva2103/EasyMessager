@@ -6,11 +6,13 @@ import { Chat, Message1, NoReadMessagesType } from "../../types/types";
 import { setChat } from "../../store/slices/setChatIDSlice";
 import { messagesAPI, profileAPI } from "../../API/api";
 import classNames from "classnames";
-import { createMessageList, getChatType, getQuantityNoReadMessages } from "../../utils/utils";
+import { createMessageList, createOnlineStatusUser, getChatType, getQuantityNoReadMessages } from "../../utils/utils";
 import { DocumentSnapshot, onSnapshot } from "firebase/firestore";
 import { setMessages } from "../../store/slices/messagesSlice";
 import { Badge } from "@mui/material";
 import soundFile from '../../assets/sound.mp3';
+import usePresenceStatus from "../../hooks/useCheckOnlineStatus";
+import { setOnlineStatusSelectedUser } from "../../store/slices/appSlice";
 
 
 
@@ -46,6 +48,13 @@ const ChatInfo: FC<Chat> = (user) => {
         dispatch(setChat({ currentUserEmail: currentUser.email, guestInfo: updateUser }))
     }
     const isSelected = selectedChat?.uid === user.uid
+    const presence = usePresenceStatus(updateUser.uid)
+
+    useEffect(() => {
+        if(isSelected) {
+            dispatch(setOnlineStatusSelectedUser(presence))
+        } 
+    }, [presence,isSelected]);
 
     useEffect(() => {
             const getInfo = async () => {
@@ -85,7 +94,7 @@ const ChatInfo: FC<Chat> = (user) => {
                 unsubscribe();
             }
         };
-    }, [updateUser])
+    }, [updateUser.chatID])
 
     useEffect(() => {       
         if (isSelected) {
@@ -106,7 +115,7 @@ const ChatInfo: FC<Chat> = (user) => {
             {isSelected &&
                 <div className={styles.selected}></div>
             }
-            <Avatar url={updateUser?.photoURL} name={updateUser.displayName[0]} />
+            <Avatar url={updateUser?.photoURL} name={updateUser.displayName[0]} isOnline={presence.isOnline}/>
             <span className={styles.name}>{updateUser.displayName}</span>
             <div className={styles.chatInfo__noRead}>
                 <Badge badgeContent={messages.noRead.quantity} color="primary" />

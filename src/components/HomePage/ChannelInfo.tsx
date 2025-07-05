@@ -74,19 +74,7 @@ const ChannelInfo: FC<Props> = (channel) => {
         }
         getInfo()
 
-        // const unsubscribe = onSnapshot(doc(db, CHANNELS_INFO, channel.channel.channelID), async(doc: DocumentSnapshot<TypeChannel>) => {
-        //     const data = doc.data()
-        //     if (data) {
-        //         if (data.dateOfChange !== updateChannel.dateOfChange) {
-        //             await channelAPI.addChannelToChatlist(currentUserEmail, data)
-        //         }
-        //         setUpdateChannel(doc.data())
-        //     }
-        //     if (fetchingCurrentInfo) setFetchingCurrentInfo(false);
-        // });
-        // return () => unsubscribe()
-
-    }, []);
+    }, [isSelected]);
 
     //обновлять информацию после добавления подписчиков
 
@@ -109,7 +97,7 @@ const ChannelInfo: FC<Props> = (channel) => {
         const reference = getChatType(false, channelObj);
         const unsubscribe = onSnapshot(reference, (doc: DocumentSnapshot<Message1[]>) => {
             const list = createMessageList(doc.data())
-            setMessagesList({ messages: list, noRead: { quantity: 0, targetIndex: 0 } })
+            setMessagesList({ messages: list, noRead: { quantity: 0, targetIndex: list.length } })
         });
         return () => unsubscribe();
     }, [updateChannel])
@@ -121,7 +109,7 @@ const ChannelInfo: FC<Props> = (channel) => {
     if (fetchingCurrentInfo) return <Skeleton />
 
     if(notFoundChannel && isSelected) return (
-        <DialogComponent isOpen={notFoundChannel} onClose={setNotFoundChannel}>
+        <DialogComponent isOpen={notFoundChannel} onClose={unsubscribe}>
             <NotFoundChannel confirmFunc={unsubscribe}/>
         </DialogComponent>
     )

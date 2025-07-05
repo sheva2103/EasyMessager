@@ -35,7 +35,9 @@ export type CurrentUserData = {
 
 export interface CurrentUser extends CurrentUserData {
     uid: string,
-    email: string
+    email: string,
+    registrationDate?: string,
+    onlineStatus?: number
 }
 
 export interface Chat extends CurrentUser  {
@@ -90,4 +92,16 @@ export interface TypeChannel extends TypeCreateChannel  {
     photoURL?: string,
     dateOfChange?: string
 }
+
+export type OnlineStatusUserType = {isOnline: boolean, last_seen: number}
+
+export type PresenceStatus = {
+    last_seen: number;
+};
+
+export type UsePresenceReturn = {
+    status: PresenceStatus | null;
+    isOnline: boolean;
+    formatted: string;
+};
 

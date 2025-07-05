@@ -11,7 +11,8 @@ import { ADD_TO_LIST_SUBSCRIBERS, BLACKLIST, CHANNELS, CHANNELS_INFO, CHATLIST, 
 type ProfileApi = {
     createNewUserInDB: (e: UserInfo) => void,
     changeUserInfo: (data: CurrentUser) => void,
-    getCurrentInfo: (uid: string) => Promise<CurrentUser | null>
+    getCurrentInfo: (uid: string) => Promise<CurrentUser | null>,
+    //changeVisitingTime: (id: string) => Promise<void>
 }
 
 type SearchAPI = {
@@ -81,7 +82,14 @@ export const profileAPI: ProfileApi = {
         } else {
             return null
         }
-    }
+    },
+    // async changeVisitingTime(id) {
+    //     const userRef = doc(db, USERS, id);
+    //     const date = new Date()
+    //     await updateDoc(userRef, {
+    //         visitingTime: JSON.stringify(date)
+    //     });
+    // }
 }
 
 

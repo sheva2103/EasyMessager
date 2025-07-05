@@ -46,8 +46,14 @@ const ChannelFullInfoComponent: FC = () => {
 
     const handleClickName = (user: Chat) => {
         if(user.uid === currentUser.uid) return
-        dispatch(setChat({ currentUserEmail: user.email, guestInfo: user }))
-        dispatch(closeMenu())
+        // dispatch(setChat({ currentUserEmail: user.email, guestInfo: user }))
+        // dispatch(closeMenu())
+
+        messagesAPI.getChatID(currentUser.email, user.email)
+                .then(data => {
+                    dispatch(closeMenu(null))
+                    dispatch(setChat({ currentUserEmail: currentUser.email, guestInfo: { ...user, chatID: data } }))
+                })
     }
 
     const removeFromChannel = (e: React.MouseEvent, contact: CurrentUser) => {
