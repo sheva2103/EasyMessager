@@ -1,7 +1,7 @@
 import { DocumentData, QueryDocumentSnapshot, QuerySnapshot, deleteDoc, deleteField, doc, getDoc, setDoc, updateDoc, increment, arrayRemove, arrayUnion } from "firebase/firestore";
 import { db } from "../firebase";
 import { UserInfo } from "firebase/auth";
-import { Chat, CurrentUser, Message1, TypeChannel, TypeCreateChannel } from "../types/types";
+import { Chat, CurrentUser, Message1, SenderMessageType, TypeChannel, TypeCreateChannel } from "../types/types";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
 import { createChatList, createMessageList, createNewDate, createObjectChannel, getChatType } from "../utils/utils";
@@ -180,7 +180,8 @@ export const messagesAPI: MessagesAPI = {
     async forwardedMessageFrom(sender, recipient, message) {
         const id = uuidv4()
         const date = JSON.stringify(new Date())
-        const messageObj: Message1 = { message: message.message, messageID: id, date, read: false, sender, forwardedFrom: message.sender }
+        const forwardedFrom = message.forwardedFrom?.channel ?  createObjectChannel(message.forwardedFrom?.channel) : message.sender
+        const messageObj: Message1 = { message: message.message, messageID: id, date, read: false, sender, forwardedFrom }
         const isID = await Promise.all([messagesAPI.getChatID(sender.email, recipient.email), messagesAPI.getChatID(recipient.email, sender.email)])
         if (isID[0] || isID[1]) {
             const currentID = isID[0] || isID[1]
@@ -269,7 +270,10 @@ type ChannelAPI = {
     changeListSubscribers: (typeChange: string, channelId: string, user: CurrentUser) => Promise<void>,
     changeCannelInfo: (channel: TypeChannel, updateDateOfChange?: boolean) => Promise<void>,
     //addChannelToChatlist: (email: string, channel: TypeChannel) => Promise<void>,
-    deleteChannel: (id: string) => Promise<[void, void]>
+    deleteChannel: (id: string) => Promise<[void, void]>,
+    applyForMembership: (user: CurrentUser, channelID: string) => Promise<void>,
+    getApplyForMembership: (channelID: string) => Promise<CurrentUser[]>,
+    deleteApplication: (channelID: string, user: CurrentUser) => Promise<void>
 }
 
 export const channelAPI: ChannelAPI = {
@@ -347,5 +351,34 @@ export const channelAPI: ChannelAPI = {
         const infoChannelRef = doc(db, CHANNELS_INFO, id)
         const channelRef = doc(db, CHANNELS, id)
         return Promise.all([deleteDoc(infoChannelRef), deleteDoc(channelRef)])
+    },
+    async applyForMembership(user, channelID) {
+        const ref = doc(db, CHANNELS_INFO, channelID)
+        const list = await getDoc(ref);
+
+        if (list.exists()) {
+            const info: TypeChannel = list.data() as TypeChannel
+            const targetUser = info.applyForMembership?.find(item => item.uid === user.uid)
+            if(targetUser) return
+            else {
+                await updateDoc(ref, {
+                    applyForMembership: arrayUnion(user)
+                });
+            }
+        }
+    },
+    async getApplyForMembership(channelID) {
+        const ref = doc(db, CHANNELS_INFO, channelID)
+        const list = await getDoc(ref);
+        if(list.exists()) {
+            const info: TypeChannel = list.data() as TypeChannel
+            return info.applyForMembership || []
+        }
+    },
+    async deleteApplication(channelID, user) {
+        const ref = doc(db, CHANNELS_INFO, channelID)
+        await updateDoc(ref, {
+                    applyForMembership: arrayRemove(user)
+                });
     }
 }

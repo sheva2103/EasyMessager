@@ -2,16 +2,74 @@ import { FC, memo, useCallback, useEffect, useMemo, useState } from "react";
 import MenuIcon from '../../assets/menu.svg'
 import styles from './HomePage.module.scss'
 import classNames from "classnames";
-import { Chat } from "../../types/types";
+import { Chat, CurrentUser } from "../../types/types";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
-import { contactsAPI, messagesAPI } from "../../API/api";
+import { channelAPI, contactsAPI, messagesAPI } from "../../API/api";
 import { closeBar, setLoadChat, setSearchMessages } from "../../store/slices/appSlice";
 import { setChat } from "../../store/slices/setChatIDSlice";
-import { SETTINGS, SHOW_CHANNEL_INFO } from "../../constants/constants";
+import { ADD_TO_LIST_SUBSCRIBERS, SETTINGS, SHOW_CHANNEL_INFO } from "../../constants/constants";
+import { Badge } from "@mui/material";
+import { createSelector } from "@reduxjs/toolkit";
+import { RootState } from "../../store/store";
+import DialogComponent from "../Settings/DialogComponent";
 
 type Props = {
     chatInfo: Chat
 }
+
+const ListItem: FC<{ user: CurrentUser }> = ({ user }) => {
+
+    const channelId = useAppSelector(state => state.app.selectedChannel.channelID)
+    const add = async() => {
+        //await channelAPI.changeListSubscribers(ADD_TO_LIST_SUBSCRIBERS, channelId, user) - вместо этого вызвать addChat
+        await channelAPI.deleteApplication(channelId, user)
+    }
+    const deleteRequest = () => {
+        channelAPI.deleteApplication(channelId, user)
+    }
+
+    return (
+        <li>
+            <span>{user.displayName}</span>
+            <div style={{display: 'flex', gap: '6px'}}>
+                <button onClick={add} style={{minWidth: '28px', fontWeight: 'bold'}} title="Добавить">+</button>
+                <button onClick={deleteRequest} style={{minWidth: '28px', fontWeight: 'bold'}} title="Удалить">--</button>
+            </div>
+        </li>
+    );
+}
+
+const ListRequests: FC<{quantity: CurrentUser[]}> = ({quantity}) => {
+    return (
+        <ul>
+            {quantity.map(item => <ListItem user={item} key={item.uid} />)}
+        </ul>
+    )
+}
+
+const MembershipApplications: FC<{ quantity: CurrentUser[] }> = ({ quantity }) => {
+
+    const [isOpen, setOpen] = useState(false)
+    const openList = () => setOpen(true)
+
+    if (quantity) return (
+        <li style={{ display: 'flex', gap: '18px', alignItems: 'center' }}>
+            <span onClick={openList}>Заявки</span>
+            <div><Badge badgeContent={quantity.length} color="error" /></div>
+            {isOpen &&
+                <DialogComponent isOpen={isOpen} onClose={setOpen}>
+                    <ListRequests quantity={quantity}/>
+                </DialogComponent>
+            }
+        </li>
+    )
+}
+
+const selectApplyForMembership = createSelector(
+    [(state: RootState) => state.app.selectedChannel?.applyForMembership],
+    (applyForMembership) => applyForMembership ?? []
+)
+
 
 const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
 
@@ -22,6 +80,8 @@ const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
     const myChatList = useAppSelector(state => state.app.chatsList)
     const selectedChat = useAppSelector(state => state.app.selectedChat)
     const isFavorites = useAppSelector(state => state.app.isFavorites)
+    const quantity = useAppSelector(selectApplyForMembership)
+
     const dispatch = useAppDispatch()
     const [animationOpen, setAnimationOpen] = useState(false)
     const isOwner = currentUser.uid === chatInfo?.channel?.owner.uid
@@ -121,7 +181,8 @@ const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
                     <li onClick={subscribe}>Подписаться</li>
                 }
                 <li onClick={showInformation}>Информация</li>
-                
+                {isOwner && <MembershipApplications quantity={quantity} />}
+
             </ul>
         )
         else return (
@@ -143,6 +204,8 @@ const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
         )
     }
 
+    console.log(quantity)
+
 
     return (
         <>
@@ -151,13 +214,16 @@ const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
                 onClick={setMenu}
             ></div>
             <div className={styles.menu__button}>
-                <MenuIcon
-                    cursor={'pointer'}
-                    fontSize={'1.3rem'}
-                    onClick={() => setOpen(!isOpen)}
-                    onKeyDown={onKeyDown}
-                    tabIndex={8}
-                />
+                <div className={styles.menu__icon}>
+                    <MenuIcon
+                        cursor={'pointer'}
+                        fontSize={'1.3rem'}
+                        onClick={() => setOpen(!isOpen)}
+                        onKeyDown={onKeyDown}
+                        tabIndex={8}
+                    />
+                    {Boolean(quantity.length) && isOwner && <div className={styles.menu__indicator}></div>}
+                </div>
                 <div className={classNames(styles.menu__list, { [styles.menu_show]: isOpen }, { [styles.animationMenu]: animationOpen })}>
                     {targetNode()}
                 </div>

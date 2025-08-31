@@ -13,7 +13,7 @@ import { setSelectedChannel, updateSelectedChannel } from "../../store/slices/ap
 import { db } from "../../firebase";
 import { CHANNELS_INFO } from "../../constants/constants";
 import ShowNameChat from "./ShowNameChat";
-import DialogComponent, { NotFoundChannel } from "../Settings/DialogComponent";
+import DialogComponent, { ConfirmComponent, NotFoundChannel } from "../Settings/DialogComponent";
 import { setChat } from "../../store/slices/setChatIDSlice";
 
 
@@ -39,15 +39,32 @@ const ChannelInfo: FC<Props> = (channel) => {
     const [messages, setMessagesList] = useState<{ messages: Message1[], noRead: NoReadMessagesType }>({ messages: [], noRead: { quantity: 0, targetIndex: 0 } })
     const [notFoundChannel, setNotFoundChannel] = useState(false)
     const [fetchingCurrentInfo, setFetchingCurrentInfo] = useState(true)
+    const [isNotAccess, setIsNotAccess] = useState(false)
     const selectedChat = useAppSelector(state => state.app.selectedChat)
     const currentUser = useAppSelector(state => state.app.currentUser)
     const dispatch = useAppDispatch()
     const isSelected = selectedChat?.channel?.channelID === updateChannel.channelID
+    //console.log(isNotAccess)
     const handleClick = () => {
         // const chanelObj: Chat = { uid: updateChannel.channelID, displayName: updateChannel.displayName, email: updateChannel.owner.email, channel: updateChannel }
         if(!isSelected) {
             const chanelObj: Chat = createObjectChannel(updateChannel)
-            dispatch(setSelectedChannel(chanelObj))
+            // console.log(chanelObj)
+            // dispatch(setSelectedChannel(chanelObj))
+
+            if(!updateChannel.isOpen) {
+                const isSubscriber = updateChannel.listOfSubscribers.some(sub => sub.uid === currentUser.uid)
+                if(isSubscriber) {
+                    delete chanelObj.channel.listOfSubscribers
+                    dispatch(setSelectedChannel(chanelObj))
+                } else (
+                    setIsNotAccess(true)
+                )
+            }
+            if(updateChannel.isOpen) {
+                delete chanelObj.channel.listOfSubscribers
+                dispatch(setSelectedChannel(chanelObj))
+            }
         }
     }
     const unsubscribe = () => {
@@ -56,12 +73,18 @@ const ChannelInfo: FC<Props> = (channel) => {
             .finally(() => dispatch(setChat(null)))
     }
 
+    const sendRequest = async() => {
+        console.log('send a request')
+        await channelAPI.applyForMembership(currentUser, updateChannel.channelID)
+        setIsNotAccess(false)
+    }
+
     useEffect(() => {
         const getInfo = async () => {
             try {
                 const currentInfo = await channelAPI.getCurrentInfo(channel.channel.channelID)
                 if (currentInfo) {
-                    if('listOfSubscribers' in currentInfo) delete currentInfo.listOfSubscribers
+                    //if('listOfSubscribers' in currentInfo) delete currentInfo.listOfSubscribers
                     setUpdateChannel(currentInfo)
                 } else {
                     setNotFoundChannel(true)
@@ -108,6 +131,15 @@ const ChannelInfo: FC<Props> = (channel) => {
 
     if (fetchingCurrentInfo) return <Skeleton />
 
+    if(isNotAccess) return (
+        <DialogComponent onClose={setIsNotAccess} isOpen={isNotAccess}>
+            <ConfirmComponent 
+                confirmFunc={sendRequest} 
+                handleClose={() => setIsNotAccess(false)} 
+                text="Это закрытое сообщество. Хотите подать заявку ?"/>
+        </DialogComponent>
+    )
+
     if(notFoundChannel && isSelected) return (
         <DialogComponent isOpen={notFoundChannel} onClose={unsubscribe}>
             <NotFoundChannel confirmFunc={unsubscribe}/>
@@ -137,6 +169,6 @@ const ChannelInfo: FC<Props> = (channel) => {
 }
 
 function checkProps(prevProps: Props, nextProps: Props): boolean {
-    return prevProps.displayName === nextProps.displayName
+    return prevProps.displayName === nextProps.displayName && prevProps.photoURL === nextProps.photoURL
 }
 export default memo(ChannelInfo, checkProps);

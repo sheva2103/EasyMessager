@@ -11,17 +11,18 @@ type Props = {
 
 type ConfirmProps = {
     confirmFunc: () => void,
-    handleClose?: () => void
+    handleClose?: () => void,
+    text: string
 }
 
 const dialogStyle = styles.listStyle
 
-export const ConfirmComponent: FC<ConfirmProps> = ({confirmFunc, handleClose}) => {
+export const ConfirmComponent: FC<ConfirmProps> = ({confirmFunc, handleClose, text}) => {
 
     return (
         <div className={styles.confirm}>
             <div className={styles.text}>
-                <span>Вы уверены ?</span>
+                <span>{text}</span>
             </div>
             <div className={styles.buttons}>
                 <button onClick={confirmFunc}>да</button>

@@ -33,7 +33,8 @@ type AppState = {
     isFavorites: boolean,
     selectedChannel: TypeChannel | null,
     clearGlobalSearchUser: boolean,
-    onlineStatusSelectedUser: UsePresenceReturn
+    onlineStatusSelectedUser: UsePresenceReturn,
+    tempChat: Chat | null
 }
 
 const resetChatState = (state: AppState) => {
@@ -72,7 +73,8 @@ const initialState: AppState = {
     isFavorites: false,
     selectedChannel: null,
     clearGlobalSearchUser: false,
-    onlineStatusSelectedUser: null
+    onlineStatusSelectedUser: null,
+    tempChat: null
 
 }
 
@@ -184,6 +186,9 @@ export const appSlice = createSlice({
         },
         setOnlineStatusSelectedUser(state, action: PayloadAction<UsePresenceReturn>) {
             state.onlineStatusSelectedUser = action.payload
+        },
+        setTempChat(state, action: PayloadAction<Chat>) {
+            state.tempChat = action.payload
         }
     },
     extraReducers: (builder) => {
@@ -229,6 +234,7 @@ export const { openMenu,
     setSelectedChannel,
     updateSelectedChannel,
     setClearGlobalSearchUser,
-    setOnlineStatusSelectedUser
+    setOnlineStatusSelectedUser,
+    setTempChat
 } = appSlice.actions
 export default appSlice.reducer

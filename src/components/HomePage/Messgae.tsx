@@ -12,7 +12,7 @@ import ReadIcon from '../../assets/check2-all.svg'
 import { messagesAPI } from "../../API/api";
 import { setChat } from "../../store/slices/setChatIDSlice";
 import { useInView } from 'react-intersection-observer';
-import { setSelectedChannel } from "../../store/slices/appSlice";
+import { setSelectedChannel, setTempChat } from "../../store/slices/appSlice";
 
 
 const HEIGHT_MENU_FOR_OWNER = 220
@@ -36,13 +36,23 @@ const ForwardedFrom: FC<ForwardedFromProps> = ({ user }) => {
     const name = user?.channel ? user.channel.displayName : user.displayName
 
     const handleClick = () => {
+        
+        // if(user?.channel) {
+        //     dispatch(setSelectedChannel(createObjectChannel(user.channel)))
+        //     return
+        // }
+        // if (user.uid !== currentUser.uid && user.uid !== selectedChat.uid) {
+        //     messagesAPI.getChatID(currentUser.email, user.email)
+        //         .then(data => dispatch(setChat({ currentUserEmail: user.email, guestInfo: { ...user, chatID: data } })))
+        // }
+        // console.log(createObjectChannel(user.channel))
+
         if(user?.channel) {
-            dispatch(setSelectedChannel(createObjectChannel(user.channel)))
+            dispatch(setTempChat(createObjectChannel(user.channel)))
             return
         }
         if (user.uid !== currentUser.uid && user.uid !== selectedChat.uid) {
-            messagesAPI.getChatID(currentUser.email, user.email)
-                .then(data => dispatch(setChat({ currentUserEmail: user.email, guestInfo: { ...user, chatID: data } })))
+            dispatch(setTempChat(user))
         }
     }
 
@@ -55,24 +65,44 @@ const ForwardedFrom: FC<ForwardedFromProps> = ({ user }) => {
     );
 }
 
+// const ImageLoader: FC<{ src: string | null }> = ({ src }) => {
+//     const [loaded, setLoaded] = useState(false);
+
+//     useEffect(() => {
+//         const img = new Image(100, 100);
+//         img.src = src;
+//         img.onload = () => setLoaded(true)
+//         img.onerror = () => setLoaded(false);
+//     }, [src]);
+
+//     if (!src) return null
+
+//     return (
+//         <div className={styles.messageData__img}>
+//             {loaded ? <a href={src} target="blanc"><img src={src} alt="Загруженное изображение" /></a> : null}
+//         </div>
+//     );
+// }
+
 const ImageLoader: FC<{ src: string | null }> = ({ src }) => {
     const [loaded, setLoaded] = useState(false);
 
-    useEffect(() => {
-        const img = new Image(100, 100);
-        img.src = src;
-        img.onload = () => setLoaded(true)
-        img.onerror = () => setLoaded(false);
-    }, [src]);
-
-    if (!src) return null
+    if (!src) return null;
 
     return (
         <div className={styles.messageData__img}>
-            {loaded ? <a href={src} target="blanc"><img src={src} alt="Загруженное изображение" /></a> : null}
+            <a href={src} target="_blank">
+                <img
+                    src={src}
+                    alt="Загруженное изображение"
+                    onLoad={() => setLoaded(true)}
+                    onError={() => setLoaded(false)}
+                    style={{ display: loaded ? 'block' : 'none' }}
+                />
+            </a>
         </div>
     );
-}
+};
 
 const ViewportContent: FC<IMessagesContent> = ({ onEnterViewport, message }) => {
 

@@ -58,6 +58,9 @@ const BlockControl: FC = () => {
                     <Preloader fontSize={'1.4rem'}/>
                 }
             </div>
+            <div className={styles.blockControl__item}>
+                <span>{selectedMessage.length}</span>
+            </div>
         </div>
     );
 }

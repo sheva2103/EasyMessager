@@ -90,7 +90,8 @@ export interface TypeChannel extends TypeCreateChannel  {
     channelID: string,
     listOfSubscribers?: CurrentUser[],
     photoURL?: string,
-    dateOfChange?: string
+    dateOfChange?: string,
+    applyForMembership?: CurrentUser[]
 }
 
 export type OnlineStatusUserType = {isOnline: boolean, last_seen: number}

@@ -1,11 +1,13 @@
 import { FC, useEffect, useMemo, useState } from "react";
 import styles from './HomePage.module.scss'
 import ChatInfo from "./ChatInfo";
-import { useAppSelector } from "../../hooks/hook";
+import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { Chat } from "../../types/types";
 import InputComponent from "../../InputComponent/InputComponent";
-import { globalSearch } from "../../utils/utils";
+import { createObjectChannel, globalSearch } from "../../utils/utils";
 import ChannelInfo from "./ChannelInfo";
+import { setChat } from "../../store/slices/setChatIDSlice";
+import { setSelectedChannel, setTempChat } from "../../store/slices/appSlice";
 
 const ListComponent: FC<{ list: Chat[] }> = ({ list }) => {
     return (
@@ -25,6 +27,44 @@ const ListComponent: FC<{ list: Chat[] }> = ({ list }) => {
             }
         })
     );
+}
+
+const TempChatComponent: FC = () => {
+    const tempChat = useAppSelector(state => state.app.tempChat)
+    const selectedChat = useAppSelector(state => state.app.selectedChat)
+    const dispatch = useAppDispatch()
+
+    useEffect(() => {
+        if (tempChat && selectedChat?.uid !== tempChat.uid) dispatch(setTempChat(null))
+    }, [selectedChat]);
+    
+    return (
+        <>{tempChat && <TempChat tempChat={tempChat}/>}</>
+    )
+}
+
+const TempChat: FC<{ tempChat: Chat | null }> = ({ tempChat }) => {
+    const chatList = useAppSelector(state => state.app.chatsList)
+    const dispatch = useAppDispatch()
+    const currentUser = useAppSelector(state => state.app.currentUser)
+    const isChannel = tempChat?.channel ? true : false
+    const currentComponent = isChannel ? <ChannelInfo {...tempChat} /> : <ChatInfo {...tempChat} />
+
+    useEffect(() => {
+        if (tempChat) {
+            console.log(tempChat)
+            const isChatList = chatList.some((item) => item.uid === (isChannel ? tempChat.channel.channelID : tempChat.uid))
+            isChannel ?
+                dispatch(setSelectedChannel(createObjectChannel(tempChat.channel)))
+                :
+                dispatch(setChat({ currentUserEmail: currentUser.email, guestInfo: tempChat }))
+            if (isChatList) dispatch(setTempChat(null))
+        }
+    }, [tempChat, chatList]);
+
+    return (
+        <>{currentComponent}</>
+    )
 }
 
 
@@ -68,6 +108,7 @@ const ChatList: FC = () => {
             </div>
             <div style={{ height: 'calc(100% - 102px)' }}>
                 <ul className={styles.chatList}>
+                    <TempChatComponent />
                     {name.length ?
                         // globalSearchUsers.map((item: Chat) => (
                         //         <ChatInfo key={item.uid + 'global'}
@@ -76,14 +117,14 @@ const ChatList: FC = () => {
                         //         />
                         // )
                         // )
-                        <ListComponent list={globalSearchUsers}/>
+                        <ListComponent list={globalSearchUsers} />
                         :
                         // filterMyChats.map((item) => (
                         //     <ChatInfo key={item.uid}
                         //         {...item}
                         //     />
                         // ))
-                        <ListComponent list={filterMyChats}/>
+                        <ListComponent list={filterMyChats} />
                     }
                     {name && globalSearchUsers.length === 0 &&
                         <li className={styles.chatInfo}>Ничего не найдено</li>

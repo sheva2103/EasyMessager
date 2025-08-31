@@ -4,7 +4,7 @@ import stylesSettings from '../Settings/Settings.module.scss'
 import InputComponent from "../../InputComponent/InputComponent";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { setChat } from "../../store/slices/setChatIDSlice";
-import { closeMenu, setClearGlobalSearchUser } from "../../store/slices/appSlice";
+import { closeMenu, setClearGlobalSearchUser, setTempChat } from "../../store/slices/appSlice";
 import { Chat, CurrentUser, TypeChannel } from "../../types/types";
 import RemoveFromChannelIcon from '../../assets/person-dash.svg'
 import UserInfo from "../MenuComponent/UserInfo";
@@ -63,12 +63,15 @@ const ChannelFullInfoComponent: FC = () => {
 
     const handleClick = () => {
         if (channel.owner.uid !== currentUser.uid) {
-            messagesAPI.getChatID(currentUser.email, channel.owner.email)
-                .then(data => {
-                    dispatch(setClearGlobalSearchUser(true))
-                    dispatch(closeMenu(null))
-                    dispatch(setChat({ currentUserEmail: currentUser.email, guestInfo: { ...channel.owner, chatID: data } }))
-                })
+            // messagesAPI.getChatID(currentUser.email, channel.owner.email)
+            //     .then(data => {
+            //         dispatch(setClearGlobalSearchUser(true))
+            //         dispatch(closeMenu(null))
+            //         dispatch(setChat({ currentUserEmail: currentUser.email, guestInfo: { ...channel.owner, chatID: data } }))
+            //     })
+            dispatch(setClearGlobalSearchUser(true))
+            dispatch(closeMenu(null))
+            dispatch(setTempChat(channel.owner))
         }
     }
 
@@ -136,7 +139,7 @@ const ChannelFullInfoComponent: FC = () => {
                     <div className={stylesContacts.item}>
                         <button onClick={() => setIsOpenDialog(true)}>Удалить канал</button>
                         <DialogComponent isOpen={isOpenDialog} onClose={setIsOpenDialog}>
-                            <ConfirmComponent confirmFunc={deleteChannel} />
+                            <ConfirmComponent confirmFunc={deleteChannel} text="Вы уверены ?"/>
                         </DialogComponent>
                     </div>
                 </>
