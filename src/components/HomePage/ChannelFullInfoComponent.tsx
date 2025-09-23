@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import stylesContacts from '../Contacts/Contacts.module.scss'
 import stylesSettings from '../Settings/Settings.module.scss'
 import InputComponent from "../../InputComponent/InputComponent";
@@ -33,27 +33,29 @@ const test: CurrentUser[] = [
     { displayName: 'test1', photoURL: '', email: 'test1dete@test.com', uid: 'uhuhjhggjfghdhc' },
 ]
 
-//
+enum ModalAction {
+    DELETE_CHANNEL = 'DELETE_CHANNEL',
+    AVAILABILITY_CHANNEL = 'AVAILABILITY_CHANNEL',
+    SHOW_SUBSCRIBERS_LIST = 'SHOW_SUBSCRIBERS_LIST',
+}
 
-const ChannelFullInfoComponent: FC = () => {
 
+const ListSubscribers: FC<{ channel: TypeChannel, currentUser: CurrentUser, isOwner: boolean }> = ({ channel, currentUser, isOwner }) => {
     const [name, setName] = useState('')
-    const [isOpenDialog, setIsOpenDialog] = useState(false)
     const dispatch = useAppDispatch()
-    const channel = useAppSelector(state => state.app.selectedChannel || state.app.selectedChat.channel)
-    const currentUser = useAppSelector(state => state.app.currentUser)
-    const isOwner = currentUser.uid === channel.owner.uid
+    const filter = useMemo(() => {
+        return channel.listOfSubscribers?.filter(item => item.displayName.includes(name)) ?? []
+    }, [channel.listOfSubscribers, name])
+
 
     const handleClickName = (user: Chat) => {
-        if(user.uid === currentUser.uid) return
-        // dispatch(setChat({ currentUserEmail: user.email, guestInfo: user }))
-        // dispatch(closeMenu())
+        if (user.uid === currentUser.uid) return
 
         messagesAPI.getChatID(currentUser.email, user.email)
-                .then(data => {
-                    dispatch(closeMenu(null))
-                    dispatch(setChat({ currentUserEmail: currentUser.email, guestInfo: { ...user, chatID: data } }))
-                })
+            .then(data => {
+                dispatch(closeMenu(null))
+                dispatch(setChat({ currentUserEmail: currentUser.email, guestInfo: { ...user, chatID: data } }))
+            })
     }
 
     const removeFromChannel = (e: React.MouseEvent, contact: CurrentUser) => {
@@ -61,14 +63,41 @@ const ChannelFullInfoComponent: FC = () => {
         messagesAPI.deleteChat(contact, createObjectChannel(channel))
     }
 
+    return (
+        <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: '4px' }}>
+            <InputComponent classes={stylesContacts.item} returnValue={setName} />
+            <ul className={stylesContacts.list} style={{ display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+                {!channel.listOfSubscribers?.length && <span>Учасники не найдены</span>}
+                {filter.map((item, index) => (
+                    <li style={{ margin: '2px 8px' }} key={String(item.uid)} onClick={() => handleClickName(item)}>
+                        <span >{item.displayName}</span>
+                        {isOwner && item.uid !== currentUser.uid && <div title="Удалить из канала"
+                            onClick={(e) => removeFromChannel(e, item)}
+                        >
+                            <RemoveFromChannelIcon />
+                        </div>}
+                    </li>
+                ))}
+            </ul>
+        </div>
+    )
+}
+
+const ChannelFullInfoComponent: FC = () => {
+
+    const [modalState, setModalState] = useState({ isOpen: false, value: null })
+    const dispatch = useAppDispatch()
+    const channel = useAppSelector(state => state.app.selectedChannel || state.app.selectedChat.channel)
+    const currentUser = useAppSelector(state => state.app.currentUser)
+    const isOwner = currentUser.uid === channel.owner.uid
+    const textAccessButoon = channel.isOpen ? 'Закрыть канал ?' : 'Открыть канал ?'
+
+    const changeStateModal = (state: boolean) => {
+        setModalState(prev => ({ ...prev, isOpen: state }))
+    }
+
     const handleClick = () => {
         if (channel.owner.uid !== currentUser.uid) {
-            // messagesAPI.getChatID(currentUser.email, channel.owner.email)
-            //     .then(data => {
-            //         dispatch(setClearGlobalSearchUser(true))
-            //         dispatch(closeMenu(null))
-            //         dispatch(setChat({ currentUserEmail: currentUser.email, guestInfo: { ...channel.owner, chatID: data } }))
-            //     })
             dispatch(setClearGlobalSearchUser(true))
             dispatch(closeMenu(null))
             dispatch(setTempChat(channel.owner))
@@ -78,72 +107,73 @@ const ChannelFullInfoComponent: FC = () => {
     const deleteChannel = () => {
         channelAPI.deleteChannel(channel.channelID)
             .then(() => {
-                setIsOpenDialog(false)
+                //setIsOpenDialog(false)
+                changeStateModal(false)
                 dispatch(closeMenu())
                 dispatch(setChat(null))
             })
     }
-    
-    const filter = channel.listOfSubscribers?.filter(item => item.displayName.includes(name))
+
+    const changeAccessChannel = async() => {
+        await channelAPI.changeAccessChannel(channel.channelID, !channel.isOpen)
+        changeStateModal(false)
+    }
+
+    const targetComponent = (): JSX.Element => {
+        if (modalState.value === ModalAction.DELETE_CHANNEL) return <ConfirmComponent confirmFunc={deleteChannel} text="Вы уверены ?" />
+        if(modalState.value === ModalAction.AVAILABILITY_CHANNEL) return <ConfirmComponent confirmFunc={changeAccessChannel} text={textAccessButoon}/>
+        if (modalState.value === ModalAction.SHOW_SUBSCRIBERS_LIST) return <ListSubscribers channel={channel} currentUser={currentUser} isOwner={isOwner} />
+        return null
+    }
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-            <div>
-                {isOwner &&
-                    <div className={stylesSettings.settings}>
-                        <UserInfo isSettings currentInfo={{...currentUser, channel}}/>
-                        <hr className={stylesSettings.hr} />
+            <div style={{ overflow: 'auto' }} >
+                <div>
+                    {isOwner &&
+                        <div className={stylesSettings.settings}>
+                            <UserInfo isSettings currentInfo={{ ...currentUser, channel }} />
+                            <hr className={stylesSettings.hr} />
+                        </div>
+                    }
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }} className={stylesContacts.item}>
+                    <div style={{ width: '100%', textAlign: 'start', marginBottom: '4px' }}>
+                        <span style={{ fontSize: '1rem', fontWeight: 500 }}>
+                            Владелец:   <span style={{ cursor: 'pointer', color: '#8774e1' }} onClick={handleClick}>
+                                {channel.owner.displayName}
+                            </span>
+                        </span>
                     </div>
+                    <div style={{ width: '100%', textAlign: 'start' }}>
+                        <span style={{ fontSize: '1rem', fontWeight: 500 }}>
+                            Создан:   <span>
+                                {channel.registrationDate.toString()}
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <hr className={stylesSettings.hr} />
+                {isOwner &&
+                    <>
+                        <div className={stylesContacts.item}>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                <button onClick={() => setModalState({ isOpen: true, value: ModalAction.AVAILABILITY_CHANNEL })}>{textAccessButoon}</button>
+                                <button onClick={() => setModalState({ isOpen: true, value: ModalAction.DELETE_CHANNEL })}>Удалить канал</button>
+                            </div>
+                        </div>
+                        <hr className={stylesSettings.hr} />
+                    </>
+                }
+                <div className={stylesContacts.item}>
+                    <button onClick={() => setModalState({ isOpen: true, value: ModalAction.SHOW_SUBSCRIBERS_LIST })}>Показать учасников</button>
+                </div>
+                {modalState.isOpen &&
+                    <DialogComponent isOpen={modalState.isOpen} onClose={changeStateModal}>
+                        {targetComponent()}
+                    </DialogComponent>
                 }
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }} className={stylesContacts.item}>
-                <div style={{ width: '100%', textAlign: 'start', marginBottom: '4px' }}>
-                    <span style={{ fontSize: '1rem', fontWeight: 500 }}>
-                        Владелец:   <span style={{ cursor: 'pointer', color: '#8774e1' }} onClick={handleClick}>
-                            {channel.owner.displayName}
-                        </span>
-                    </span>
-                </div>
-                <div style={{ width: '100%', textAlign: 'start' }}>
-                    <span style={{ fontSize: '1rem', fontWeight: 500 }}>
-                        Создан:   <span>
-                            {channel.registrationDate.toString()}
-                        </span>
-                    </span>
-                </div>
-            </div>
-            <hr className={stylesSettings.hr} />
-            <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                <div className={stylesContacts.item}>
-                    <span>Учасники</span>
-                </div>
-                <InputComponent classes={stylesContacts.item} returnValue={setName} />
-                <ul className={stylesContacts.list} style={{ display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
-                    {!channel.listOfSubscribers.length && <span>Учасники не найдены</span>}
-                    {filter.map((item, index) => (
-                        <li style={{ margin: '2px 8px' }} key={String(item.uid)} onClick={() => handleClickName(item)}>
-                            <span >{item.displayName}</span>
-                            {isOwner && item.uid !== currentUser.uid && <div title="Удалить из канала"
-                                onClick={(e) => removeFromChannel(e, item)}
-                                        >
-                                            <RemoveFromChannelIcon />
-                                        </div>}
-                        </li>
-                    ))}
-                    {/* </ul> */}
-                </ul>
-            </div>
-            {isOwner &&
-                <>
-                    <hr className={stylesSettings.hr} />
-                    <div className={stylesContacts.item}>
-                        <button onClick={() => setIsOpenDialog(true)}>Удалить канал</button>
-                        <DialogComponent isOpen={isOpenDialog} onClose={setIsOpenDialog}>
-                            <ConfirmComponent confirmFunc={deleteChannel} text="Вы уверены ?"/>
-                        </DialogComponent>
-                    </div>
-                </>
-            }
         </div>
     );
 }

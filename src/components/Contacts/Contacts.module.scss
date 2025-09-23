@@ -64,6 +64,8 @@
     & li:hover {
         //color: rgb(135, 116, 225);
         //border-bottom: 1px solid rgba(134, 116, 225, 0.363);
+        color: var(--color) !important;
+        border-bottom: none !important;
         background-color: #5a5a5a54;
     }
 }

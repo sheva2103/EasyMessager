@@ -12,6 +12,7 @@ import { Badge } from "@mui/material";
 import { createSelector } from "@reduxjs/toolkit";
 import { RootState } from "../../store/store";
 import DialogComponent from "../Settings/DialogComponent";
+import { createObjectChannel } from "../../utils/utils";
 
 type Props = {
     chatInfo: Chat
@@ -19,13 +20,13 @@ type Props = {
 
 const ListItem: FC<{ user: CurrentUser }> = ({ user }) => {
 
-    const channelId = useAppSelector(state => state.app.selectedChannel.channelID)
+    const channel = useAppSelector(state => state.app.selectedChannel)
     const add = async() => {
-        //await channelAPI.changeListSubscribers(ADD_TO_LIST_SUBSCRIBERS, channelId, user) - вместо этого вызвать addChat
-        await channelAPI.deleteApplication(channelId, user)
+        await messagesAPI.addChat(user, createObjectChannel(channel), channel.channelID)
+        await channelAPI.deleteApplication(channel.channelID, user)
     }
     const deleteRequest = () => {
-        channelAPI.deleteApplication(channelId, user)
+        channelAPI.deleteApplication(channel.channelID, user)
     }
 
     return (
@@ -131,7 +132,10 @@ const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
 
     const unsubscribe = () => {
         messagesAPI.deleteChat(currentUser, selectedChat)
-            .then(() => setOpen(false))
+            .then(() => {
+                setOpen(false)
+                dispatch(setChat(null))
+            })
             .catch((err) => console.log('Произошла ошибка', err))
     }
 
@@ -181,7 +185,7 @@ const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
                     <li onClick={subscribe}>Подписаться</li>
                 }
                 <li onClick={showInformation}>Информация</li>
-                {isOwner && <MembershipApplications quantity={quantity} />}
+                {isOpen && isOwner && <MembershipApplications quantity={quantity} />}
 
             </ul>
         )

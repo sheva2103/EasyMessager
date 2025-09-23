@@ -180,7 +180,14 @@ export const messagesAPI: MessagesAPI = {
     async forwardedMessageFrom(sender, recipient, message) {
         const id = uuidv4()
         const date = JSON.stringify(new Date())
-        const forwardedFrom = message.forwardedFrom?.channel ?  createObjectChannel(message.forwardedFrom?.channel) : message.sender
+        // const forwardedFrom = message.forwardedFrom?.channel ?  createObjectChannel(message.forwardedFrom?.channel) : message.sender
+        const forwardedFrom = message.forwardedFrom?.channel ?
+            createObjectChannel(message.forwardedFrom?.channel) 
+            :
+            message.sender?.channel ?
+                createObjectChannel(message.sender.channel)
+                :
+                message.sender
         const messageObj: Message1 = { message: message.message, messageID: id, date, read: false, sender, forwardedFrom }
         const isID = await Promise.all([messagesAPI.getChatID(sender.email, recipient.email), messagesAPI.getChatID(recipient.email, sender.email)])
         if (isID[0] || isID[1]) {
@@ -273,7 +280,8 @@ type ChannelAPI = {
     deleteChannel: (id: string) => Promise<[void, void]>,
     applyForMembership: (user: CurrentUser, channelID: string) => Promise<void>,
     getApplyForMembership: (channelID: string) => Promise<CurrentUser[]>,
-    deleteApplication: (channelID: string, user: CurrentUser) => Promise<void>
+    deleteApplication: (channelID: string, user: CurrentUser) => Promise<void>,
+    changeAccessChannel: (channelID: string, action: boolean) => Promise<void>
 }
 
 export const channelAPI: ChannelAPI = {
@@ -343,10 +351,6 @@ export const channelAPI: ChannelAPI = {
 
         await updateDoc(channelRef, obj);
     },
-    // async addChannelToChatlist(email, channel) {
-    //     const channelObj: Chat = {...createObjectChannel(channel)}
-    //     await setDoc(doc(db, email, CHATLIST), { [channelObj.channel.channelID]: channelObj }, { merge: true });
-    // }
     async deleteChannel(id) {
         const infoChannelRef = doc(db, CHANNELS_INFO, id)
         const channelRef = doc(db, CHANNELS, id)
@@ -380,5 +384,11 @@ export const channelAPI: ChannelAPI = {
         await updateDoc(ref, {
                     applyForMembership: arrayRemove(user)
                 });
+    },
+    async changeAccessChannel(channelID, action) {
+        const ref = doc(db, CHANNELS_INFO, channelID)
+        await updateDoc(ref, {
+            isOpen: action
+        })
     }
 }

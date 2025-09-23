@@ -8,6 +8,9 @@ import { createObjectChannel, globalSearch } from "../../utils/utils";
 import ChannelInfo from "./ChannelInfo";
 import { setChat } from "../../store/slices/setChatIDSlice";
 import { setSelectedChannel, setTempChat } from "../../store/slices/appSlice";
+import { useChannelClickHandler } from "../../hooks/useHandleClickToChannel";
+import DialogComponent, { ConfirmComponent, NotFoundChannel } from "../Settings/DialogComponent";
+import { channelAPI, messagesAPI } from "../../API/api";
 
 const ListComponent: FC<{ list: Chat[] }> = ({ list }) => {
     return (
@@ -37,9 +40,9 @@ const TempChatComponent: FC = () => {
     useEffect(() => {
         if (tempChat && selectedChat?.uid !== tempChat.uid) dispatch(setTempChat(null))
     }, [selectedChat]);
-    
+
     return (
-        <>{tempChat && <TempChat tempChat={tempChat}/>}</>
+        <>{tempChat && <TempChat tempChat={tempChat} />}</>
     )
 }
 
@@ -47,20 +50,55 @@ const TempChat: FC<{ tempChat: Chat | null }> = ({ tempChat }) => {
     const chatList = useAppSelector(state => state.app.chatsList)
     const dispatch = useAppDispatch()
     const currentUser = useAppSelector(state => state.app.currentUser)
+    const [isNotAccess, setIsNotAccess] = useState(false)
+    const [notFoundChannel, setNotFoundChannel] = useState(false)
     const isChannel = tempChat?.channel ? true : false
     const currentComponent = isChannel ? <ChannelInfo {...tempChat} /> : <ChatInfo {...tempChat} />
+    const { handleClickToChannel } = useChannelClickHandler()
+
+    const sendRequest = async () => {
+        console.log('send a request')
+        await channelAPI.applyForMembership(currentUser, tempChat.channel?.channelID)
+        setIsNotAccess(false)
+    }
+
+    const unsubscribe = () => {
+        messagesAPI.deleteChat(currentUser, createObjectChannel(tempChat.channel))
+            .catch((err) => {
+                console.log('Канал удалён', err)
+                dispatch(setTempChat(null))
+            })
+            .finally(() => setNotFoundChannel(false))
+    }
 
     useEffect(() => {
         if (tempChat) {
             console.log(tempChat)
             const isChatList = chatList.some((item) => item.uid === (isChannel ? tempChat.channel.channelID : tempChat.uid))
             isChannel ?
-                dispatch(setSelectedChannel(createObjectChannel(tempChat.channel)))
+                // dispatch(setSelectedChannel(createObjectChannel(tempChat.channel)))
+                handleClickToChannel({ isSelected: false, channel: tempChat.channel, currentUserID: currentUser.uid, setIsNotAccess })
+                    .catch(() => setNotFoundChannel(true))
                 :
                 dispatch(setChat({ currentUserEmail: currentUser.email, guestInfo: tempChat }))
             if (isChatList) dispatch(setTempChat(null))
         }
     }, [tempChat, chatList]);
+
+    if (isNotAccess) return (
+        <DialogComponent onClose={setIsNotAccess} isOpen={isNotAccess}>
+            <ConfirmComponent
+                confirmFunc={sendRequest}
+                handleClose={() => setIsNotAccess(false)}
+                text="Это закрытое сообщество. Хотите подать заявку ?" />
+        </DialogComponent>
+    )
+
+    if (notFoundChannel) return (
+        <DialogComponent isOpen={notFoundChannel} onClose={unsubscribe}>
+            <NotFoundChannel confirmFunc={unsubscribe} />
+        </DialogComponent>
+    )
 
     return (
         <>{currentComponent}</>

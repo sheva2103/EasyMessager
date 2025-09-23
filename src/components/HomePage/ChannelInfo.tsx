@@ -15,6 +15,7 @@ import { CHANNELS_INFO } from "../../constants/constants";
 import ShowNameChat from "./ShowNameChat";
 import DialogComponent, { ConfirmComponent, NotFoundChannel } from "../Settings/DialogComponent";
 import { setChat } from "../../store/slices/setChatIDSlice";
+import { useChannelClickHandler } from "../../hooks/useHandleClickToChannel";
 
 
 
@@ -44,28 +45,28 @@ const ChannelInfo: FC<Props> = (channel) => {
     const currentUser = useAppSelector(state => state.app.currentUser)
     const dispatch = useAppDispatch()
     const isSelected = selectedChat?.channel?.channelID === updateChannel.channelID
+    const { handleClickToChannel } = useChannelClickHandler();
+
     //console.log(isNotAccess)
     const handleClick = () => {
-        // const chanelObj: Chat = { uid: updateChannel.channelID, displayName: updateChannel.displayName, email: updateChannel.owner.email, channel: updateChannel }
-        if(!isSelected) {
-            const chanelObj: Chat = createObjectChannel(updateChannel)
-            // console.log(chanelObj)
-            // dispatch(setSelectedChannel(chanelObj))
-
-            if(!updateChannel.isOpen) {
-                const isSubscriber = updateChannel.listOfSubscribers.some(sub => sub.uid === currentUser.uid)
-                if(isSubscriber) {
-                    delete chanelObj.channel.listOfSubscribers
-                    dispatch(setSelectedChannel(chanelObj))
-                } else (
-                    setIsNotAccess(true)
-                )
-            }
-            if(updateChannel.isOpen) {
-                delete chanelObj.channel.listOfSubscribers
-                dispatch(setSelectedChannel(chanelObj))
-            }
-        }
+        // if(!isSelected) {
+        //     const chanelObj: Chat = createObjectChannel(updateChannel)
+        //     if(!updateChannel.isOpen) {
+        //         const isSubscriber = updateChannel.listOfSubscribers.some(sub => sub.uid === currentUser.uid)
+        //         if(isSubscriber) {
+        //             delete chanelObj.channel.listOfSubscribers
+        //             dispatch(setSelectedChannel(chanelObj))
+        //         } else (
+        //             setIsNotAccess(true)
+        //         )
+        //     }
+        //     if(updateChannel.isOpen) {
+        //         delete chanelObj.channel.listOfSubscribers
+        //         dispatch(setSelectedChannel(chanelObj))
+        //     }
+        // }
+        handleClickToChannel({isSelected, channel: channel.channel, currentUserID: currentUser.uid, setIsNotAccess})
+            .catch((() => setNotFoundChannel(true)))
     }
     const unsubscribe = () => {
         messagesAPI.deleteChat(currentUser, createObjectChannel(channel.channel))
@@ -84,10 +85,7 @@ const ChannelInfo: FC<Props> = (channel) => {
             try {
                 const currentInfo = await channelAPI.getCurrentInfo(channel.channel.channelID)
                 if (currentInfo) {
-                    //if('listOfSubscribers' in currentInfo) delete currentInfo.listOfSubscribers
                     setUpdateChannel(currentInfo)
-                } else {
-                    setNotFoundChannel(true)
                 }
             } catch (error) {
                 console.error('Error fetching current info:', error);
@@ -99,15 +97,15 @@ const ChannelInfo: FC<Props> = (channel) => {
 
     }, [isSelected]);
 
-    //обновлять информацию после добавления подписчиков
-
     useEffect(() => {
         let listenerChannelInfo: () => void
         if(isSelected) {
             listenerChannelInfo = onSnapshot(doc(db, CHANNELS_INFO, updateChannel.channelID), (doc: DocumentSnapshot<TypeChannel>) => {
                 if(doc.data()) {
                     dispatch(updateSelectedChannel(doc.data()))
-                }
+                } else (
+                    setNotFoundChannel(true)
+                )
             });
         }
         return () => {
@@ -140,7 +138,7 @@ const ChannelInfo: FC<Props> = (channel) => {
         </DialogComponent>
     )
 
-    if(notFoundChannel && isSelected) return (
+    if(notFoundChannel) return (
         <DialogComponent isOpen={notFoundChannel} onClose={unsubscribe}>
             <NotFoundChannel confirmFunc={unsubscribe}/>
         </DialogComponent>
