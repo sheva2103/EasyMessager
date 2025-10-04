@@ -474,9 +474,11 @@
 
                 .messageData__forwardedFrom {
                     font-size: 0.8rem;
-                    cursor: pointer;
                     font-style: italic;
                     font-weight: 300;
+                    & span {
+                        cursor: pointer;
+                    }
                 }
                 &__replyToMessage {
                     display: flex;

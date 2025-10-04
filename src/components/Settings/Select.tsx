@@ -22,8 +22,8 @@ type SelectComponentType = {
 // }
 
 const options: SelectComponentType[] = [
-    { value: 'ukraine', label: 'Ukraine' },
-    { value: 'russian', label: 'Russian' },
+    { value: 'ukraine', label: 'Українська' },
+    { value: 'russian', label: 'Русский' },
     { value: 'english', label: 'English' }
 ]
 

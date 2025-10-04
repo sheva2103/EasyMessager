@@ -5,6 +5,7 @@ import { useAppSelector } from "../../hooks/hook";
 import Avatar from "../Avatar/Avatar";
 import DialogComponent from "../Settings/DialogComponent";
 import { profileAPI } from "../../API/api";
+import DescriptionComponent from "../Settings/DescriptionComponent";
 
 const UserFullInfoComponent: FC = () => {
 
@@ -12,6 +13,11 @@ const UserFullInfoComponent: FC = () => {
     const onlineStatus = useAppSelector(state => state.app.onlineStatusSelectedUser)
     const [userInfo, setUserInfo] = useState(user)
     const [zoomAvatar, setZoomAvatar] = useState(false)
+    const description = [
+        {title: 'Имя', description: userInfo.displayName},
+        {title: 'email', description: userInfo.email},
+        {title: 'Дата регистрации', description: userInfo?.registrationDate?.toString()}
+    ]
 
     useLayoutEffect(() => {
         profileAPI.getCurrentInfo(user.uid)
@@ -25,30 +31,9 @@ const UserFullInfoComponent: FC = () => {
                     <Avatar name={user.displayName} url={user?.photoURL} isOnline={onlineStatus.isOnline}/>
                 </div>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }} className={stylesContacts.item}>
-                <div style={{ width: '100%', textAlign: 'start', marginBottom: '4px' }}>
-                    <span style={{ fontSize: '1rem', fontWeight: 500 }}>
-                        Имя:   <span style={{ color: '#8774e1' }}>
-                                    {user.displayName}
-                                </span>
-                    </span>
-                </div>
-                <div style={{ width: '100%', textAlign: 'start', marginBottom: '4px' }}>
-                    <span style={{ fontSize: '1rem', fontWeight: 500 }}>
-                        email:   <a href={`mailto:${userInfo.email}`}><span style={{ cursor: 'pointer', color: '#8774e1' }}>
-                            {user.email}
-                        </span></a>
-                    </span>
-                </div>
-                <div style={{ width: '100%', textAlign: 'start' }}>
-                    <span style={{ fontSize: '1rem', fontWeight: 500 }}>
-                        Дата регистрации:   <span>
-                            {userInfo?.registrationDate?.toString()}
-                        </span>
-                    </span>
-                </div>
+            <div className={stylesContacts.item}>
+                <DescriptionComponent items={description}/>
             </div>
-            {/* <hr className={stylesSettings.hr} /> */}
             {zoomAvatar && 
                 <DialogComponent isOpen={zoomAvatar} onClose={setZoomAvatar}>
                     <Avatar name={userInfo.displayName} url={userInfo?.photoURL} zoom/>

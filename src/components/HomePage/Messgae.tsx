@@ -6,7 +6,7 @@ import ContextMenu from "./ContextMenu";
 import SelectMessageInput from "./SelectMessageInput";
 import { Chat, Message1, StyleContextMenu } from "../../types/types";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
-import { checkMessage, createNewDate, createObjectChannel, getTimeFromDate } from "../../utils/utils";
+import { checkMessage, createNewDate, getTimeFromDate } from "../../utils/utils";
 import UnreadIcon from '../../assets/check2.svg'
 import ReadIcon from '../../assets/check2-all.svg'
 import { messagesAPI } from "../../API/api";
@@ -34,23 +34,15 @@ const ForwardedFrom: FC<ForwardedFromProps> = ({ user }) => {
     const selectedChat = useAppSelector(state => state.app.selectedChat)
     const name = user?.channel ? user.channel.displayName : user.displayName
 
-    const handleClick = () => {
-        if(user.uid !== currentUser.uid) dispatch(setTempChat(user))
-        //пофиксить если канал больше недоступен
-        // if(user?.channel) {
-        //     dispatch(setTempChat(createObjectChannel(user.channel)))
-        //     return
-        // }
-        // if (user.uid !== currentUser.uid && user.uid !== selectedChat.uid) {
-        //     dispatch(setTempChat(user))
-        // }
+    const handleClick = (event: React.MouseEvent) => {
+        if (user.uid !== currentUser.uid && user.uid !== selectedChat.uid) dispatch(setTempChat(user))
     }
 
     return (
-        <div className={styles.messageData__forwardedFrom} onClick={handleClick}>
+        <div className={styles.messageData__forwardedFrom}>
             <span>переслано от:</span>
             <br />
-            <span style={{ fontWeight: 500 }}>{name}</span>
+            <span style={{ fontWeight: 500 }} onClick={handleClick} id="forwardedFromName">{name}</span>
         </div>
     );
 }
@@ -125,7 +117,7 @@ const ReplyToMessage: FC<Message1> = (props) => {
     return (
         <div className={styles.messageData__replyToMessage}>
             <div className={classNames(styles.messageData__replyToMessage_name)}>
-                <span>{replyToMessage?.sender.displayName}</span>
+                <span>{replyToMessage?.forwardedFrom?.displayName || replyToMessage?.sender.displayName}</span>
             </div>
             <div style={{ paddingRight: '2px', fontSize: '0.9rem' }}>
                 <span>{getFirst30Chars(replyToMessage?.message)}</span>
@@ -140,6 +132,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
     const isShowCheckbox = useAppSelector(state => state.app.showCheckbox)
     const chat = useAppSelector(state => state.app.selectedChat)
     const [offset, setOffset] = useState<Offset>({ top: 0, left: 0 })
+    const [contextMenuIsOpen, setContextMenu] = useState(false)
     const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent)
     const isOwner = owner.email === messageInfo.sender.email
     const isForwarder = Boolean(messageInfo?.forwardedFrom)
@@ -150,16 +143,16 @@ const Message: FC<Props> = ({ messageInfo }) => {
         left: offset.left + 'px'
     }
     const virtualizedListElementRef: { current: HTMLDivElement } = useRef(null)
-
     const messageRef = useRef(null)
+    const refSpan = useRef<HTMLDivElement>(null)
 
     const setPositionMenu = (e: MouseEvent) => {
         const position = { top: 0, left: 0 }
         const styleContainer: HTMLDivElement = document.querySelector('.ReactVirtualized__Grid')
         const parentContainer: HTMLDivElement = document.querySelector('.ReactVirtualized__Grid__innerScrollContainer')
         virtualizedListElementRef.current = styleContainer
-        styleContainer.style.willChange = 'auto'
-        styleContainer.style.overflow = 'hidden'
+        //styleContainer.style.willChange = 'auto'
+        //styleContainer.style.overflow = 'hidden'
         const parentRect = parentContainer.getBoundingClientRect();
         const clickX = e.clientX - parentRect.left;
         const positionClickTop = e.clientY
@@ -175,17 +168,21 @@ const Message: FC<Props> = ({ messageInfo }) => {
     }
 
     const ios = ({ target }: React.MouseEvent) => {
-        //const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent)
         if (!isIOS) return
         const targetElement: HTMLDivElement = target as HTMLDivElement;
-        if (targetElement.nodeName !== 'A' && !isShowCheckbox) setContextMenu(true)
+        if (targetElement.nodeName !== 'A' && !isShowCheckbox && targetElement.id !== 'forwardedFromName') setContextMenu(true)
     }
 
-    // useEffect(() => {
-    //     refSpan.current.addEventListener('contextmenu', setPositionMenu)
-    //     refSpan.current.addEventListener('click', setPositionMenuForIOS)
-    //     if (!refSpan.current) return () => refSpan.current.removeEventListener('contextmenu', setPositionMenu)
-    // }, []);
+    const openContextMenu = (e: React.MouseEvent) => {
+        e.preventDefault()
+        if (!isShowCheckbox) setContextMenu(true)
+    }
+    const closeContextMenu = (e: React.MouseEvent) => {
+        // e.preventDefault()
+        // virtualizedListElementRef.current.style.willChange = 'transform'
+        // virtualizedListElementRef.current.style.overflow = 'auto'
+        setContextMenu(false)
+    }
 
     useEffect(() => {
         if (refSpan.current) {
@@ -199,28 +196,24 @@ const Message: FC<Props> = ({ messageInfo }) => {
         }
     }, [])
 
+    useEffect(() => {
+        const styleContainer = document.querySelector('.ReactVirtualized__Grid') as HTMLDivElement;
+        if (!styleContainer) return;
 
-    const [contextMenuIsOpen, setContextMenu] = useState(false)
-    const openContextMenu = (e: React.MouseEvent) => {
-        e.preventDefault()
-        if (!isShowCheckbox) setContextMenu(true)
-    }
-    const closeContextMenu = (e: React.MouseEvent) => {
-        e.preventDefault()
-        virtualizedListElementRef.current.style.willChange = 'transform'
-        virtualizedListElementRef.current.style.overflow = 'auto'
-        setContextMenu(false)
-    }
-
-
+        if (contextMenuIsOpen) {
+            styleContainer.style.overflow = 'hidden';
+            styleContainer.style.willChange = 'auto';
+        } else {
+            styleContainer.style.overflow = 'auto';
+            styleContainer.style.willChange = 'transform';
+        }
+    }, [contextMenuIsOpen]);
 
     const readMessage = () => {
         if (messageInfo.sender.email !== owner.email && isFavorites && !messageInfo.read) {
             messagesAPI.readMessage(chat.chatID, messageInfo)
         }
     }
-
-    const refSpan = useRef<HTMLDivElement>(null)
 
     console.log('message render')
 

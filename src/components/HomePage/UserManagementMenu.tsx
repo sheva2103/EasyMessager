@@ -53,7 +53,7 @@ const MembershipApplications: FC<{ quantity: CurrentUser[] }> = ({ quantity }) =
     const [isOpen, setOpen] = useState(false)
     const openList = () => setOpen(true)
 
-    if (quantity) return (
+    return (
         <li style={{ display: 'flex', gap: '18px', alignItems: 'center' }}>
             <span onClick={openList}>Заявки</span>
             <div><Badge badgeContent={quantity.length} color="error" /></div>

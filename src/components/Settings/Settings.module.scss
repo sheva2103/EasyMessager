@@ -79,7 +79,7 @@
         &:hover {
             color: rgb(135, 116, 225);
         }
-    } 
+    }
 
     & ul {
         //width: 260px;
@@ -110,18 +110,15 @@
         li:hover {
             color: rgb(135, 116, 225);
             border-bottom: 1px solid rgba(134, 116, 225, 0.363);
-            background-color: var(--background-color-input);;
+            background-color: var(--background-color-input);
         }
     }
 }
-
-
 
 // .checkMenu:checked ~ .dropDawn {
 //     min-height: 100px;
 //     font-size: inherit;
 // }
-
 
 .button {
     width: 100px;
@@ -130,7 +127,7 @@
         display: flex;
         gap: 8px;
         align-items: center;
-        
+
         font-size: 1rem;
         @media (max-width: 468px) {
             font-size: 1.2rem;
@@ -164,3 +161,32 @@
     }
 }
 
+.styledListContainer {
+    border-radius: 12px;
+    //border: 1px solid #ccc;
+    padding: 8px 8px;
+    background-color: var(--background-color-content-block);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.styledListItem {
+    padding: 4px 0;
+}
+
+.styledListTitle {
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: #8774e1;
+}
+
+.styledListDescription {
+    font-size: 0.95rem;
+    //color: #333;
+}
+
+.styledListDivider {
+    margin-top: 8px;
+    border-bottom: 1px solid var(--background-color-chatlist);;
+}

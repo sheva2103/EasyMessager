@@ -14,6 +14,7 @@ import { db } from "../../firebase";
 import { CHANNELS_INFO } from "../../constants/constants";
 import { createObjectChannel } from "../../utils/utils";
 import DialogComponent, { ConfirmComponent } from "../Settings/DialogComponent";
+import DescriptionComponent from "../Settings/DescriptionComponent";
 
 const test: CurrentUser[] = [
     { displayName: 'alexdb', photoURL: '', email: 'test1rt@test.com', uid: 'uhrtugjfghdhc' },
@@ -71,6 +72,7 @@ const ListSubscribers: FC<{ channel: TypeChannel, currentUser: CurrentUser, isOw
                 {filter.map((item, index) => (
                     <li style={{ margin: '2px 8px' }} key={String(item.uid)} onClick={() => handleClickName(item)}>
                         <span >{item.displayName}</span>
+                        {item.uid === currentUser.uid && <span className={stylesContacts.indicationAdmin}>admin</span>}
                         {isOwner && item.uid !== currentUser.uid && <div title="Удалить из канала"
                             onClick={(e) => removeFromChannel(e, item)}
                         >
@@ -126,18 +128,22 @@ const ChannelFullInfoComponent: FC = () => {
         return null
     }
 
+    const description = [
+        { title: 'Владелец', description: channel.owner.displayName, onClick: handleClick},
+        { title: 'Создан', description: channel.registrationDate.toString() },
+    ];
+
+
     return (
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
             <div style={{ overflow: 'auto' }} >
                 <div>
-                    {isOwner &&
-                        <div className={stylesSettings.settings}>
-                            <UserInfo isSettings currentInfo={{ ...currentUser, channel }} />
-                            <hr className={stylesSettings.hr} />
-                        </div>
-                    }
+                    <div className={stylesSettings.settings}>
+                        <UserInfo isSettings={isOwner} currentInfo={{ ...currentUser, channel }} />
+                        <hr className={stylesSettings.hr} />
+                    </div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }} className={stylesContacts.item}>
+                {/* <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }} className={stylesContacts.item}>
                     <div style={{ width: '100%', textAlign: 'start', marginBottom: '4px' }}>
                         <span style={{ fontSize: '1rem', fontWeight: 500 }}>
                             Владелец:   <span style={{ cursor: 'pointer', color: '#8774e1' }} onClick={handleClick}>
@@ -152,6 +158,9 @@ const ChannelFullInfoComponent: FC = () => {
                             </span>
                         </span>
                     </div>
+                </div> */}
+                <div className={stylesContacts.item}>
+                    <DescriptionComponent items={description}/>
                 </div>
                 <hr className={stylesSettings.hr} />
                 {isOwner &&
