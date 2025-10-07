@@ -6,6 +6,7 @@ import Avatar from "../Avatar/Avatar";
 import DialogComponent from "../Settings/DialogComponent";
 import { profileAPI } from "../../API/api";
 import DescriptionComponent from "../Settings/DescriptionComponent";
+import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 
 const UserFullInfoComponent: FC = () => {
 
@@ -13,10 +14,11 @@ const UserFullInfoComponent: FC = () => {
     const onlineStatus = useAppSelector(state => state.app.onlineStatusSelectedUser)
     const [userInfo, setUserInfo] = useState(user)
     const [zoomAvatar, setZoomAvatar] = useState(false)
+    const {t} = useTypedTranslation()
     const description = [
-        {title: 'Имя', description: userInfo.displayName},
+        {title: t('name'), description: userInfo.displayName},
         {title: 'email', description: userInfo.email},
-        {title: 'Дата регистрации', description: userInfo?.registrationDate?.toString()}
+        {title: t("dateOfRegistration"), description: userInfo?.registrationDate?.toString()}
     ]
 
     useLayoutEffect(() => {

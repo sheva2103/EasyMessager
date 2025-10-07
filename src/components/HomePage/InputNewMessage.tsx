@@ -9,6 +9,7 @@ import { changeMessage, setEmojiState, setSelectedEmoji } from "../../store/slic
 import { channelAPI, messagesAPI } from "../../API/api";
 import { Chat } from "../../types/types";
 import EmojiIcon from '../../assets/emoji-smile-fill.svg'
+import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 
 type Props = {
     chatInfo: Chat
@@ -37,6 +38,7 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
     const isCheckBox = useAppSelector(state => state.app.showCheckbox)
     const replyToMessage = useAppSelector(state => state.app.replyToMessage)
     const isFavorites = useAppSelector(state => state.app.isFavorites)
+    const {t} = useTypedTranslation()
     const isChannel = chatInfo.channel ? true : false
 
     const [newMessage, setNewMessage] = useState('')
@@ -135,13 +137,13 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
             <div className={styles.inputNewMessage__textarea}>
                 {isEditMessage &&
                     <div className={styles.textarea__isEdit}>
-                        <span>Редактирование</span>
+                        <span>{t('editing')}</span>
                         <CloseIcon onClick={cancelEditing} />
                     </div>
                 }
                 {replyToMessage &&
                     <div className={styles.textarea__isEdit}>
-                        <span>Ответить</span>
+                        <span>{t('answer')}</span>
                         <CloseIcon onClick={cancelEditing} />
                     </div>
                 }
@@ -162,7 +164,7 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
                 }
                 <EmojiControl />
             </div>
-            <div className={styles.inputNewMessage__button}>
+            <div className={styles.inputNewMessage__button} title={t('sendMessage')}>
                 <SendMessageIcon
                     fontSize={'2rem'}
                     cursor={'pointer'}

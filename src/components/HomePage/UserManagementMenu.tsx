@@ -13,6 +13,7 @@ import { createSelector } from "@reduxjs/toolkit";
 import { RootState } from "../../store/store";
 import DialogComponent from "../Settings/DialogComponent";
 import { createObjectChannel } from "../../utils/utils";
+import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 
 type Props = {
     chatInfo: Chat
@@ -52,10 +53,11 @@ const MembershipApplications: FC<{ quantity: CurrentUser[] }> = ({ quantity }) =
 
     const [isOpen, setOpen] = useState(false)
     const openList = () => setOpen(true)
+    const {t} = useTypedTranslation()
 
     return (
         <li style={{ display: 'flex', gap: '18px', alignItems: 'center' }}>
-            <span onClick={openList}>Заявки</span>
+            <span onClick={openList}>{t('requests')}</span>
             <div><Badge badgeContent={quantity.length} color="error" /></div>
             {isOpen &&
                 <DialogComponent isOpen={isOpen} onClose={setOpen}>
@@ -82,6 +84,7 @@ const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
     const selectedChat = useAppSelector(state => state.app.selectedChat)
     const isFavorites = useAppSelector(state => state.app.isFavorites)
     const quantity = useAppSelector(selectApplyForMembership)
+    const {t} = useTypedTranslation()
 
     const dispatch = useAppDispatch()
     const [animationOpen, setAnimationOpen] = useState(false)
@@ -159,12 +162,10 @@ const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
 
     const setMenu = () => {
         setAnimationOpen(false)
-        // setTimeout(() => setOpen(!isOpen), 180)
         setOpen(!isOpen)
     }
 
     useEffect(() => {
-        //setTimeout(() => setAnimationOpen(true), 10000)
         if (isOpen) setAnimationOpen(true)
         return () => setAnimationOpen(false)
     }, [isOpen]);
@@ -172,38 +173,38 @@ const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
     const targetNode = () => {
         if (isFavorites) return (
             <ul>
-                <li onClick={showSearchMessages}>Поиск</li>
-                <li onClick={clearChat}>Очистить историю</li>
+                <li onClick={showSearchMessages}>{t('search')}</li>
+                <li onClick={clearChat}>{t('cleanHistory')}</li>
             </ul>
         )
         else if (selectedChat?.channel) return (
             <ul>
-                <li onClick={showSearchMessages}>Поиск</li>
+                <li onClick={showSearchMessages}>{t('search')}</li>
                 {isMyChat ?
-                    !isOwner && <li onClick={unsubscribe}>Покинуть канал</li>
+                    !isOwner && <li onClick={unsubscribe}>{t('leaveTheChannel')}</li>
                     :
-                    <li onClick={subscribe}>Подписаться</li>
+                    <li onClick={subscribe}>{t('subscribe')}</li>
                 }
-                <li onClick={showInformation}>Информация</li>
+                <li onClick={showInformation}>{t('information')}</li>
                 {isOpen && isOwner && <MembershipApplications quantity={quantity} />}
 
             </ul>
         )
         else return (
             <ul>
-                <li onClick={showSearchMessages}>Поиск</li>
+                <li onClick={showSearchMessages}>{t('search')}</li>
                 {isContact ?
-                    <li onClick={deleteContact}>Удалить из контактов</li>
+                    <li onClick={deleteContact}>{t('removeFromContacts')}</li>
                     :
-                    <li onClick={addToContacts}>Добавить в контакты</li>
+                    <li onClick={addToContacts}>{t('addToContacts')}</li>
                 }
                 {isBlackList ?
-                    <li onClick={removeFromBlacklist}>Удалить из ЧС</li>
+                    <li onClick={removeFromBlacklist}>{t('removeFromBlackList')}</li>
                     :
-                    <li onClick={addToBlacklist}>Добавить в ЧС</li>
+                    <li onClick={addToBlacklist}>{t('addToBlackList')}</li>
                 }
-                <li onClick={clearChat}>Очистить историю</li>
-                <li onClick={deleteChat}>Удалить чат</li>
+                <li onClick={clearChat}>{t('cleanHistory')}</li>
+                <li onClick={deleteChat}>{t('removeChat')}</li>
             </ul>
         )
     }

@@ -11,6 +11,7 @@ import { setSelectedChannel, setTempChat } from "../../store/slices/appSlice";
 import { useChannelClickHandler } from "../../hooks/useHandleClickToChannel";
 import DialogComponent, { ConfirmComponent, NotFoundChannel } from "../Settings/DialogComponent";
 import { channelAPI, messagesAPI } from "../../API/api";
+import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 
 const ListComponent: FC<{ list: Chat[] }> = ({ list }) => {
     return (
@@ -113,6 +114,7 @@ const ChatList: FC = () => {
     const [globalSearchUsers, setGlobalSearchUsers] = useState([])
     const myChats = useAppSelector(state => state.app.chatsList)
     const currentUserID = useAppSelector(state => state.app.currentUser.uid)
+    const {t} = useTypedTranslation()
 
 
     useEffect(() => {
@@ -165,7 +167,7 @@ const ChatList: FC = () => {
                         <ListComponent list={filterMyChats} />
                     }
                     {name && globalSearchUsers.length === 0 &&
-                        <li className={styles.chatInfo}>Ничего не найдено</li>
+                        <li className={styles.chatInfo}>{t('nothingFound')}</li>
                     }
                 </ul>
             </div>

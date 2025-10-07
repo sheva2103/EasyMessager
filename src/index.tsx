@@ -5,6 +5,7 @@ import './index.scss'
 import { Provider } from 'react-redux'
 import { store } from './store/store'
 import './firebase'
+import './i18n'
 
 const root = document.getElementById('root')
 

@@ -15,6 +15,7 @@ import { CHANNELS_INFO } from "../../constants/constants";
 import { createObjectChannel } from "../../utils/utils";
 import DialogComponent, { ConfirmComponent } from "../Settings/DialogComponent";
 import DescriptionComponent from "../Settings/DescriptionComponent";
+import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 
 const test: CurrentUser[] = [
     { displayName: 'alexdb', photoURL: '', email: 'test1rt@test.com', uid: 'uhrtugjfghdhc' },
@@ -91,8 +92,9 @@ const ChannelFullInfoComponent: FC = () => {
     const dispatch = useAppDispatch()
     const channel = useAppSelector(state => state.app.selectedChannel || state.app.selectedChat.channel)
     const currentUser = useAppSelector(state => state.app.currentUser)
+    const {t} = useTypedTranslation()
     const isOwner = currentUser.uid === channel.owner.uid
-    const textAccessButoon = channel.isOpen ? 'Закрыть канал ?' : 'Открыть канал ?'
+    const textAccessButoon = channel.isOpen ? `${t('closeСhannel')}` : `${t('openChannel')}`
 
     const changeStateModal = (state: boolean) => {
         setModalState(prev => ({ ...prev, isOpen: state }))
@@ -122,15 +124,15 @@ const ChannelFullInfoComponent: FC = () => {
     }
 
     const targetComponent = (): JSX.Element => {
-        if (modalState.value === ModalAction.DELETE_CHANNEL) return <ConfirmComponent confirmFunc={deleteChannel} text="Вы уверены ?" />
+        if (modalState.value === ModalAction.DELETE_CHANNEL) return <ConfirmComponent confirmFunc={deleteChannel} text={t('areYouSure?')} />
         if(modalState.value === ModalAction.AVAILABILITY_CHANNEL) return <ConfirmComponent confirmFunc={changeAccessChannel} text={textAccessButoon}/>
         if (modalState.value === ModalAction.SHOW_SUBSCRIBERS_LIST) return <ListSubscribers channel={channel} currentUser={currentUser} isOwner={isOwner} />
         return null
     }
 
     const description = [
-        { title: 'Владелец', description: channel.owner.displayName, onClick: handleClick},
-        { title: 'Создан', description: channel.registrationDate.toString() },
+        { title: t('owner'), description: channel.owner.displayName, onClick: handleClick},
+        { title: t('created'), description: channel.registrationDate.toString() },
     ];
 
 
@@ -143,22 +145,6 @@ const ChannelFullInfoComponent: FC = () => {
                         <hr className={stylesSettings.hr} />
                     </div>
                 </div>
-                {/* <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }} className={stylesContacts.item}>
-                    <div style={{ width: '100%', textAlign: 'start', marginBottom: '4px' }}>
-                        <span style={{ fontSize: '1rem', fontWeight: 500 }}>
-                            Владелец:   <span style={{ cursor: 'pointer', color: '#8774e1' }} onClick={handleClick}>
-                                {channel.owner.displayName}
-                            </span>
-                        </span>
-                    </div>
-                    <div style={{ width: '100%', textAlign: 'start' }}>
-                        <span style={{ fontSize: '1rem', fontWeight: 500 }}>
-                            Создан:   <span>
-                                {channel.registrationDate.toString()}
-                            </span>
-                        </span>
-                    </div>
-                </div> */}
                 <div className={stylesContacts.item}>
                     <DescriptionComponent items={description}/>
                 </div>
@@ -168,14 +154,14 @@ const ChannelFullInfoComponent: FC = () => {
                         <div className={stylesContacts.item}>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                                 <button onClick={() => setModalState({ isOpen: true, value: ModalAction.AVAILABILITY_CHANNEL })}>{textAccessButoon}</button>
-                                <button onClick={() => setModalState({ isOpen: true, value: ModalAction.DELETE_CHANNEL })}>Удалить канал</button>
+                                <button onClick={() => setModalState({ isOpen: true, value: ModalAction.DELETE_CHANNEL })}>{t('removeChannel')}</button>
                             </div>
                         </div>
                         <hr className={stylesSettings.hr} />
                     </>
                 }
                 <div className={stylesContacts.item}>
-                    <button onClick={() => setModalState({ isOpen: true, value: ModalAction.SHOW_SUBSCRIBERS_LIST })}>Показать учасников</button>
+                    <button onClick={() => setModalState({ isOpen: true, value: ModalAction.SHOW_SUBSCRIBERS_LIST })}>{t('showSubscribers')}</button>
                 </div>
                 {modalState.isOpen &&
                     <DialogComponent isOpen={modalState.isOpen} onClose={changeStateModal}>

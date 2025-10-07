@@ -7,10 +7,11 @@ import LangIcon from '../../assets/translate.svg'
 import BlackList from "./BlackList";
 import SignOutButton from "./SignOutButton";
 import { useAppSelector } from "../../hooks/hook";
+import { useTranslation } from "react-i18next";
 
 
 const Settings: FC = () => {
-
+    const {t} = useTranslation()
     const currentUser = useAppSelector(state => state.app.currentUser)
 
     return (  
@@ -28,7 +29,7 @@ const Settings: FC = () => {
                         </div>
                         <div className={styles.containerItem}>
                             <div>
-                                <span>Язык</span>
+                                <span>{t("language")}</span>
                             </div>
                             <div>
                                 <Select />

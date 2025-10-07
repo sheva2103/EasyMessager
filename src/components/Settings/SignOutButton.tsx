@@ -3,10 +3,12 @@ import styles from './Settings.module.scss'
 import { getAuth, signOut } from "firebase/auth";
 import ArrowLeft from '../../assets/box-arrow-left.svg'
 import Preloader from '../../assets/preloader.svg'
+import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 
 const SignOutButton: FC = () => {
 
     const [load, setLoad] = useState(false)
+    const {t} = useTypedTranslation()
 
     const handleClick = async () => {
         setLoad(true)
@@ -26,7 +28,7 @@ const SignOutButton: FC = () => {
                 {!load ?
                     <div className={styles.button__content}>
                         <ArrowLeft />
-                        <span>выйти</span>
+                        <span>{t('logOut')}</span>
                     </div>
                     :
                     <Preloader />

@@ -8,11 +8,13 @@ import { clearSelectedMessage, closeBar, isSendMessage, setShowCheckbox } from "
 import { CONTACTS } from "../../constants/constants";
 import { messagesAPI } from "../../API/api";
 import Preloader from '../../assets/preloader.svg'
+import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 
 const BlockControl: FC = () => {
 
     const [deleting, setDeleting] = useState(false)
     const dispatch = useAppDispatch()
+    const {t} = useTypedTranslation()
     const selectedMessage = useAppSelector(state => state.app.selectedMessages)
     const chat = useAppSelector(state => state.app.selectedChat)
     const isFavorites = useAppSelector(state => state.app.isFavorites)
@@ -42,16 +44,16 @@ const BlockControl: FC = () => {
     return (  
         <div className={styles.blockControl}>
             <div className={styles.blockControl__item} onClick={canselSelected}>
-                <span>отмена</span>
+                <span>{t('cancel')}</span>
                 <div><Cansel /></div>
             </div>
-            <div className={styles.blockControl__item} onClick={handleClickSendMessages} title="Переслать">
+            <div className={styles.blockControl__item} onClick={handleClickSendMessages} title={t("forward")}>
                 <SendMessage 
                     cursor={'pointer'} 
                     fontSize={'1.4rem'}
                 />
             </div>
-            <div className={styles.blockControl__item} onClick={handleClickDeleteMessages} title="Удалить выбраное">
+            <div className={styles.blockControl__item} onClick={handleClickDeleteMessages} title={t('deleteSelected')}>
                 {!deleting ? 
                     <Delete cursor={'pointer'} fontSize={'1.4rem'}/>
                     :

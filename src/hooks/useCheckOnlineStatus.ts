@@ -117,11 +117,13 @@ import { useState, useEffect } from "react";
 import { getFirestore, doc, onSnapshot } from "firebase/firestore";
 import { formatStyle } from "../utils/utils";
 import { PresenceStatus, UsePresenceReturn } from "../types/types";
+import { useTypedTranslation } from "./useTypedTranslation";
 
 export const usePresenceStatus = (uid: string): UsePresenceReturn => {
     const [status, setStatus] = useState<PresenceStatus | null>(null);
     const [isOnline, setIsOnline] = useState<boolean>(false);
     const [formatted, setFormatted] = useState<string>("");
+    const {t, i18n} = useTypedTranslation()
 
     useEffect(() => {
         const firestore = getFirestore();
@@ -133,7 +135,7 @@ export const usePresenceStatus = (uid: string): UsePresenceReturn => {
             const now = Date.now();
             const isStillOnline = now - lastSeen < 65000;
             setIsOnline(isStillOnline);
-            setFormatted(formatStyle(lastSeen));
+            setFormatted(formatStyle(lastSeen, t,i18n));
         };
 
         const unsubscribe = onSnapshot(userRef, (snapshot) => {

@@ -13,6 +13,7 @@ import { Message1, StyleContextMenu } from '../../types/types';
 import { addSelectedMessage, changeMessage, closeBar, isSendMessage, setReplyToMessage, setShowCheckbox } from '../../store/slices/appSlice';
 import { messagesAPI } from '../../API/api';
 import { CONTACTS } from '../../constants/constants';
+import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 
 const ANIMATION_DURATION = 190
 
@@ -27,12 +28,14 @@ type Props = {
 
 
 
-const ContextMenu: FC<Props> = ({ isOpen, closeContextMenu, isOwner, message, positionMenu, isForwarder }) => {
+const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, positionMenu, isForwarder }) => {
 
     const dispatch = useAppDispatch()
     const chat = useAppSelector(state => state.app.selectedChat)
     const isFavorites = useAppSelector(state => state.app.isFavorites)
     const [animationOpen, setAnimationOpen] = useState(false)
+    //const {t} = useTranslation()
+    const {t} = useTypedTranslation()
 
     useEffect(() => {
         setAnimationOpen(true)
@@ -81,19 +84,19 @@ const ContextMenu: FC<Props> = ({ isOpen, closeContextMenu, isOwner, message, po
         >
             <div style={positionMenu} className={styles.contextMenu}>
                 <ul className={classNames({ [styles.showAnimation]: animationOpen })}>
-                    <li onClick={replyToMessage}><Reply /><span>Ответить</span></li>
-                    <li onClick={forwardMessage}><SendMessage /><span>Переслать</span></li>
-                    <li onClick={copyMessage}><Copy /><span>Копировать текст</span></li>
+                    <li onClick={replyToMessage}><Reply /><span>{t('answer')}</span></li>
+                    <li onClick={forwardMessage}><SendMessage /><span>{t('forward')}</span></li>
+                    <li onClick={copyMessage}><Copy /><span>{t('copyText')}</span></li>
                     {isOwner && !isForwarder &&
-                        <li onClick={change}><Change /><span>Изменить</span></li>
+                        <li onClick={change}><Change /><span>{t('change')}</span></li>
                     }
-                    <li onClick={deleteMessage}><Delete /><span>Удалить</span></li>
+                    <li onClick={deleteMessage}><Delete /><span>{t('delete')}</span></li>
                     <li
                         onClick={selectSeveral}
                         className={classNames(styles.selectSeveral)}
                     >
                         <Select />
-                        <span>Выбрать несколько</span>
+                        <span>{t('selectSeveral')}</span>
                     </li>
                 </ul>
             </div>

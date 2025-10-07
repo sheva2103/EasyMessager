@@ -14,6 +14,7 @@ import { db } from "../../firebase";
 import { CHANNELS_INFO, SHOW_CHANNEL_INFO, SHOW_USER_INFO } from "../../constants/constants";
 import ShowNameChat from "./ShowNameChat";
 import { closeBar } from "../../store/slices/appSlice";
+import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 
 export const LoadChatComponent: FC<{ isLoad: boolean }> = ({ isLoad }) => {
 
@@ -29,26 +30,28 @@ export const LoadChatComponent: FC<{ isLoad: boolean }> = ({ isLoad }) => {
 const SubscribersComponent: FC = () => {
 
     const subscribers = useAppSelector(state => state.app.selectedChannel?.listOfSubscribers)
+    const {t} = useTypedTranslation()
 
     return (
         <span className={styles.subscribers}>
-            Подписчики:  <span style={{ fontWeight: 500 }}>{subscribers?.length || 0}</span>
+            {t('subscribers')}:  <span style={{ fontWeight: 500 }}>{subscribers?.length || 0}</span>
         </span>
     );
 }
 
 const OnlineStatusComponent: FC = () => {
     const status = useAppSelector(state => state.app.onlineStatusSelectedUser)
+    const {t} = useTypedTranslation()
 
     if(status?.isOnline) return (
         <span className={styles.subscribers}>
-            <span style={{ fontWeight: 500 }}>В сети</span>
+            <span style={{ fontWeight: 500 }}>{t('online')}</span>
         </span>
     )
 
     return (
         <span className={styles.subscribers}>
-            Был в сети:  <span style={{ fontWeight: 500 }}>{status?.formatted}</span>
+            {t('wasOnline')}:  <span style={{ fontWeight: 500 }}>{status?.formatted}</span>
         </span>
     )
 }
@@ -58,6 +61,7 @@ const HeaderChat: FC<{ selectedChat: Chat }> = ({ selectedChat }) => {
 
     const isFavorites = useAppSelector(state => state.app.isFavorites)
     const dispatch = useAppDispatch()
+    const {t} = useTypedTranslation()
     const closeChat = () => {
         dispatch(setChat(null))
     }
@@ -78,15 +82,11 @@ const HeaderChat: FC<{ selectedChat: Chat }> = ({ selectedChat }) => {
                     <span onClick={handleClick} style={{ cursor: 'pointer' }}>{!isFavorites ?
                         isChannel ? <ShowNameChat /> : selectedChat.displayName
                         :
-                        'Избранное'}</span>
+                        t('favorites')}</span>
                     {selectedChat?.channel ?
-                        // <span className={styles.subscribers}>
-                        //     Подписчики:
-                        //     <span style={{ fontWeight: 500 }}>  {selectedChat.channel.subscribers}</span>
-                        // </span>
                         <SubscribersComponent />
                         :
-                        <OnlineStatusComponent />
+                        isFavorites ? null : <OnlineStatusComponent />
                     }
                 </div>
                 <ChatMenu selectedChat={selectedChat} />
@@ -99,11 +99,12 @@ const HeaderChat: FC<{ selectedChat: Chat }> = ({ selectedChat }) => {
 const ChatContent: FC = () => {
 
     const selectedChat = useAppSelector(state => state.app.selectedChat)
+    const {t} = useTypedTranslation()
 
     if (!selectedChat) {
         return (
             <div className={classNames(styles.contentContainer, { [styles.notSelected]: !selectedChat })}>
-                <span>Выберите чат...</span>
+                <span>{t('selectChat')}...</span>
             </div>
         )
     }

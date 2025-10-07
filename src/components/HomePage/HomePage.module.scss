@@ -828,6 +828,9 @@
 
     .blockControl__item {
         padding: 0 6px;
+        & span:hover {
+            color: #9a86ff;
+        }
 
         & > div {
             display: none;

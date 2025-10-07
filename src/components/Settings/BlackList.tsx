@@ -10,6 +10,7 @@ import { Dialog } from "@mui/material";
 import { CurrentUser } from "../../types/types";
 import CloseMenuIcon from '../../assets/closeDesktop.svg'
 import DialogComponent from "./DialogComponent";
+import { useTranslation } from "react-i18next";
 
 const dialogStyle = styles.listStyle
 
@@ -73,6 +74,7 @@ const BlackList: FC = () => {
     const [open, setOpen] = useState(false)
     const list = useAppSelector(state => state.app.blackList)
     const currentUserEmail = useAppSelector(state => state.app.currentUser.email)
+    const {t} = useTranslation()
 
     return (
         <div className={styles.item}>
@@ -82,7 +84,7 @@ const BlackList: FC = () => {
                 </div>
                 <div className={styles.containerItem} onClick={() => setOpen(() => !open)}>
                     <div>
-                        <span style={{ cursor: 'pointer' }}>Чёрный список</span>
+                        <span style={{ cursor: 'pointer' }}>{t('darkList')}</span>
                     </div>
                     {open ?
                         <ArrowUp cursor={'pointer'} />

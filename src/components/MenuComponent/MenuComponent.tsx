@@ -11,12 +11,14 @@ import { CONTACTS, CREATE_CHANNEL, SETTINGS } from "../../constants/constants";
 import MenuChild from "./MenuChild";
 import UserInfo from "./UserInfo";
 import CloseMenu from "./CloseMenu";
+import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 
 const MenuComponent: FC = () => {
 
     const isOpen = useAppSelector(state => state.app.menu)
     const dispatch = useAppDispatch()
     const currentUser = useAppSelector(state => state.app.currentUser)
+    const {t} = useTypedTranslation()
 
     const stopPropagation = (e: React.MouseEvent) => {
         e.stopPropagation()
@@ -38,16 +40,16 @@ const MenuComponent: FC = () => {
                 <div>
                     <ul className={styles.list}>
                         <li onClick={() => dispatch(closeBar(CREATE_CHANNEL))}>
-                            <CreateChannelIcon /><span>Создать канал</span>
+                            <CreateChannelIcon /><span>{t('createChannel')}</span>
                         </li>
                         <li onClick={() => dispatch(closeBar(SETTINGS))}>
-                            <SettingsIcon /><span>Настройки</span>
+                            <SettingsIcon /><span>{t('settings')}</span>
                         </li>
                         <li onClick={() => dispatch(closeBar(CONTACTS))}>
-                            <ContactsIcon /><span>Контакты</span>
+                            <ContactsIcon /><span>{t('contacts')}</span>
                         </li>
                         <li onClick={toFavorites}>
-                            <FavoritesIcon /><span>Избранное</span>
+                            <FavoritesIcon /><span>{t('favorites')}</span>
                         </li>
                     </ul>
                 </div>

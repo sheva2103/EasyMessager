@@ -2,6 +2,7 @@ import { FC, useState } from "react";
 // import styles from './Settings.module.scss'
 import Select, { OnChangeValue } from 'react-select'
 import style from'./Settings.module.scss'
+import { useTranslation } from "react-i18next";
 
 type SelectComponentType = {
     value: string,
@@ -22,21 +23,21 @@ type SelectComponentType = {
 // }
 
 const options: SelectComponentType[] = [
-    { value: 'ukraine', label: 'Українська' },
-    { value: 'russian', label: 'Русский' },
-    { value: 'english', label: 'English' }
+    { value: 'uk', label: 'Українська' },
+    { value: 'ru', label: 'Русский' },
+    { value: 'en', label: 'English' }
 ]
 
 const SelectComponent: FC = () => {
-    const [selectedOption, setSelectedOption] = useState('russian');
+    const {i18n} = useTranslation()
+    const currentLang = i18n.language
 
-    const onChange = (newValue: string) => {
-        setSelectedOption(newValue)
+    const onChange = (newValue: SelectComponentType) => {
+        i18n.changeLanguage(newValue.value)
     }
 
-    const getValue = () => selectedOption ? options.find(v => v.value === selectedOption) : ''
+    const getValue = () => currentLang ? options.find(v => v.value === currentLang) : ''
 
-    console.log(selectedOption)
     return (
         <Select
             value={getValue()}
@@ -47,6 +48,4 @@ const SelectComponent: FC = () => {
     )
 }
 
-
-// export default Select;
 export default SelectComponent

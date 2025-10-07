@@ -4,6 +4,9 @@ import { format } from "@formkit/tempo"
 import { db } from "../firebase"
 import { searchAPI } from "../API/api";
 import { CHANNELS, CHANNELS_INFO, CHATS, FAVOTITES, USERS } from "../constants/constants";
+import { useTypedTranslation } from "../hooks/useTypedTranslation";
+import { TranslationKeys } from "../types/locales";
+import { i18n } from "i18next";
 
 
 export function createChatList(data: Chat[]) {
@@ -223,7 +226,28 @@ export function createOnlineStatusUser(date: number): OnlineStatusUserType {
 }
 
 
-export const formatStyle = (timestamp: number): string => {
+// export const formatStyle = (timestamp: number): string => {
+//     const now = Date.now();
+//     const diff = now - timestamp;
+
+//     const seconds = Math.floor(diff / 1000);
+//     const minutes = Math.floor(diff / 60000);
+//     const hours = Math.floor(diff / 3600000);
+//     const days = Math.floor(diff / 86400000);
+
+//     if (seconds < 60) return "только что";
+//     if (minutes < 60) return `${minutes} ${pluralize(minutes, "минуту", "минуты", "минут")} назад`;
+//     if (hours < 24) return `${hours} ${pluralize(hours, "час", "часа", "часов")} назад`;
+//     if (days === 1) return "вчера";
+//     if (days < 7) return `${days} ${pluralize(days, "день", "дня", "дней")} назад`;
+
+//     const date = new Date(timestamp);
+//     return `${date.toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}`;
+// };
+
+export const formatStyle = (timestamp: number, t: (key: TranslationKeys, options?: Record<string, unknown>) => string, i18n: i18n): string => {
+    //const {t, i18n} = useTypedTranslation()
+
     const now = Date.now();
     const diff = now - timestamp;
 
@@ -232,15 +256,28 @@ export const formatStyle = (timestamp: number): string => {
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
 
-    if (seconds < 60) return "только что";
-    if (minutes < 60) return `${minutes} ${pluralize(minutes, "минуту", "минуты", "минут")} назад`;
-    if (hours < 24) return `${hours} ${pluralize(hours, "час", "часа", "часов")} назад`;
-    if (days === 1) return "вчера";
-    if (days < 7) return `${days} ${pluralize(days, "день", "дня", "дней")} назад`;
+    if (seconds < 60) return t("time.justNow");
+    if (minutes < 60)
+        return t("time.minutesAgo", {
+            count: minutes,
+        });
+    if (hours < 24)
+        return t("time.hoursAgo", {
+            count: hours,
+        });
+    if (days === 1) return t("time.yesterday");
+    if (days < 7)
+        return t("time.daysAgo", {
+            count: days,
+        });
 
     const date = new Date(timestamp);
-    return `${date.toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}`;
+    return date.toLocaleDateString(i18n.language, {
+        day: "numeric",
+        month: "long",
+    });
 };
+
 
 const pluralize = (count: number, one: string, few: string, many: string): string => {
     const mod10 = count % 10;

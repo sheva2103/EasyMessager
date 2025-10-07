@@ -12,6 +12,7 @@ import ReadIcon from '../../assets/check2-all.svg'
 import { messagesAPI } from "../../API/api";
 import { useInView } from 'react-intersection-observer';
 import { setTempChat } from "../../store/slices/appSlice";
+import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 
 
 const HEIGHT_MENU_FOR_OWNER = 220
@@ -32,6 +33,7 @@ const ForwardedFrom: FC<ForwardedFromProps> = ({ user }) => {
     const dispatch = useAppDispatch()
     const currentUser = useAppSelector(state => state.app.currentUser)
     const selectedChat = useAppSelector(state => state.app.selectedChat)
+    const {t} = useTypedTranslation()
     const name = user?.channel ? user.channel.displayName : user.displayName
 
     const handleClick = (event: React.MouseEvent) => {
@@ -40,7 +42,7 @@ const ForwardedFrom: FC<ForwardedFromProps> = ({ user }) => {
 
     return (
         <div className={styles.messageData__forwardedFrom}>
-            <span>переслано от:</span>
+            <span>{`${t('forwardedFrom')}`}</span>
             <br />
             <span style={{ fontWeight: 500 }} onClick={handleClick} id="forwardedFromName">{name}</span>
         </div>
