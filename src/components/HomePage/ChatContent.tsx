@@ -47,7 +47,7 @@ const OnlineStatusComponent: FC = () => {
     const isSelectedMessages = useAppSelector(state => state.app.selectedMessages)
     const {t} = useTypedTranslation()
 
-    if(isSelectedMessages.length) return null
+    if(isSelectedMessages?.length) return null
 
     if(status?.isOnline) return (
         <span className={styles.subscribers}>
