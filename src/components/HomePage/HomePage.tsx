@@ -13,6 +13,7 @@ import { createChatList, createMessageList } from '../../utils/utils';
 import { db } from '../../firebase';
 import { setMessages } from '../../store/slices/messagesSlice';
 import useUserPresence from '../../hooks/useUserPresence';
+import CallRoomComponent from '../CallRoom/CallRoomComponent';
 
 const HomaPage = () => {
 
@@ -90,6 +91,7 @@ const HomaPage = () => {
                 </div>
                 <ChatContent />
                 <MenuComponent />
+                <CallRoomComponent />
             </div>
         </div>
     );

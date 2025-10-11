@@ -7,7 +7,7 @@ import InputComponent from "../../InputComponent/InputComponent";
 import { createObjectChannel, globalSearch } from "../../utils/utils";
 import ChannelInfo from "./ChannelInfo";
 import { setChat } from "../../store/slices/setChatIDSlice";
-import { setSelectedChannel, setTempChat } from "../../store/slices/appSlice";
+import { setTempChat } from "../../store/slices/appSlice";
 import { useChannelClickHandler } from "../../hooks/useHandleClickToChannel";
 import DialogComponent, { ConfirmComponent, NotFoundChannel } from "../Settings/DialogComponent";
 import { channelAPI, messagesAPI } from "../../API/api";
@@ -53,6 +53,7 @@ const TempChat: FC<{ tempChat: Chat | null }> = ({ tempChat }) => {
     const currentUser = useAppSelector(state => state.app.currentUser)
     const [isNotAccess, setIsNotAccess] = useState(false)
     const [notFoundChannel, setNotFoundChannel] = useState(false)
+    const {t} = useTypedTranslation()
     const isChannel = tempChat?.channel ? true : false
     const currentComponent = isChannel ? <ChannelInfo {...tempChat} /> : <ChatInfo {...tempChat} />
     const { handleClickToChannel } = useChannelClickHandler()
@@ -91,7 +92,7 @@ const TempChat: FC<{ tempChat: Chat | null }> = ({ tempChat }) => {
             <ConfirmComponent
                 confirmFunc={sendRequest}
                 handleClose={() => setIsNotAccess(false)}
-                text="Это закрытое сообщество. Хотите подать заявку ?" />
+                text={t("notificationClosedCommunity")} />
         </DialogComponent>
     )
 
@@ -119,21 +120,11 @@ const ChatList: FC = () => {
 
     useEffect(() => {
         if (name) {
-            // searchAPI.searchUser(name)
-            //     .then(chat => {
-            //         const filterChat = chat.filter(item => item.uid !== currentUserID)
-            //         setGlobalSearchUsers(filterChat)
-            //     })
-            // searchAPI.searchChannel(name).then(channels => console.log(channels))
-            ///////////////////
             const fetchData = async () => {
                 const response = await globalSearch(name, currentUserID)
                 setGlobalSearchUsers(response)
             }
             fetchData()
-
-
-            /////////////////////
         }
     }, [name]);
 
@@ -150,20 +141,8 @@ const ChatList: FC = () => {
                 <ul className={styles.chatList}>
                     <TempChatComponent />
                     {name.length ?
-                        // globalSearchUsers.map((item: Chat) => (
-                        //         <ChatInfo key={item.uid + 'global'}
-                        //             {...item}
-                        //             globalSearch
-                        //         />
-                        // )
-                        // )
                         <ListComponent list={globalSearchUsers} />
                         :
-                        // filterMyChats.map((item) => (
-                        //     <ChatInfo key={item.uid}
-                        //         {...item}
-                        //     />
-                        // ))
                         <ListComponent list={filterMyChats} />
                     }
                     {name && globalSearchUsers.length === 0 &&

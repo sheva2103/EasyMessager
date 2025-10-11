@@ -34,7 +34,8 @@ type AppState = {
     selectedChannel: TypeChannel | null,
     clearGlobalSearchUser: boolean,
     onlineStatusSelectedUser: UsePresenceReturn,
-    tempChat: Chat | null
+    tempChat: Chat | null,
+    isCallRoomOpen: boolean
 }
 
 const resetChatState = (state: AppState) => {
@@ -74,7 +75,8 @@ const initialState: AppState = {
     selectedChannel: null,
     clearGlobalSearchUser: false,
     onlineStatusSelectedUser: null,
-    tempChat: null
+    tempChat: null,
+    isCallRoomOpen: false
 
 }
 
@@ -116,9 +118,11 @@ export const appSlice = createSlice({
         changeMessage(state, action: PayloadAction<Message1 | null>) {
             state.changeMessage = action.payload
             if (!action.payload) state.replyToMessage = null
+            if(state.replyToMessage) state.replyToMessage = null
         },
         setReplyToMessage(state, action: PayloadAction<Message1 | null>) {
             state.replyToMessage = action.payload
+            if(state.changeMessage) state.changeMessage = null
         },
         isSendMessage(state, action: PayloadAction<boolean>) {
             state.isSendMessage = action.payload
@@ -189,6 +193,9 @@ export const appSlice = createSlice({
         },
         setTempChat(state, action: PayloadAction<Chat>) {
             state.tempChat = action.payload
+        },
+        setIsCallRoom(state, action: PayloadAction<boolean>) {
+            state.isCallRoomOpen = action.payload
         }
     },
     extraReducers: (builder) => {
@@ -235,6 +242,7 @@ export const { openMenu,
     updateSelectedChannel,
     setClearGlobalSearchUser,
     setOnlineStatusSelectedUser,
-    setTempChat
+    setTempChat,
+    setIsCallRoom
 } = appSlice.actions
 export default appSlice.reducer

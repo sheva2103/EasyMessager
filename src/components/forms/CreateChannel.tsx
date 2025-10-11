@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { closeMenu, setSelectedChannel } from "../../store/slices/appSlice";
 import { createObjectChannel } from "../../utils/utils";
 import { Chat } from "../../types/types";
+import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 
 type Form = {
     name: string,
@@ -23,13 +24,13 @@ function defineTypeChannel(data: Form): boolean {
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-//const NAME_REGEXP = /^[a-zA-Z0-9_*-@ ]{4,20}$/;
 const NAME_REGEXP = /^[\p{L}0-9_*\s-]{4,20}$/u;
 
 const CreateChannel: FC = () => {
 
     const currentUser = useAppSelector(state => state.app.currentUser)
     const dispatch = useAppDispatch()
+    const {t} = useTypedTranslation()
     const { register, handleSubmit, formState: { errors, isSubmitting }, reset, setError } = useForm<Form>({
         mode: 'onSubmit',
         defaultValues: {
@@ -39,12 +40,6 @@ const CreateChannel: FC = () => {
 
     const submit: SubmitHandler<Form> = async (data) => {
 
-        // await sleep(500).then(data1 => {
-        //     console.log(data)
-        //     const submitData = {name: data.name, isOpen: defineTypeChannel(data) }
-        //     console.log(submitData)
-        //     reset()
-        // })
         const isFreeName = await channelAPI.checkName(data.name)
         if (isFreeName) {
             const isOpen = defineTypeChannel(data)
@@ -55,7 +50,7 @@ const CreateChannel: FC = () => {
                     dispatch(setSelectedChannel(chanelObj))
                 }))
         } else {
-            setError('name', {message: 'Такое имя уже существует'})
+            setError('name', {message: t('errorRegName')})
         }
 
     }
@@ -65,13 +60,13 @@ const CreateChannel: FC = () => {
             <div className={styles.item}>
                 <input
                     type="text"
-                    placeholder="Введите название"
+                    placeholder={t('enterTheName')}
                     {...register('name',
                         {
-                            required: { value: true, message: 'обязательное поле' },
-                            minLength: { value: 4, message: 'минимум 4 символа' },
-                            maxLength: { value: 20, message: 'максимум 20 символов' },
-                            pattern: { value: NAME_REGEXP, message: 'цыфры буквы и символы(_*-@)' }
+                            required: { value: true, message: t("form.required") },
+                            minLength: { value: 4, message: t('form.min') },
+                            maxLength: { value: 20, message: t('form.max') },
+                            pattern: { value: NAME_REGEXP, message: t('form.chars') }
                         })}
                 />
                 <div className={styles.error}>
@@ -82,11 +77,11 @@ const CreateChannel: FC = () => {
                 <div className={styles.labelGroup}>
                     <label>
                         <input type="radio" name="type" value={OPEN} {...register('isOpen')} />
-                        открытый
+                        {t('open')}
                     </label>
                     <label>
                         <input type="radio" name="type" value={CLOSED} {...register('isOpen')} />
-                        закрытый
+                        {t('closed')}
                     </label>
                 </div>
             </div>

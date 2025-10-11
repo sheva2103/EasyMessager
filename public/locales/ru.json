@@ -31,7 +31,7 @@
     "areYouSure?": "Вы уверены?",
     "yes": "Да",
     "no": "Нет",
-    "answer": "Ответ",
+    "answer": "Ответить",
     "forward": "Переслать",
     "copyText": "Копировать текст",
     "delete": "Удалить",
@@ -51,6 +51,16 @@
     "deleteSelected": "Удалить выбранное",
     "leaveTheChannel": "Покинуть канал",
     "subscribe": "Подписаться",
+    "notificationClosedCommunity": "Это закрытое сообщество. Хотите подать заявку ?",
+    "registration": "Registration",
+    "signIn": "Войти",
+    "errorRegName": "Такое имя уже существует",
+    "form": {
+        "chars": "Цифры, буквы и символы (_*-@)",
+        "max": "Максимум 20 символов",
+        "min": "Минимум 4 символа",
+        "required": "Обязательное поле"
+    },
     "time": {
         "justNow": "только что",
         "minutesAgo": "{{count}} минуту назад",

@@ -51,6 +51,16 @@
     "deleteSelected": "Delete selected",
     "leaveTheChannel": "Leave the channel",
     "subscribe": "Subscribe",
+    "notificationClosedCommunity": "This is a closed community. Would you like to apply ?",
+    "registration": "Registration",
+    "signIn": "Sign in",
+    "errorRegName": "This name already exists",
+    "form": {
+        "chars": "Numbers, letters and symbols (_*-@)",
+        "max": "Maximum 20 characters",
+        "min": "Minimum 4 characters",
+        "required": "Required field"
+    },
     "time": {
         "justNow": "just now",
         "minutesAgo": "{{count}} minute ago",

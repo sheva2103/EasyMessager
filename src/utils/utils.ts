@@ -176,6 +176,7 @@ export function getQuantityNoReadMessages(list: Message1[], currentId: string): 
             }
         }
     }
+    if(list[list.length - 1].sender.uid === currentId) targetIndex = list.length 
     return { quantity, targetIndex }
 }
 

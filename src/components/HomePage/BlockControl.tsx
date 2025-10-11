@@ -43,9 +43,10 @@ const BlockControl: FC = () => {
 
     return (  
         <div className={styles.blockControl}>
-            <div className={styles.blockControl__item} onClick={canselSelected}>
-                <span>{t('cancel')}</span>
-                <div><Cansel /></div>
+            <div className={styles.blockControl__item}>
+                <button onClick={canselSelected}>
+                    {t('cancel')}
+                </button>
             </div>
             <div className={styles.blockControl__item} onClick={handleClickSendMessages} title={t("forward")}>
                 <SendMessage 

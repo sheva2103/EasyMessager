@@ -7,6 +7,7 @@ import { Chat, CurrentUser } from "../../types/types";
 import { contactsAPI, messagesAPI } from "../../API/api";
 import { setChat } from "../../store/slices/setChatIDSlice";
 import InputComponent from "../../InputComponent/InputComponent";
+import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 
 const test: CurrentUser[] = [
     { displayName: 'alexdb', photoURL: '', email: 'test1rt@test.com', uid: 'uhrtugjfghdhc' },
@@ -36,10 +37,7 @@ const Contacts: FC = () => {
     const isSend = useAppSelector(state => state.app.isSendMessage)
     const selectedMessageList = useAppSelector(state => state.app.selectedMessages)
     const currentUser = useAppSelector(state => state.app.currentUser)
-
-    // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     setName(e.target.value)
-    // }
+    const {t} = useTypedTranslation()
 
     const removeFromContacts = (e: React.MouseEvent, contact: Chat) => {
         e.stopPropagation()
@@ -47,15 +45,9 @@ const Contacts: FC = () => {
         console.log('удалён из контактов')
     }
 
-    //настроить прелоадер для загрузки и отображение пересланых сообщений
-
-
     const handleClickName = (user: Chat) => {
-
         if (isSend) {
-            console.log('переслал несколько')
             const allMessages: Promise<void>[] = []
-            // selectedMessageList.forEach(item => allMessages.push(messagesAPI.forwardedMessageFrom(user.chatID, currentUser,item.message, item.sender)))
             selectedMessageList.forEach(item => allMessages.push(messagesAPI.forwardedMessageFrom(currentUser, user, item)))
             setSending(true)
             Promise.all(allMessages)
@@ -92,23 +84,16 @@ const Contacts: FC = () => {
     return (
         <div className={styles.container}>
             <div className={styles.item}>
-                <span>Контакты</span>
+                <span>{t('contacts')}</span>
             </div>
             <InputComponent classes={styles.item} returnValue={setName}/>
-            {/* <div className={styles.item}>
-                <input type="text"
-                    value={name}
-                    onChange={handleChange}
-                />
-            </div> */}
             <div className={styles.item}>
                 <ul className={styles.list}>
-                    <li onClick={sendToFavorites}><span>Избранное</span></li>
-                    {!contactsList.length && <span>Контакты не найдены</span>}
-                    {filter.map((item, index) => (
+                    <li onClick={sendToFavorites}><span>{t('favorites')}</span></li>
+                    {filter.map((item) => (
                         <li key={String(item.uid)} onClick={() => handleClickName(item)}>
                             <span >{item.displayName}</span>
-                            {!isSend && <div title="Удалить из друзей"
+                            {!isSend && <div title={t('removeFromContacts')}
                                 onClick={(e) => removeFromContacts(e, item)}
                             >
                                 <RemoveFromContacts />

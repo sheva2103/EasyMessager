@@ -51,6 +51,14 @@ export type TranslationKeys =
     | "deleteSelected"
     | "leaveTheChannel"
     | "subscribe"
+    | "notificationClosedCommunity"
+    | "registration"
+    | "signIn"
+    | "errorRegName"
+    | 'form.chars' 
+    | 'form.max' 
+    | 'form.min' 
+    | 'form.required'
     | "time.justNow"
     | "time.minutesAgo"
     | "time.minutesAgo_plural"

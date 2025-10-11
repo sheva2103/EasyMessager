@@ -13,8 +13,11 @@ import { doc, DocumentSnapshot, onSnapshot } from "firebase/firestore";
 import { db } from "../../firebase";
 import { CHANNELS_INFO, SHOW_CHANNEL_INFO, SHOW_USER_INFO } from "../../constants/constants";
 import ShowNameChat from "./ShowNameChat";
-import { closeBar } from "../../store/slices/appSlice";
+import { closeBar, setIsCallRoom } from "../../store/slices/appSlice";
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
+import { CallRoom } from "../CallRoom/CallRoom";
+import CallRoomComponent from "../CallRoom/CallRoomComponent";
+import CallIcon from '../../assets/telephone-fill.svg'
 
 export const LoadChatComponent: FC<{ isLoad: boolean }> = ({ isLoad }) => {
 
@@ -41,7 +44,10 @@ const SubscribersComponent: FC = () => {
 
 const OnlineStatusComponent: FC = () => {
     const status = useAppSelector(state => state.app.onlineStatusSelectedUser)
+    const isSelectedMessages = useAppSelector(state => state.app.selectedMessages)
     const {t} = useTypedTranslation()
+
+    if(isSelectedMessages.length) return null
 
     if(status?.isOnline) return (
         <span className={styles.subscribers}>
@@ -53,6 +59,23 @@ const OnlineStatusComponent: FC = () => {
         <span className={styles.subscribers}>
             {t('wasOnline')}:  <span style={{ fontWeight: 500 }}>{status?.formatted}</span>
         </span>
+    )
+}
+
+const CallButton: FC<{isChannel: boolean}> = ({isChannel}) => {
+    const isShow = useAppSelector(state => state.app.showCheckbox)
+    const dispatch = useAppDispatch()
+
+    if(isShow || isChannel) return null
+
+    return (
+        <div className={styles.contentHeader__callButton}>
+            <div className={styles.item}>
+                <button onClick={() => dispatch(setIsCallRoom(true))}>
+                    <CallIcon fontSize={'1rem'}/>
+                </button>
+            </div>
+        </div>
     )
 }
 
@@ -75,7 +98,7 @@ const HeaderChat: FC<{ selectedChat: Chat }> = ({ selectedChat }) => {
     return (
         <header>
             <div className={styles.closeIcon} onClick={closeChat}>
-                <ArrowLeftIcon fontSize={'2rem'} />
+                <ArrowLeftIcon cursor={'pointer'}/>
             </div>
             <div className={styles.contentHeader}>
                 <div className={styles.contentHeader__selectedChat}>
@@ -89,6 +112,8 @@ const HeaderChat: FC<{ selectedChat: Chat }> = ({ selectedChat }) => {
                         isFavorites ? null : <OnlineStatusComponent />
                     }
                 </div>
+                {/* {!isChannel && <CallRoomComponent />} */}
+                <CallButton isChannel={isChannel}/>
                 <ChatMenu selectedChat={selectedChat} />
             </div>
         </header>
@@ -114,7 +139,6 @@ const ChatContent: FC = () => {
 
     return (
         <div className={classNames(styles.contentContainer, { [styles.showContent]: selectedChat })}>
-            {/* <LoadChatComponent /> */}
             <div className={styles.header}>
                 <HeaderChat selectedChat={selectedChat} />
             </div>

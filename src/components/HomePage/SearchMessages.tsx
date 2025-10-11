@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { setSearchMessages } from "../../store/slices/appSlice";
 import { searchMessagesInList } from "../../utils/utils";
 import { useDebounce } from 'use-debounce';
+import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 
 type Props = {
     list: Message1[],
@@ -18,6 +19,7 @@ const SearchMessages: FC<Props> = ({ list, setTargetMessages }) => {
     const [debouncedText] = useDebounce(text, 1000);
     const inputRefContainer = useRef<HTMLDivElement>(null)
     const inputRef = useRef<HTMLInputElement>(null)
+    const {t} = useTypedTranslation()
     const dispatch = useAppDispatch()
     const show = () => {
         if (inputRefContainer.current) {
@@ -68,7 +70,7 @@ const SearchMessages: FC<Props> = ({ list, setTargetMessages }) => {
                     />
                 </div>
                 <div className={styles.searchMessages_button}>
-                    <button onClick={hide}>cancel</button>
+                    <button onClick={hide}>{t('cancel')}</button>
                 </div>
             </div>
         </div>

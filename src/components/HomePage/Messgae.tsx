@@ -150,18 +150,29 @@ const Message: FC<Props> = ({ messageInfo }) => {
 
     const setPositionMenu = (e: MouseEvent) => {
         const position = { top: 0, left: 0 }
+        function getAdjustedTop(clickY: number): number {
+            const windowHeight = window.innerHeight
+            const spaceBelow = windowHeight - clickY
+            if (spaceBelow >= HEIGHT_MENU_FOR_OWNER) {
+                return clickY
+            } else {
+                const offset = HEIGHT_MENU_FOR_OWNER - spaceBelow
+                return Math.max(0, clickY - offset)
+            }
+        }
         const styleContainer: HTMLDivElement = document.querySelector('.ReactVirtualized__Grid')
         const parentContainer: HTMLDivElement = document.querySelector('.ReactVirtualized__Grid__innerScrollContainer')
         virtualizedListElementRef.current = styleContainer
-        //styleContainer.style.willChange = 'auto'
-        //styleContainer.style.overflow = 'hidden'
         const parentRect = parentContainer.getBoundingClientRect();
         const clickX = e.clientX - parentRect.left;
         const positionClickTop = e.clientY
         const positionClickLeft = e.clientX
-        const topIndent = positionClickTop - HEIGHT_HEADER
-        topIndent > HEIGHT_MENU_FOR_OWNER ? position.top = positionClickTop - (isOwner && !isForwarder ? HEIGHT_MENU_FOR_OWNER : HEIGHT_MENU_FOR_GUEST) : position.top = positionClickTop
+        const topIndent = positionClickTop //- HEIGHT_HEADER
         clickX > WIDTH_MENU ? position.left = positionClickLeft - 168 : position.left = positionClickLeft
+        topIndent > HEIGHT_MENU_FOR_OWNER ?
+                position.top = positionClickTop - (isOwner && !isForwarder ? HEIGHT_MENU_FOR_OWNER : HEIGHT_MENU_FOR_GUEST)
+                : 
+                position.top = getAdjustedTop(positionClickTop)    
         setOffset(position)
     }
 
@@ -180,9 +191,6 @@ const Message: FC<Props> = ({ messageInfo }) => {
         if (!isShowCheckbox) setContextMenu(true)
     }
     const closeContextMenu = (e: React.MouseEvent) => {
-        // e.preventDefault()
-        // virtualizedListElementRef.current.style.willChange = 'transform'
-        // virtualizedListElementRef.current.style.overflow = 'auto'
         setContextMenu(false)
     }
 

@@ -4,6 +4,7 @@ import styles from './HomePage.module.scss'
 import BlockControl from "./BlockControl";
 import UserManagementMenu from "./UserManagementMenu";
 import { Chat } from "../../types/types";
+import CallRoomComponent from "../CallRoom/CallRoomComponent";
 
 type Props = {
     selectedChat: Chat
@@ -17,7 +18,9 @@ const ChatMenu: FC<Props> = ({selectedChat}) => {
             {showCheckbox ?
                 <BlockControl />
                 :
-                <UserManagementMenu chatInfo={selectedChat} />
+                <div className={styles.menu__wrapper}>
+                    <UserManagementMenu chatInfo={selectedChat} />
+                </div>
             }
         </div>
     )

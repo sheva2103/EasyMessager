@@ -2,6 +2,7 @@ import { FC } from "react";
 import Preloader from '../../assets/preloader.svg'
 import { SignInSignUpForm } from "../../types/types";
 import { UseFormClearErrors } from "react-hook-form";
+import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 
 type Props = {
     isSubmitting: boolean,
@@ -10,15 +11,16 @@ type Props = {
     clearErrors?: UseFormClearErrors<SignInSignUpForm>
 }
 
-function defineTypeButton(type: Props): string {
-    if(type.signIn) return 'Войти'
-    if(type.signUp) return 'Регистрация'
-    return 'Создать канал'
-}
-
 const ButtonSubmit: FC<Props> = (props) => {
 
     const { isSubmitting, signIn, clearErrors } = props
+    const {t} = useTypedTranslation()
+
+    function defineTypeButton(type: Props): string {
+    if(type.signIn) return t('signIn')
+    if(type.signUp) return t('registration')
+    return t('createChannel')
+}
 
     const clearDataError = () => {
         if(signIn) clearErrors('dataError')
