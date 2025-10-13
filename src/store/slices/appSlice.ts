@@ -35,7 +35,6 @@ type AppState = {
     clearGlobalSearchUser: boolean,
     onlineStatusSelectedUser: UsePresenceReturn,
     tempChat: Chat | null,
-    isCallRoomOpen: boolean
 }
 
 const resetChatState = (state: AppState) => {
@@ -76,7 +75,6 @@ const initialState: AppState = {
     clearGlobalSearchUser: false,
     onlineStatusSelectedUser: null,
     tempChat: null,
-    isCallRoomOpen: false
 
 }
 
@@ -194,9 +192,6 @@ export const appSlice = createSlice({
         setTempChat(state, action: PayloadAction<Chat>) {
             state.tempChat = action.payload
         },
-        setIsCallRoom(state, action: PayloadAction<boolean>) {
-            state.isCallRoomOpen = action.payload
-        }
     },
     extraReducers: (builder) => {
         builder
@@ -243,6 +238,5 @@ export const { openMenu,
     setClearGlobalSearchUser,
     setOnlineStatusSelectedUser,
     setTempChat,
-    setIsCallRoom
 } = appSlice.actions
 export default appSlice.reducer

@@ -6,14 +6,15 @@ import { useAppDispatch, useAppSelector } from '../../hooks/hook';
 import { openMenu, setBlacklist, setChatList, setContacts } from '../../store/slices/appSlice';
 import ChatContent from './ChatContent';
 import ChatList from './ChatList';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { DocumentSnapshot, doc, onSnapshot } from 'firebase/firestore';
 import { CurrentUser, Message1 } from '../../types/types';
 import { createChatList, createMessageList } from '../../utils/utils';
 import { db } from '../../firebase';
 import { setMessages } from '../../store/slices/messagesSlice';
 import useUserPresence from '../../hooks/useUserPresence';
-import CallRoomComponent from '../CallRoom/CallRoomComponent';
+import CallsListenerComponent from '../CallRoom/CallsListenerComponent';
+import AudioUnlocker from '../CallRoom/AudioUnlocker';
 
 const HomaPage = () => {
 
@@ -24,7 +25,7 @@ const HomaPage = () => {
     useUserPresence()
 
     const onKeyDown = (e: React.KeyboardEvent) => {
-        if(e.key === 'Enter') dispatch(openMenu())
+        if (e.key === 'Enter') dispatch(openMenu())
     }
 
     const handleClickMenu = () => {
@@ -33,50 +34,50 @@ const HomaPage = () => {
 
     useEffect(() => {
         const getContacts = onSnapshot(doc(db, currentUserEmail, "contacts"), (doc: DocumentSnapshot<CurrentUser[]>) => {
-            if(doc.data()) dispatch(setContacts(createChatList(doc.data())))
+            if (doc.data()) dispatch(setContacts(createChatList(doc.data())))
         });
         return () => getContacts()
     }, [currentUserEmail]);
 
     useEffect(() => {
-        if(currentUserEmail) {
+        if (currentUserEmail) {
             const getChatList = onSnapshot(doc(db, currentUserEmail, "chatList"), (doc: DocumentSnapshot<CurrentUser[]>) => {
-                if(doc.data()) dispatch(setChatList(createChatList(doc.data())))
+                if (doc.data()) dispatch(setChatList(createChatList(doc.data())))
             });
             return () => getChatList()
         }
     }, [currentUserEmail]);
-    
+
     useEffect(() => {
         const getBlackList = onSnapshot(doc(db, currentUserEmail, "blacklist"), (doc: DocumentSnapshot<CurrentUser[]>) => {
-            if(doc.data()) dispatch(setBlacklist(createChatList(doc.data())))
+            if (doc.data()) dispatch(setBlacklist(createChatList(doc.data())))
         });
         return () => getBlackList()
     }, [currentUserEmail]);
 
     useEffect(() => {
         let getFavorites: () => void
-        if(isFavorites) {
+        if (isFavorites) {
             getFavorites = onSnapshot(doc(db, currentUserEmail, 'favorites'), (doc: DocumentSnapshot<Message1[]>) => {
-                if(doc.data()) {
+                if (doc.data()) {
                     const list = createMessageList(doc.data())
-                    dispatch(setMessages({messages: list, noRead: {quantity: 0, targetIndex: list.length}}))
+                    dispatch(setMessages({ messages: list, noRead: { quantity: 0, targetIndex: list.length } }))
                 } else {
-                    dispatch(setMessages({messages: [], noRead: {quantity: 0, targetIndex: 0}}))
+                    dispatch(setMessages({ messages: [], noRead: { quantity: 0, targetIndex: 0 } }))
                 }
             });
         }
         return () => {
-            if(getFavorites) getFavorites()
+            if (getFavorites) getFavorites()
         }
     }, [isFavorites]);
 
-    return (  
+    return (
         <div className={styles.wrapper}>
             <div className={styles.container}>
                 <div className={styles.chatListContainer}>
                     <div className={classNames(styles.menuIcon, styles.item)}>
-                        <MenuIcon 
+                        <MenuIcon
                             fontSize={'28px'}
                             cursor={'pointer'}
                             onClick={handleClickMenu}
@@ -91,7 +92,8 @@ const HomaPage = () => {
                 </div>
                 <ChatContent />
                 <MenuComponent />
-                <CallRoomComponent />
+                <CallsListenerComponent />
+                <AudioUnlocker />
             </div>
         </div>
     );

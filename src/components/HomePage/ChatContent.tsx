@@ -8,16 +8,14 @@ import { setChat } from "../../store/slices/setChatIDSlice";
 import ChatMenu from "./ChatMenu";
 import MessageInputField from "./MessageInputField";
 import Preloader from '../../assets/preloader.svg'
-import { Chat, CurrentUser, TypeChannel } from "../../types/types";
-import { doc, DocumentSnapshot, onSnapshot } from "firebase/firestore";
-import { db } from "../../firebase";
-import { CHANNELS_INFO, SHOW_CHANNEL_INFO, SHOW_USER_INFO } from "../../constants/constants";
+import { Chat } from "../../types/types";
+import { SHOW_CHANNEL_INFO, SHOW_USER_INFO } from "../../constants/constants";
 import ShowNameChat from "./ShowNameChat";
-import { closeBar, setIsCallRoom } from "../../store/slices/appSlice";
+import { closeBar } from "../../store/slices/appSlice";
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 import { CallRoom } from "../CallRoom/CallRoom";
-import CallRoomComponent from "../CallRoom/CallRoomComponent";
 import CallIcon from '../../assets/telephone-fill.svg'
+import { openModalCalls } from "../../store/slices/callsSlice";
 
 export const LoadChatComponent: FC<{ isLoad: boolean }> = ({ isLoad }) => {
 
@@ -62,16 +60,24 @@ const OnlineStatusComponent: FC = () => {
     )
 }
 
-const CallButton: FC<{isChannel: boolean}> = ({isChannel}) => {
+const CallButton: FC<{isChannel: boolean, callerUid: string}> = ({isChannel, callerUid}) => {
     const isShow = useAppSelector(state => state.app.showCheckbox)
+
     const dispatch = useAppDispatch()
+    const startCall = () => {
+        dispatch(openModalCalls({
+            mode: 'outgoing',
+            callerUid,
+            roomId: null
+        }))
+    }
 
     if(isShow || isChannel) return null
 
     return (
         <div className={styles.contentHeader__callButton}>
             <div className={styles.item}>
-                <button onClick={() => dispatch(setIsCallRoom(true))}>
+                <button onClick={startCall}>
                     <CallIcon fontSize={'1rem'}/>
                 </button>
             </div>
@@ -113,7 +119,7 @@ const HeaderChat: FC<{ selectedChat: Chat }> = ({ selectedChat }) => {
                     }
                 </div>
                 {/* {!isChannel && <CallRoomComponent />} */}
-                <CallButton isChannel={isChannel}/>
+                <CallButton isChannel={isChannel} callerUid={selectedChat.uid}/>
                 <ChatMenu selectedChat={selectedChat} />
             </div>
         </header>
