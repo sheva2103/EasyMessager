@@ -73,5 +73,12 @@
         "daysAgo_plural": "{{count}} дня назад",
         "daysAgo_many": "{{count}} дней назад",
         "yesterday": "вчера"
+    },
+    "call": {
+        "completed": "Завершено",
+        "unanswered": "Без ответа",
+        "rejected": "Отклонено",
+        "missed": "Пропущено",
+        "error": "Ошибка"
     }
 }

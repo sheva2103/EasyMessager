@@ -33,6 +33,7 @@ const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, positionMe
     const dispatch = useAppDispatch()
     const chat = useAppSelector(state => state.app.selectedChat)
     const isFavorites = useAppSelector(state => state.app.isFavorites)
+    const isCallMessage = !!message?.callStatus
     const [animationOpen, setAnimationOpen] = useState(false)
     //const {t} = useTranslation()
     const {t} = useTypedTranslation()
@@ -87,7 +88,7 @@ const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, positionMe
                     <li onClick={replyToMessage}><Reply /><span>{t('answer')}</span></li>
                     <li onClick={forwardMessage}><SendMessage /><span>{t('forward')}</span></li>
                     <li onClick={copyMessage}><Copy /><span>{t('copyText')}</span></li>
-                    {isOwner && !isForwarder &&
+                    {isOwner && !isForwarder && !isCallMessage &&
                         <li onClick={change}><Change /><span>{t('change')}</span></li>
                     }
                     <li onClick={deleteMessage}><Delete /><span>{t('delete')}</span></li>

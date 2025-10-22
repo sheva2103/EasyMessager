@@ -167,8 +167,8 @@ export function createListLimitMessages(messages: ListMessagesType): ListMessage
 export function getQuantityNoReadMessages(list: Message1[], currentId: string): NoReadMessagesType {
 
     let quantity = 0
-    let targetIndex = list.length - 1
-    if (list.length && list[list.length - 1].sender.uid !== currentId) {
+    let targetIndex = Math.max(0 ,list.length - 1)
+    if (list.length !== 0 && list[list.length - 1].sender.uid !== currentId) {
         for (let i = list.length - 1; i >= 0; i--) {
             if (!list[i].read && list[i].sender.uid !== currentId) {
                 quantity++
@@ -176,7 +176,7 @@ export function getQuantityNoReadMessages(list: Message1[], currentId: string): 
             }
         }
     }
-    if(list[list.length - 1].sender.uid === currentId) targetIndex = list.length 
+    if(list.length !== 0 && list[list.length - 1].sender.uid === currentId) targetIndex = list.length 
     return { quantity, targetIndex }
 }
 

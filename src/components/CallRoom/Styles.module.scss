@@ -6,3 +6,37 @@
 //         padding: 4px 12px 0 12px;
 //     }
 // }
+
+.wrapper {
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+
+    .callState {
+        color: var(--color);
+        text-align: center;
+    }
+
+    .buttons {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+
+        & button {
+            min-width: 100px;
+        }
+    }
+
+    .name p {
+        color: #8774e1;
+        text-align: center;
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+
+    .duration p {
+        text-align: center;
+        font-size: 1rem;
+        color: var(--color);
+    }
+}

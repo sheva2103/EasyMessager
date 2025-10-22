@@ -4,11 +4,12 @@ import classNames from "classnames";
 import styles from './HomePage.module.scss'
 import ContextMenu from "./ContextMenu";
 import SelectMessageInput from "./SelectMessageInput";
-import { Chat, Message1, StyleContextMenu } from "../../types/types";
+import { CallEndStatus, Chat, Message1, StyleContextMenu } from "../../types/types";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { checkMessage, createNewDate, getTimeFromDate } from "../../utils/utils";
 import UnreadIcon from '../../assets/check2.svg'
 import ReadIcon from '../../assets/check2-all.svg'
+import CallIcon from '../../assets/telephone-fill.svg'
 import { messagesAPI } from "../../API/api";
 import { useInView } from 'react-intersection-observer';
 import { setTempChat } from "../../store/slices/appSlice";
@@ -22,7 +23,7 @@ const HEIGHT_HEADER = 66
 
 interface IMessagesContent {
     onEnterViewport: () => void,
-    message: string
+    message: Message1
 }
 
 interface ForwardedFromProps {
@@ -33,7 +34,7 @@ const ForwardedFrom: FC<ForwardedFromProps> = ({ user }) => {
     const dispatch = useAppDispatch()
     const currentUser = useAppSelector(state => state.app.currentUser)
     const selectedChat = useAppSelector(state => state.app.selectedChat)
-    const {t} = useTypedTranslation()
+    const { t } = useTypedTranslation()
     const name = user?.channel ? user.channel.displayName : user.displayName
 
     const handleClick = (event: React.MouseEvent) => {
@@ -75,13 +76,27 @@ const ViewportContent: FC<IMessagesContent> = ({ onEnterViewport, message }) => 
         threshold: 0.1,
     })
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-    const checkMessageObj = checkMessage(message)
+    const checkMessageObj = checkMessage(message.message)
+    const {t} = useTypedTranslation()
+    const status: CallEndStatus = message.callStatus
 
     useEffect(() => {
         if (inView) {
             onEnterViewport();
         }
     }, [inView])
+
+    if(message?.callStatus) {
+        return (
+            <div className={styles.call__info}>
+                <div className={styles.call__status} ref={ref}>
+                    <CallIcon fontSize={'0.9rem'}/>
+                    <h5>{t(`call.${status}`)}</h5>
+                </div>
+                <span className={styles.call__time}>{message.message}</span>
+            </div>
+        )
+    }
 
     return (
         <>
@@ -139,6 +154,12 @@ const Message: FC<Props> = ({ messageInfo }) => {
     const isOwner = owner.email === messageInfo.sender.email
     const isForwarder = Boolean(messageInfo?.forwardedFrom)
     const isFavorites = messageInfo.hasOwnProperty('read')
+    const isGuestMessage = messageInfo.sender.uid !== owner.uid
+    const isCallMessage = !!messageInfo?.callStatus
+    const statusCallMessage = (): string => {
+        if (messageInfo.callStatus === 'completed') return styles.call_completed
+        return styles.call_error
+    }
     const positionMenu: StyleContextMenu = {
         position: 'relative',
         top: offset.top + 'px',
@@ -170,9 +191,9 @@ const Message: FC<Props> = ({ messageInfo }) => {
         const topIndent = positionClickTop //- HEIGHT_HEADER
         clickX > WIDTH_MENU ? position.left = positionClickLeft - 168 : position.left = positionClickLeft
         topIndent > HEIGHT_MENU_FOR_OWNER ?
-                position.top = positionClickTop - (isOwner && !isForwarder ? HEIGHT_MENU_FOR_OWNER : HEIGHT_MENU_FOR_GUEST)
-                : 
-                position.top = getAdjustedTop(positionClickTop)    
+            position.top = positionClickTop - (isOwner && !isForwarder ? HEIGHT_MENU_FOR_OWNER : HEIGHT_MENU_FOR_GUEST)
+            :
+            position.top = getAdjustedTop(positionClickTop)
         setOffset(position)
     }
 
@@ -240,14 +261,21 @@ const Message: FC<Props> = ({ messageInfo }) => {
                     }
                 </div>
                 <div
-                    className={classNames(styles.messageData, styles.owner, { [styles.guest]: messageInfo.sender.email !== owner.email, [styles.noSelect]: contextMenuIsOpen })}
+                    className={classNames(styles.messageData, styles.owner,
+                        {
+                            [styles.guest]: isGuestMessage,
+                            [styles.noSelect]: contextMenuIsOpen,
+                            [statusCallMessage()]: isCallMessage,
+                            [styles.call]: isCallMessage
+                        })
+                    }
                     onContextMenu={openContextMenu}
                     onClick={ios}
                     ref={refSpan}
                 >
                     {messageInfo.forwardedFrom && <ForwardedFrom user={messageInfo.forwardedFrom} />}
                     {messageInfo.replyToMessage && <ReplyToMessage {...messageInfo} />}
-                    <ViewportContent onEnterViewport={readMessage} message={messageInfo.message} />
+                    <ViewportContent onEnterViewport={readMessage} message={messageInfo} />
                     <div className={styles.messageData__info}>
                         <div className={styles.messageData__date} style={{ paddingBottom: !isFavorites ? '4px' : '0' }}>
                             <span >{messageInfo.changed ? `ред.${getTimeFromDate(createNewDate(messageInfo.changed))}` : getTimeFromDate(createNewDate(messageInfo.date))}</span>

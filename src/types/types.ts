@@ -55,7 +55,8 @@ export type Message1 = {
     sender: SenderMessageType,
     changed?: string,
     forwardedFrom?: Chat,
-    replyToMessage?: Message1
+    replyToMessage?: Message1,
+    callStatus?: CallEndStatus
 }
 
 export type SenderMessageType = CurrentUser & {
@@ -105,4 +106,14 @@ export type UsePresenceReturn = {
     isOnline: boolean;
     formatted: string;
 };
+
+export type CallEndStatus = 'completed' | 'unanswered' | 'rejected' | 'missed' | 'error';
+
+export type CallMessageOptionsType = {
+    caller: CurrentUser,
+    callee: Chat,
+    callDuration?: string,
+    status?: CallEndStatus
+}
+
 

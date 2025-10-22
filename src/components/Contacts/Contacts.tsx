@@ -2,7 +2,7 @@ import { FC, useState } from "react";
 import styles from './Contacts.module.scss'
 import RemoveFromContacts from '../../assets/person-dash.svg'
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
-import { clearSelectedMessage, closeMenu, setIsFavorites } from "../../store/slices/appSlice";
+import { clearSelectedMessage, closeMenu, setIsFavorites, setTempChat } from "../../store/slices/appSlice";
 import { Chat, CurrentUser } from "../../types/types";
 import { contactsAPI, messagesAPI } from "../../API/api";
 import { setChat } from "../../store/slices/setChatIDSlice";
@@ -58,7 +58,8 @@ const Contacts: FC = () => {
                 .finally(() => setSending(false))
             return
         }
-        dispatch(setChat({currentUserEmail: user.email, guestInfo: user}))
+        //dispatch(setChat({currentUserEmail: user.email, guestInfo: user}))
+        dispatch(setTempChat(user))
         dispatch(closeMenu())
     }
 

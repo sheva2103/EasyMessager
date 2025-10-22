@@ -10,6 +10,7 @@ import { useTheme } from '../hooks/useTheme';
 import { useEffect, useLayoutEffect, useState } from 'react';
 import { DocumentSnapshot, doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
+import { profileAPI } from '../API/api';
 
 export const App = () => {
 
@@ -21,10 +22,11 @@ export const App = () => {
     useLayoutEffect(() => {
         //setLoad(true)
         const auth = getAuth();
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
-                //const uid = user.uid;
-                const userData: CurrentUser = { email: user.email, photoURL: user.photoURL, displayName: user.displayName, uid: user.uid }
+                const currentInfo = await profileAPI.getCurrentInfo(user.uid)
+                //const userData: CurrentUser = { email: user.email, photoURL: user.photoURL, displayName: user.displayName, uid: user.uid }
+                const userData: CurrentUser = { email: currentInfo.email, photoURL: currentInfo.photoURL, displayName: currentInfo.displayName, uid: currentInfo.uid }
                 dispatch(setUser(userData))
                 setLoad(false)
             } else {

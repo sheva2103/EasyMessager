@@ -184,6 +184,7 @@
                 transition: all 0.5s;
 
                 &.showContent {
+                    z-index: 5;
                     right: 0;
                     opacity: 1;
                 }
@@ -452,6 +453,7 @@
             .messageData {
                 display: flex;
                 flex-direction: column;
+                box-shadow: 15px 8px 20px -10px rgba(15, 15, 15, 0.87);
 
                 &__img {
                     display: block;
@@ -538,6 +540,7 @@
                 padding: 4px 12px 0 12px;
                 color: #ffffff;
                 //max-width: 70%;
+                // box-shadow: 15px 8px 20px -10px rgba(15, 15, 15, 0.87);
 
                 a {
                     color: rgb(27, 27, 27);
@@ -563,6 +566,10 @@
                 background-color: var(--background-color-message);
                 color: var(--color-guest-message);
                 padding-bottom: 6px;
+                // box-shadow: 15px 8px 20px -10px rgba(15, 15, 15, 0.87);
+                @media (max-width: 468px) {
+                        box-shadow: -15px 8px 20px -10px rgba(15, 15, 15, 0.87);
+                }
 
                 a {
                     color: var(--link-guest-color);
@@ -572,6 +579,45 @@
                     border-bottom-right-radius: 0;
                     border-bottom-left-radius: 16px;
                     margin-left: auto;
+                }
+                &.call_error {
+                color: #ffffff;
+            }
+            }
+
+            & .call {
+                border-radius: 22px;
+                //box-shadow: 15px 8px 20px -10px rgba(15, 15, 15, 0.87);
+                min-width: 100px;
+                @media (max-width: 468px) {
+                    &.guest {
+                        box-shadow: -15px 8px 20px -10px rgba(15, 15, 15, 0.87);
+                    }
+                }
+                &_completed {
+                    background-color: hsl(115deg 74.42% 66.14% / 60.3%);
+                    color: var(--color-guest-message);
+                }
+                &_error {
+                    background-color: hsl(0deg 73.92% 60.75% / 75%);
+                }
+                &__info {
+                    display: flex;
+                    flex-direction: column;
+                    .call__status {
+                        display: flex;
+                        align-items: center;
+                        gap: 4px;
+                        h5 {
+                            margin: 4px;
+                            text-align: right;
+                        }
+                    }
+                    .call__time {
+                        font-size: 0.9rem;
+                        font-weight: 500;
+                        padding-right: 4px;
+                    }
                 }
             }
         }

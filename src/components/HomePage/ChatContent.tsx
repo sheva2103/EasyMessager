@@ -13,7 +13,6 @@ import { SHOW_CHANNEL_INFO, SHOW_USER_INFO } from "../../constants/constants";
 import ShowNameChat from "./ShowNameChat";
 import { closeBar } from "../../store/slices/appSlice";
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
-import { CallRoom } from "../CallRoom/CallRoom";
 import CallIcon from '../../assets/telephone-fill.svg'
 import { openModalCalls } from "../../store/slices/callsSlice";
 
@@ -61,14 +60,18 @@ const OnlineStatusComponent: FC = () => {
 }
 
 const CallButton: FC<{isChannel: boolean, callerUid: string}> = ({isChannel, callerUid}) => {
+
     const isShow = useAppSelector(state => state.app.showCheckbox)
+    const caller = useAppSelector(state => state.app.currentUser)
+    const callee = useAppSelector(state => state.app.selectedChat)
 
     const dispatch = useAppDispatch()
     const startCall = () => {
         dispatch(openModalCalls({
             mode: 'outgoing',
             callerUid,
-            roomId: null
+            roomId: null,
+            callInfo: {caller, callee}
         }))
     }
 

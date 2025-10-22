@@ -209,9 +209,6 @@ const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
         )
     }
 
-    console.log(quantity)
-
-
     return (
         <>
             <div

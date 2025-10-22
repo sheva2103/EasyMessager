@@ -35,7 +35,7 @@ const VariableHeightList: FC<VariableHeightListProps> = ({ items, noRead, assign
 
     useEffect(() => {
         assignElementToScroll(listRef.current)
-    }, []);
+    }, [listRef]);
 
     const rowRenderer: ListRowRenderer = ({ index, key, parent, style }) => {
 

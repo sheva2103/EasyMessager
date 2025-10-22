@@ -69,4 +69,9 @@ export type TranslationKeys =
     | "time.daysAgo"
     | "time.daysAgo_plural"
     | "time.daysAgo_many"
-    | "time.yesterday";
+    | "time.yesterday"
+    | 'call.completed' 
+    | 'call.unanswered' 
+    | 'call.rejected' 
+    | 'call.missed' 
+    | 'call.error';

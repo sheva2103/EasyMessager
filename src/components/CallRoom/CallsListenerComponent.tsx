@@ -6,6 +6,8 @@ import { closeModalCalls, openModalCalls } from "../../store/slices/callsSlice";
 import styles from './Styles.module.scss'
 import DialogComponent from "../Settings/DialogComponent";
 import CallRoom from "./CallRoom";
+import { messagesAPI } from "../../API/api";
+import { CallEndStatus } from "../../types/types";
 
 const CallsListenerComponent: FC = () => {
 
@@ -13,9 +15,19 @@ const CallsListenerComponent: FC = () => {
     const isOpen = useAppSelector(state => state.calls.isOpen)
     const myUid = useAppSelector(state => state.app.currentUser.uid)
     const callerUid = useAppSelector(state => state.calls.callerUid)
+    const messageInfo = useAppSelector(state => state.calls.callInfo)
 
-    const close = (action: boolean) => {
+    const close = () => {
         dispatch(closeModalCalls())
+    }
+
+    const endCallFunc = (callDuration: string | null, status: CallEndStatus | null) => {
+        if(messageInfo) {
+            setTimeout(() => {
+                messagesAPI.sendCallInfoMessage({...messageInfo, callDuration, status})
+            }, 2000)
+        }
+        close()
     }
 
     useEffect(() => {
@@ -37,7 +49,7 @@ const CallsListenerComponent: FC = () => {
     return ( 
         <div className={styles.container}>
             <DialogComponent isOpen={isOpen} onClose={close}>
-                <CallRoom myUid={myUid} calleeUid={callerUid}/>
+                <CallRoom myUid={myUid} calleeUid={callerUid} endCallFunc={endCallFunc}/>
             </DialogComponent>
         </div>
     )

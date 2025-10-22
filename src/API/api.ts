@@ -1,7 +1,7 @@
 import { DocumentData, QueryDocumentSnapshot, QuerySnapshot, deleteDoc, deleteField, doc, getDoc, setDoc, updateDoc, increment, arrayRemove, arrayUnion } from "firebase/firestore";
 import { db } from "../firebase";
 import { UserInfo } from "firebase/auth";
-import { Chat, CurrentUser, Message1, SenderMessageType, TypeChannel, TypeCreateChannel } from "../types/types";
+import { CallMessageOptionsType, Chat, CurrentUser, Message1, SenderMessageType, TypeChannel, TypeCreateChannel } from "../types/types";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
 import { createChatList, createMessageList, createNewDate, createObjectChannel, getChatType } from "../utils/utils";
@@ -32,7 +32,8 @@ type MessagesAPI = {
     readMessage: (chatID: string, message: Message1) => Promise<void>,
     clearChat: (chat: Chat, isFavorites: boolean) => Promise<void[]>,
     deleteChat: (currentUser: CurrentUser, selectedChat: Chat) => Promise<void>,
-    addToFavorites: (currentUser: string, message: Message1) => Promise<void>
+    addToFavorites: (currentUser: string, message: Message1) => Promise<void>,
+    sendCallInfoMessage: (options: CallMessageOptionsType) => Promise<void>,
 }
 
 type ContactsAPI = {
@@ -240,6 +241,17 @@ export const messagesAPI: MessagesAPI = {
         let modMessage = { ...message }
         delete modMessage.read
         await setDoc(doc(db, currentUser, FAVOTITES), { [message.messageID]: { ...modMessage, date, forwardedFrom: message.sender, } }, { merge: true });
+    },
+    async sendCallInfoMessage(options) {
+        const date = JSON.stringify(new Date())
+        const reference = getChatType(false, options.callee)
+        const messageID = uuidv4()
+        const isRead = options?.callDuration !== '0:00'
+        const messageObj: Message1 = { message: options.callDuration, messageID, date, sender: { ...options.caller }, read: isRead, callStatus: options.status }
+        await setDoc(reference, { [messageID]: messageObj }, { merge: true });
+
+        await messagesAPI.addChat(options.caller, options.callee, options.callee.chatID)
+        await messagesAPI.addChat(options.callee, options.caller, options.callee.chatID)
     }
 }
 
