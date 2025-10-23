@@ -167,7 +167,7 @@ export function createListLimitMessages(messages: ListMessagesType): ListMessage
 export function getQuantityNoReadMessages(list: Message1[], currentId: string): NoReadMessagesType {
 
     let quantity = 0
-    let targetIndex = Math.max(0 ,list.length - 1)
+    let targetIndex = Math.max(0, list.length - 1)
     if (list.length !== 0 && list[list.length - 1].sender.uid !== currentId) {
         for (let i = list.length - 1; i >= 0; i--) {
             if (!list[i].read && list[i].sender.uid !== currentId) {
@@ -176,7 +176,7 @@ export function getQuantityNoReadMessages(list: Message1[], currentId: string): 
             }
         }
     }
-    if(list.length !== 0 && list[list.length - 1].sender.uid === currentId) targetIndex = list.length 
+    if (list.length !== 0 && list[list.length - 1].sender.uid === currentId) targetIndex = list.length
     return { quantity, targetIndex }
 }
 
@@ -288,4 +288,11 @@ const pluralize = (count: number, one: string, few: string, many: string): strin
     if (mod10 >= 2 && mod10 <= 4 && !(mod100 >= 12 && mod100 <= 14)) return few;
     return many;
 };
+
+export function truncateText(text: string): string {
+    const maxLength = 30;
+    return text.length > maxLength
+        ? text.slice(0, maxLength) + '...'
+        : text;
+}
 

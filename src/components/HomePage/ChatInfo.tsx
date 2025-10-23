@@ -6,13 +6,15 @@ import { Chat, Message1, NoReadMessagesType } from "../../types/types";
 import { setChat } from "../../store/slices/setChatIDSlice";
 import { messagesAPI, profileAPI } from "../../API/api";
 import classNames from "classnames";
-import { createMessageList, createOnlineStatusUser, getChatType, getQuantityNoReadMessages } from "../../utils/utils";
+import { createMessageList, createOnlineStatusUser, getChatType, getQuantityNoReadMessages, truncateText } from "../../utils/utils";
 import { DocumentSnapshot, onSnapshot } from "firebase/firestore";
 import { setMessages } from "../../store/slices/messagesSlice";
 import { Badge } from "@mui/material";
 import soundFile from '../../assets/sound.mp3';
 import usePresenceStatus from "../../hooks/useCheckOnlineStatus";
 import { setOnlineStatusSelectedUser } from "../../store/slices/appSlice";
+import { useTypedTranslation } from "../../hooks/useTypedTranslation";
+import CallIcon from '../../assets/telephone-fill.svg'
 
 
 
@@ -35,6 +37,34 @@ const Skeleton: FC = () => {
     )
 }
 
+export const PreviewLastMessage: FC<{message: Message1, currentUserId: string}> = ({message, currentUserId}) => {
+
+    const {t} = useTypedTranslation()
+    const isErrorColor = (message.callStatus === 'rejected' || message.callStatus === 'unanswered') && message.sender.uid !== currentUserId
+
+    const targetEl = () => {
+        if(!message?.callStatus) return (
+            <div className={styles.lastMessage}>
+                <span>{truncateText(message.message)}</span>
+            </div>
+        )
+        console.log((message.callStatus === 'rejected' || message.callStatus === 'unanswered'), message.sender.uid !== currentUserId)
+        console.log(message.sender, currentUserId)
+        return (
+            <div className={styles.lastMessage} style={{color: isErrorColor ? 'hsla(0, 73.92%, 60.75%, 0.75)' : 'auto'}}>
+                <CallIcon />
+                <span>{t(`call.${message.callStatus}`)}</span>
+            </div>
+        )
+    }
+
+    if(!message) return null
+
+    return (
+        <>{targetEl()}</>
+    )
+}
+
 const ChatInfo: FC<Chat> = (user) => {
 
     const [updateUser, setUpdateUser] = useState<Chat>({ ...user })
@@ -48,6 +78,7 @@ const ChatInfo: FC<Chat> = (user) => {
         dispatch(setChat({ currentUserEmail: currentUser.email, guestInfo: updateUser }))
     }
     const isSelected = selectedChat?.uid === user.uid
+    const lastMessage = messages.messages[messages.messages.length - 1]
     const presence = usePresenceStatus(updateUser.uid)
 
     useEffect(() => {
@@ -116,7 +147,12 @@ const ChatInfo: FC<Chat> = (user) => {
                 <div className={styles.selected}></div>
             }
             <Avatar url={updateUser?.photoURL} name={updateUser.displayName[0]} isOnline={presence.isOnline}/>
-            <span className={styles.name}>{updateUser.displayName}</span>
+            <div className={styles.nameBlock}>
+                <div className={styles.name}>
+                    <span className={styles.name}>{updateUser.displayName}</span>
+                </div>
+                <PreviewLastMessage message={lastMessage} currentUserId={currentUser.uid}/>
+            </div>
             <div className={styles.chatInfo__noRead}>
                 <Badge badgeContent={messages.noRead.quantity} color="primary" />
             </div>

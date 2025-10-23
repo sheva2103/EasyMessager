@@ -89,13 +89,6 @@
                 cursor: pointer;
 
                 &__noRead {
-                    // width: 20px;
-                    // height: 20px;
-                    // border-radius: 50%;
-                    // background-color: var(--purple-color);
-                    // display: flex;
-                    // justify-content: center;
-                    // align-items: center;
                     margin-right: 10px;
                 }
 
@@ -129,7 +122,7 @@
 
             .name {
                 font-size: 1.05rem;
-                padding-left: 4px;
+                
                 width: 200px;
                 white-space: nowrap;
                 text-overflow: ellipsis;
@@ -138,6 +131,27 @@
 
                 @media (max-width: 282px) {
                     font-size: 1.6rem;
+                }
+            }
+
+            .nameBlock {
+                display: flex;
+                flex-direction: column;
+                padding-left: 4px;
+                gap: 2px;
+                width: 100%;
+
+                .lastMessage {
+                    font-size: 0.8rem;
+                    font-weight: 500;
+                    width: 180px;
+                    // white-space: nowrap;
+                    // text-overflow: ellipsis;
+                    // overflow: hidden;
+                    color: var(--color-preview-message);
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
                 }
             }
         }
@@ -453,7 +467,7 @@
             .messageData {
                 display: flex;
                 flex-direction: column;
-                box-shadow: 15px 8px 20px -10px rgba(15, 15, 15, 0.87);
+                box-shadow: 12px 8px 20px -10px rgba(15, 15, 15, 0.87);
 
                 &__img {
                     display: block;
@@ -501,6 +515,7 @@
                     border-radius: 4px;
                     border-left: 3px solid rgb(6, 247, 235);
                     padding: 2px 2px 2px 6px;
+                    margin-bottom: 2px;
                     width: fit-content;
 
                     &_name {
@@ -533,22 +548,39 @@
             }
 
             .owner {
+                max-width: 80%;
                 border-radius: 16px;
                 border-bottom-left-radius: 0;
-                //background-color: rgb(135, 116, 225);
                 background-color: rgb(123 118 147 / 88%);
                 padding: 4px 12px 0 12px;
                 color: #ffffff;
-                //max-width: 70%;
-                // box-shadow: 15px 8px 20px -10px rgba(15, 15, 15, 0.87);
-
                 a {
                     color: rgb(27, 27, 27);
                 }
+            }
+            & .guest {
+                max-width: 80%;
+                background-color: var(--background-color-message);
+                color: var(--color-guest-message);
+                border-radius: 16px;
+                border-bottom-left-radius: 0;
+                padding: 4px 12px 6px 12px;
+                @media (max-width: 468px) {
+                        box-shadow: -12px 8px 20px -10px rgba(15, 15, 15, 0.87);
+                        margin-left: auto;
+                }
 
-                // @media (max-width: 568px) {
-                //     max-width: 100%;
-                // }
+                a {
+                    color: var(--link-guest-color);
+                }
+
+                @media (max-width: 468px) {
+                    border-bottom-right-radius: 0;
+                    border-bottom-left-radius: 16px;
+                }
+                &.call_error {
+                    color: #ffffff;
+            }
             }
 
             input[type="checkbox"] {
@@ -562,36 +594,12 @@
                 }
             }
 
-            & .guest {
-                background-color: var(--background-color-message);
-                color: var(--color-guest-message);
-                padding-bottom: 6px;
-                // box-shadow: 15px 8px 20px -10px rgba(15, 15, 15, 0.87);
-                @media (max-width: 468px) {
-                        box-shadow: -15px 8px 20px -10px rgba(15, 15, 15, 0.87);
-                }
-
-                a {
-                    color: var(--link-guest-color);
-                }
-
-                @media (max-width: 468px) {
-                    border-bottom-right-radius: 0;
-                    border-bottom-left-radius: 16px;
-                    margin-left: auto;
-                }
-                &.call_error {
-                color: #ffffff;
-            }
-            }
-
             & .call {
                 border-radius: 22px;
-                //box-shadow: 15px 8px 20px -10px rgba(15, 15, 15, 0.87);
                 min-width: 100px;
                 @media (max-width: 468px) {
                     &.guest {
-                        box-shadow: -15px 8px 20px -10px rgba(15, 15, 15, 0.87);
+                        box-shadow: -12px 8px 20px -10px rgba(15, 15, 15, 0.87);
                     }
                 }
                 &_completed {

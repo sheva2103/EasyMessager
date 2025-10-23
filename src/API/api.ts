@@ -190,6 +190,7 @@ export const messagesAPI: MessagesAPI = {
                 :
                 message.sender
         const messageObj: Message1 = { message: message.message, messageID: id, date, read: false, sender, forwardedFrom }
+        if(message?.callStatus) messageObj.callStatus = message?.callStatus
         const isID = await Promise.all([messagesAPI.getChatID(sender.email, recipient.email), messagesAPI.getChatID(recipient.email, sender.email)])
         if (isID[0] || isID[1]) {
             const currentID = isID[0] || isID[1]

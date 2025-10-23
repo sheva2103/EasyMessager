@@ -1,5 +1,5 @@
 import styles from './HomePage.module.scss'
-import { FC, memo, useEffect, useRef, useState } from 'react';
+import { FC, memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Message from './Messgae';
 import { Chat, Message1, NoReadMessagesType } from '../../types/types';
 import { createNewDate, getDatefromDate, getQuantityNoReadMessages } from '../../utils/utils';
@@ -22,14 +22,16 @@ const VariableHeightList: FC<VariableHeightListProps> = ({ items, noRead, assign
 
     const cache = new CellMeasurerCache({
         fixedWidth: true,
-        defaultHeight: 57,
+        defaultHeight: 49,
     })
 
     const listRef = useRef<List>(null);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (listRef.current && items.length) {
-            listRef.current.scrollToRow(noRead.targetIndex)
+            setTimeout(() => {
+                listRef.current.scrollToRow(noRead.targetIndex)
+            }, 100)
         }
     }, [items.length])
 
@@ -111,7 +113,7 @@ const ListMessages: FC = () => {
                         searchIndexes={targetMessages}/>
                 </ul>
             </div>
-            <AdvancedContent noRead={list.noRead} scrollElement={scrollElementRef.current} scrollIndexes={targetMessages}/>
+            <AdvancedContent noRead={list.noRead} scrollElement={scrollElementRef} scrollIndexes={targetMessages}/>
         </div>
     );
 }

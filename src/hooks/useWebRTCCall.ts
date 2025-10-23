@@ -405,9 +405,11 @@ export const useWebRTCCall = (myUid: string, calleeUid: string, endCallFunc?: (c
         if (hasEndedRef.current) return;
         hasEndedRef.current = true;
 
-        const finalStatus: CallEndStatus = callDurationRef.current > 0 ? 'completed' : 'unanswered';
+        let finalStatus: CallEndStatus = callDurationRef.current > 0 ? 'completed' : 'unanswered';
+        console.log(callState)
 
         if (endCallFunc) {
+            if(callState === 'idle' && callDurationRef.current === 0) finalStatus = 'rejected'
             // ИЗМЕНЕНО: Используем ref для получения актуального значения
             endCallFunc(formatDuration(callDurationRef.current), finalStatus);
         }

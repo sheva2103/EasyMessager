@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, MutableRefObject, useEffect, useRef, useState } from "react";
 import styles from './HomePage.module.scss'
 import Arrow from '../../assets/arrow-down-circle-fill.svg'
 import Badge from '@mui/material/Badge';
@@ -10,13 +10,13 @@ import EmojiComponent from "./EmojiComponent";
 
 type Props = {
     noRead: NoReadMessagesType,
-    scrollElement?: List,
+    scrollElement?: MutableRefObject<List>,
     scrollIndexes: Set<number>
 }
 
 type IndexesNavigatorProps = {
     numbers: Set<number>,
-    scrollElement: List,
+    scrollElement: MutableRefObject<List>,
 }
 
 const IndexesNavigator: React.FC<IndexesNavigatorProps> = ({ numbers, scrollElement }) => {
@@ -29,7 +29,7 @@ const IndexesNavigator: React.FC<IndexesNavigatorProps> = ({ numbers, scrollElem
         const nextIndex = (currentIndex + 1) % numberArray.length; 
         const nextValue = numberArray[nextIndex]
         setCurrentValue(nextValue)
-        scrollElement.scrollToRow(nextValue)
+        scrollElement.current.scrollToRow(nextValue)
     }
 
     const goToPrevious = () => {
@@ -37,12 +37,12 @@ const IndexesNavigator: React.FC<IndexesNavigatorProps> = ({ numbers, scrollElem
         const prevIndex = (currentIndex - 1 + numberArray.length) % numberArray.length
         const prevValue = numberArray[prevIndex]
         setCurrentValue(prevValue)
-        scrollElement.scrollToRow(prevValue)
+        scrollElement.current.scrollToRow(prevValue)
     }
 
     useEffect(() => {
         console.log(numberArray)
-        if(numberArray.length) scrollElement.scrollToRow(numberArray[numberArray.length - 1])
+        if(numberArray.length) scrollElement.current.scrollToRow(numberArray[numberArray.length - 1])
     }, [numbers])
 
     const currentIndex = numberArray.indexOf(currentValue) ? numberArray.indexOf(currentValue) : numberArray.length
@@ -72,15 +72,10 @@ const ScrollButton: FC<Props> = ({ noRead, scrollElement, scrollIndexes }) => {
 
     console.log('scrollbutton')
 
-    // const [noRead, setNoRead] = useState({ quantity: 0, targetIndex: 0 })
-    // const currentUserID = useAppSelector(state => state.app.currentUser.uid)
-
-    // useEffect(() => {
-    //     const quantity = getQuantityNoReadMessages(list, currentUserID)
-    //     setNoRead(quantity)
-    // }, [list]);
-
-    const handleClick = () => scrollElement.scrollToRow(noRead.targetIndex)
+    const handleClick = () => {
+        console.log(scrollElement)
+        scrollElement.current.scrollToRow(noRead.targetIndex)
+    }
 
     if (scrollIndexes.size) return <IndexesNavigator numbers={scrollIndexes} scrollElement={scrollElement} />
 

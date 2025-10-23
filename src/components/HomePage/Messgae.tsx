@@ -122,6 +122,8 @@ type Props = {
 
 const ReplyToMessage: FC<Message1> = (props) => {
     const { replyToMessage, sender } = props
+    const isMessageCall = replyToMessage?.callStatus
+    const {t} = useTypedTranslation()
 
     function getFirst30Chars(inputString: string) {
         if (!inputString) return ''
@@ -136,8 +138,15 @@ const ReplyToMessage: FC<Message1> = (props) => {
             <div className={classNames(styles.messageData__replyToMessage_name)}>
                 <span>{replyToMessage?.forwardedFrom?.displayName || replyToMessage?.sender.displayName}</span>
             </div>
-            <div style={{ paddingRight: '2px', fontSize: '0.9rem' }}>
-                <span>{getFirst30Chars(replyToMessage?.message)}</span>
+            <div style={{ paddingRight: '2px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                {isMessageCall ?
+                    <>  
+                        <CallIcon />
+                        <span>{t(`call.${replyToMessage.callStatus}`)}</span>
+                    </>
+                    :
+                    <span>{getFirst30Chars(replyToMessage?.message)}</span>
+                }
             </div>
         </div>
     )
@@ -261,8 +270,9 @@ const Message: FC<Props> = ({ messageInfo }) => {
                     }
                 </div>
                 <div
-                    className={classNames(styles.messageData, styles.owner,
-                        {
+                    className={classNames(styles.messageData, 
+                        {   
+                            [styles.owner]: !isGuestMessage,
                             [styles.guest]: isGuestMessage,
                             [styles.noSelect]: contextMenuIsOpen,
                             [statusCallMessage()]: isCallMessage,
