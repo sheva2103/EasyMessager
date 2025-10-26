@@ -118,6 +118,7 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
 
     useEffect(() => {
         dispatch(changeMessage(null))
+    return () => setNewMessage('')
     }, [selectedChat]);
 
     useEffect(() => {

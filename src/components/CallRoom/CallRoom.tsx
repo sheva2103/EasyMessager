@@ -322,6 +322,17 @@ export const CallRoom = ({ myUid, calleeUid, endCallFunc }: { myUid: string; cal
         startCall, acceptCall, rejectCall, endCall, formatDuration,
         remoteAudioRef, ringtoneRef, incomingRef } = useWebRTCCall(myUid, calleeUid, endCallFunc)
 
+        useEffect(() => {
+            return () => {
+                if( callState === 'connected' || callState === 'calling') {
+                    endCall()
+                }
+                if( callState === 'incoming') {
+                    rejectCall()
+                }
+            }
+        }, [callState]);
+
     return (
         <div className={styles.wrapper}>
             <h4 className={styles.callState}>
@@ -330,7 +341,7 @@ export const CallRoom = ({ myUid, calleeUid, endCallFunc }: { myUid: string; cal
                         callState === 'calling' ? 'Ожидание ответа' :
                             callState === 'incoming' ? 'Входящий звонок' :
                                 callState === 'connected' ? 'Подключено' :
-                                    callState === 'error' ? '❌ Ошибка' : 'Завершено'
+                                    callState === 'error' ? 'Ошибка' : 'Завершено'
                 }
             </h4>
 

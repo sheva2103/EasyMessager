@@ -1,10 +1,9 @@
 import { doc, DocumentReference } from "firebase/firestore"
-import { Chat, CheckMessageType, ListMessagesType, Message1, NoReadMessagesType, OnlineStatusUserType, size, TypeChannel } from "../types/types"
+import { Chat, CheckMessageType, ListMessagesType, Message1, NoReadMessagesType, OnlineStatusUserType, TypeChannel } from "../types/types"
 import { format } from "@formkit/tempo"
 import { db } from "../firebase"
 import { searchAPI } from "../API/api";
-import { CHANNELS, CHANNELS_INFO, CHATS, FAVOTITES, USERS } from "../constants/constants";
-import { useTypedTranslation } from "../hooks/useTypedTranslation";
+import { CHANNELS, CHATS, FAVOTITES } from "../constants/constants";
 import { TranslationKeys } from "../types/locales";
 import { i18n } from "i18next";
 
@@ -51,32 +50,6 @@ export function createMessageList(list: Message1[]) {
     return sort
 }
 
-
-export function createLimitMessagesList(list: ListMessagesType): Message1[] {
-
-
-
-    if (list.limit.length) {
-        const startIndex = list.all.findIndex(item => item.messageID === list.limit[0].messageID)
-        const lastIndex = list.all.findIndex(item => item.messageID === list.limit[list.limit.length - 1].messageID)
-        const newLimit = list.all.slice(startIndex, lastIndex + 1)
-        console.log('newlimit', newLimit)
-        if (newLimit.length < 49) return list.all
-        return newLimit
-    }
-    console.log(list, '>>>>>>>>>>>')
-    return list.limit
-}
-
-
-// export function checkStartIndex(list: Message1[]): number {
-//     console.log('checkStartIndex>>>', list)
-//     const index = list.findIndex(item => item.read === false)
-//     if (index === -1) return 0
-//     return index
-// }
-
-
 export function scrollToElement(element: HTMLDivElement, list: Message1[], currentUserID: string, firstRender: boolean) {
 
     let targetID = list[list.length - 1].messageID
@@ -109,34 +82,15 @@ export function createNewDate(now: string): string {
 }
 
 
-
-
-
 export function getTimeFromDate(date: string): string {
     return date.split(' ')[1].split(':').slice(0, 2).join(':')
 }
-
-
 
 
 export function getDatefromDate(date: string): string {
     return date.split(' ')[0]
 }
 
-
-
-
-
-// export function checkMessage(str: string): string {
-//     const reg = /(https?:\/\/|ftps?:\/\/|www\.)((?![.,?!;:()]*(\s|$))[^\s]){2,}/gim
-//     if (!reg.test(str)) return str
-//     const message = str.split(' ')
-//     let newStr = message.map(item => {
-//         if (reg.test(item)) return `<a href='${item}' target='blank'>${item}</a>`
-//         return item
-//     })
-//     return newStr.join(' ')
-// }
 
 export function checkMessage(str: string): CheckMessageType {
     const reg = /(https?:\/\/|ftps?:\/\/|www\.)((?![.,?!;:()]*(\s|$))[^\s]){2,}/gim;
@@ -152,16 +106,6 @@ export function checkMessage(str: string): CheckMessageType {
         return item
     });
     return ({ message: newStr.join(' '), imgUrl })
-    //return newStr.join(' ')
-}
-
-export function createListLimitMessages(messages: ListMessagesType): ListMessagesType {
-
-    if (messages.limit.length === 0) return { all: messages.all, limit: [] }
-
-    const lastIndex = messages.all.findIndex(item => item.messageID === messages.limit[messages.limit.length - 1].messageID)
-    const newLimit = messages.all.slice(lastIndex + 1, Math.min(lastIndex + 49, messages.all.length))
-    return { all: messages.all, limit: [].concat(messages.limit).concat(newLimit).slice(-100) }
 }
 
 export function getQuantityNoReadMessages(list: Message1[], currentId: string): NoReadMessagesType {
@@ -179,10 +123,6 @@ export function getQuantityNoReadMessages(list: Message1[], currentId: string): 
     if (list.length !== 0 && list[list.length - 1].sender.uid === currentId) targetIndex = list.length
     return { quantity, targetIndex }
 }
-
-// export function searchMessagesInList(list: Message1[], text: string) {
-//     return [...list].filter(item => item.message.includes(text))
-// }
 
 export function searchMessagesInList(array: Message1[], substring: string): Set<number> {
     return array.reduce((indicesSet, str, index) => {
@@ -216,6 +156,7 @@ export function createObjectChannel(chat: TypeChannel): Chat {
         email: chat.owner.email,
         chatID: chat.channelID,
         uid: chat.channelID,
+        dateOfChange: chat.dateOfChange,
         channel: chat
     })
 }
@@ -226,28 +167,7 @@ export function createOnlineStatusUser(date: number): OnlineStatusUserType {
     return ({ isOnline, last_seen: date })
 }
 
-
-// export const formatStyle = (timestamp: number): string => {
-//     const now = Date.now();
-//     const diff = now - timestamp;
-
-//     const seconds = Math.floor(diff / 1000);
-//     const minutes = Math.floor(diff / 60000);
-//     const hours = Math.floor(diff / 3600000);
-//     const days = Math.floor(diff / 86400000);
-
-//     if (seconds < 60) return "только что";
-//     if (minutes < 60) return `${minutes} ${pluralize(minutes, "минуту", "минуты", "минут")} назад`;
-//     if (hours < 24) return `${hours} ${pluralize(hours, "час", "часа", "часов")} назад`;
-//     if (days === 1) return "вчера";
-//     if (days < 7) return `${days} ${pluralize(days, "день", "дня", "дней")} назад`;
-
-//     const date = new Date(timestamp);
-//     return `${date.toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}`;
-// };
-
 export const formatStyle = (timestamp: number, t: (key: TranslationKeys, options?: Record<string, unknown>) => string, i18n: i18n): string => {
-    //const {t, i18n} = useTypedTranslation()
 
     const now = Date.now();
     const diff = now - timestamp;
@@ -289,8 +209,7 @@ const pluralize = (count: number, one: string, few: string, many: string): strin
     return many;
 };
 
-export function truncateText(text: string): string {
-    const maxLength = 30;
+export function truncateText(text: string, maxLength: number = 25): string {
     return text.length > maxLength
         ? text.slice(0, maxLength) + '...'
         : text;

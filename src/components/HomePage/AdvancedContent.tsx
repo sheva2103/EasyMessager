@@ -73,7 +73,6 @@ const ScrollButton: FC<Props> = ({ noRead, scrollElement, scrollIndexes }) => {
     console.log('scrollbutton')
 
     const handleClick = () => {
-        console.log(scrollElement)
         scrollElement.current.scrollToRow(noRead.targetIndex)
     }
 

@@ -141,12 +141,17 @@ export const messagesAPI: MessagesAPI = {
     async sendMessage(chat, sender, message, isFavorites, replyToMessage) {
         const date = JSON.stringify(new Date())
         const reference = getChatType(isFavorites, chat)
-        console.log('send message')
+        //console.log('send message', chat)
+        
         const id = uuidv4()
         const messageObj: Message1 = { message: message, messageID: id, date: date, sender: { ...sender } }
         if (!isFavorites && !chat?.channel) messageObj.read = false
         if (chat?.channel) messageObj.sender.channel = chat.channel
         if (replyToMessage) messageObj.replyToMessage = replyToMessage
+        
+        if(chat.channel) {
+            await channelAPI.changeCannelInfo(chat.channel, true)
+        }
 
         return await setDoc(reference, { [id]: messageObj }, { merge: true });
     },
@@ -294,19 +299,22 @@ type ChannelAPI = {
     applyForMembership: (user: CurrentUser, channelID: string) => Promise<void>,
     getApplyForMembership: (channelID: string) => Promise<CurrentUser[]>,
     deleteApplication: (channelID: string, user: CurrentUser) => Promise<void>,
-    changeAccessChannel: (channelID: string, action: boolean) => Promise<void>
+    changeAccessChannel: (channelID: string, action: boolean) => Promise<void>,
+    updateChannelInMyChatList: (myID: string, channel: Chat) => Promise<void>
 }
 
 export const channelAPI: ChannelAPI = {
     async createChannel(owner: CurrentUser, data: TypeCreateChannel) {
         const channelID = uuidv4()
+        const dateOfChange = JSON.stringify(new Date())
         const info: TypeChannel = {
             owner,
             displayName: data.displayName,
             isOpen: data.isOpen,
             channelID,
             registrationDate: new Date().toLocaleDateString(),
-            listOfSubscribers: []
+            listOfSubscribers: [],
+            dateOfChange
         }
         await setDoc(doc(db, CHANNELS, channelID), {})
         await setDoc(doc(db, CHANNELS_INFO, channelID), info)
@@ -403,5 +411,9 @@ export const channelAPI: ChannelAPI = {
         await updateDoc(ref, {
             isOpen: action
         })
+    },
+    async updateChannelInMyChatList(email, channel) {
+        const ref = doc(db, email, CHATLIST)
+        await setDoc(ref, { [channel.channel.channelID]: channel }, { merge: true });
     }
 }

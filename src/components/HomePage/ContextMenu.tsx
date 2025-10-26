@@ -83,15 +83,28 @@ const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, positionMe
             onClick={close}
             onContextMenu={close}
         >
-            <div style={positionMenu} className={styles.contextMenu}>
-                <ul className={classNames({ [styles.showAnimation]: animationOpen })}>
-                    <li onClick={replyToMessage}><Reply /><span>{t('answer')}</span></li>
+            <div style={positionMenu} 
+                //className={styles.contextMenu}
+                className={classNames(styles.contextMenu, { [styles.contextMenu_open]: animationOpen })}
+                >
+                <ul>
+                    {chat?.channel ? 
+                        isOwner ? <li onClick={replyToMessage}><Reply /><span>{t('answer')}</span></li> : null
+                        :
+                        <li onClick={replyToMessage}><Reply /><span>{t('answer')}</span></li>
+                    }
+                    {/* <li onClick={replyToMessage}><Reply /><span>{t('answer')}</span></li> */}
                     <li onClick={forwardMessage}><SendMessage /><span>{t('forward')}</span></li>
                     <li onClick={copyMessage}><Copy /><span>{t('copyText')}</span></li>
                     {isOwner && !isForwarder && !isCallMessage &&
                         <li onClick={change}><Change /><span>{t('change')}</span></li>
                     }
-                    <li onClick={deleteMessage}><Delete /><span>{t('delete')}</span></li>
+                    {/* <li onClick={deleteMessage}><Delete /><span>{t('delete')}</span></li> */}
+                    {chat?.channel ? 
+                        isOwner ? <li onClick={deleteMessage}><Delete /><span>{t('delete')}</span></li> : null
+                        :
+                        <li onClick={deleteMessage}><Delete /><span>{t('delete')}</span></li>
+                    }
                     <li
                         onClick={selectSeveral}
                         className={classNames(styles.selectSeveral)}

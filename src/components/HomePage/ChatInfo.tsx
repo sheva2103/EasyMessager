@@ -40,7 +40,7 @@ const Skeleton: FC = () => {
 export const PreviewLastMessage: FC<{message: Message1, currentUserId: string}> = ({message, currentUserId}) => {
 
     const {t} = useTypedTranslation()
-    const isErrorColor = (message.callStatus === 'rejected' || message.callStatus === 'unanswered') && message.sender.uid !== currentUserId
+    const isErrorColor = (message?.callStatus === 'rejected' || message?.callStatus === 'unanswered') && message.sender.uid !== currentUserId
 
     const targetEl = () => {
         if(!message?.callStatus) return (
@@ -48,8 +48,6 @@ export const PreviewLastMessage: FC<{message: Message1, currentUserId: string}> 
                 <span>{truncateText(message.message)}</span>
             </div>
         )
-        console.log((message.callStatus === 'rejected' || message.callStatus === 'unanswered'), message.sender.uid !== currentUserId)
-        console.log(message.sender, currentUserId)
         return (
             <div className={styles.lastMessage} style={{color: isErrorColor ? 'hsla(0, 73.92%, 60.75%, 0.75)' : 'auto'}}>
                 <CallIcon />

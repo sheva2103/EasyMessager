@@ -18,6 +18,7 @@ import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 
 const HEIGHT_MENU_FOR_OWNER = 220
 const HEIGHT_MENU_FOR_GUEST = 168
+const HEIGHT_MENU_FOR_GUEST_CHANNEL = 126
 const WIDTH_MENU = 200
 const HEIGHT_HEADER = 66
 
@@ -165,6 +166,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
     const isFavorites = messageInfo.hasOwnProperty('read')
     const isGuestMessage = messageInfo.sender.uid !== owner.uid
     const isCallMessage = !!messageInfo?.callStatus
+    const isChannel = !!chat?.channel
     const statusCallMessage = (): string => {
         if (messageInfo.callStatus === 'completed') return styles.call_completed
         return styles.call_error
@@ -200,7 +202,9 @@ const Message: FC<Props> = ({ messageInfo }) => {
         const topIndent = positionClickTop //- HEIGHT_HEADER
         clickX > WIDTH_MENU ? position.left = positionClickLeft - 168 : position.left = positionClickLeft
         topIndent > HEIGHT_MENU_FOR_OWNER ?
-            position.top = positionClickTop - (isOwner && !isForwarder ? HEIGHT_MENU_FOR_OWNER : HEIGHT_MENU_FOR_GUEST)
+            position.top = positionClickTop - (isOwner && !isForwarder ? 
+                HEIGHT_MENU_FOR_OWNER : isChannel ?
+                    HEIGHT_MENU_FOR_GUEST_CHANNEL : HEIGHT_MENU_FOR_GUEST)
             :
             position.top = getAdjustedTop(positionClickTop)
         setOffset(position)

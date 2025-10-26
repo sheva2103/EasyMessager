@@ -16,6 +16,7 @@ import ShowNameChat from "./ShowNameChat";
 import DialogComponent, { ConfirmComponent, NotFoundChannel } from "../Settings/DialogComponent";
 import { setChat } from "../../store/slices/setChatIDSlice";
 import { useChannelClickHandler } from "../../hooks/useHandleClickToChannel";
+import { PreviewLastMessage } from "./ChatInfo";
 
 
 
@@ -45,6 +46,7 @@ const ChannelInfo: FC<Props> = (channel) => {
     const currentUser = useAppSelector(state => state.app.currentUser)
     const dispatch = useAppDispatch()
     const isSelected = selectedChat?.channel?.channelID === updateChannel.channelID
+    const lastMessage = messages.messages[messages.messages.length - 1]
     const { handleClickToChannel } = useChannelClickHandler();
 
     //console.log(isNotAccess)
@@ -100,8 +102,13 @@ const ChannelInfo: FC<Props> = (channel) => {
     useEffect(() => {
         let listenerChannelInfo: () => void
         if(isSelected) {
-            listenerChannelInfo = onSnapshot(doc(db, CHANNELS_INFO, updateChannel.channelID), (doc: DocumentSnapshot<TypeChannel>) => {
+            listenerChannelInfo = onSnapshot(doc(db, CHANNELS_INFO, updateChannel.channelID), async(doc: DocumentSnapshot<TypeChannel>) => {
                 if(doc.data()) {
+                    const currentInfoChannel = doc.data()
+                    if(currentInfoChannel.dateOfChange !== channel.dateOfChange) {
+                        const toChat = createObjectChannel(currentInfoChannel)
+                        await channelAPI.updateChannelInMyChatList(currentUser.email, toChat)
+                    }
                     dispatch(updateSelectedChannel(doc.data()))
                 } else (
                     setNotFoundChannel(true)
@@ -111,7 +118,7 @@ const ChannelInfo: FC<Props> = (channel) => {
         return () => {
             if(listenerChannelInfo) listenerChannelInfo()
         }
-    }, [isSelected]);
+    }, [isSelected, channel]);
 
     useEffect(() => {
         const channelObj: Chat = createObjectChannel(updateChannel)
@@ -149,15 +156,14 @@ const ChannelInfo: FC<Props> = (channel) => {
             {isSelected &&
                 <div className={styles.selected}></div>
             }
-            {/* {isSelected ?
-                <ShowAvatarInfo>
-                    <Avatar url={updateChannel?.photoURL} name={updateChannel.displayName[0]} />
-                </ShowAvatarInfo>
-                :
-                <Avatar url={updateChannel?.photoURL} name={updateChannel.displayName[0]} />
-            } */}
             <Avatar url={updateChannel?.photoURL} name={updateChannel.displayName[0]} />
-            <span className={styles.name}>{isSelected ? <ShowNameChat /> : updateChannel.displayName}</span>
+            <div className={styles.nameBlock}>
+                <div className={styles.name}>
+                    <span className={styles.name}>{isSelected ? <ShowNameChat /> : updateChannel.displayName}</span>
+                </div>
+                <PreviewLastMessage message={lastMessage} currentUserId={currentUser.uid}/>
+            </div>
+            {/* <span className={styles.name}>{isSelected ? <ShowNameChat /> : updateChannel.displayName}</span> */}
             <div className={styles.chatInfo__noRead}>
                 <Badge badgeContent={messages.noRead.quantity} color="primary" />
             </div>
