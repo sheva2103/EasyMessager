@@ -6,14 +6,17 @@ import Delete from '../../assets/delete.svg'
 import Select from '../../assets/check-all.svg'
 import Change from '../../assets/change.svg'
 import Reply from '../../assets/reply-fill.svg'
+import CallIcon from '../../assets/telephone-fill.svg'
 
-import { FC, memo, useEffect, useState } from "react";
+import { FC, memo, useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from '../../hooks/hook';
-import { Message1, StyleContextMenu } from '../../types/types';
+import { CurrentUser, Message1, StyleContextMenu } from '../../types/types';
 import { addSelectedMessage, changeMessage, closeBar, isSendMessage, setReplyToMessage, setShowCheckbox } from '../../store/slices/appSlice';
 import { messagesAPI } from '../../API/api';
 import { CONTACTS } from '../../constants/constants';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
+import { createPortal } from 'react-dom';
+import { openModalCalls } from '../../store/slices/callsSlice';
 
 const ANIMATION_DURATION = 190
 
@@ -23,12 +26,13 @@ type Props = {
     message: Message1
     closeContextMenu: (e: React.MouseEvent) => void,
     positionMenu: StyleContextMenu,
-    isForwarder: boolean
+    isForwarder: boolean,
+    curentUser: CurrentUser
 }
 
 
 
-const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, positionMenu, isForwarder }) => {
+const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, positionMenu, isForwarder, curentUser }) => {
 
     const dispatch = useAppDispatch()
     const chat = useAppSelector(state => state.app.selectedChat)
@@ -37,6 +41,8 @@ const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, positionMe
     const [animationOpen, setAnimationOpen] = useState(false)
     //const {t} = useTranslation()
     const {t} = useTypedTranslation()
+    const portalRootRef = useRef<HTMLElement | null>(typeof document !== "undefined" ? document.body : null);
+
 
     useEffect(() => {
         setAnimationOpen(true)
@@ -75,9 +81,16 @@ const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, positionMe
         dispatch(setReplyToMessage(message))
     }
 
-    console.log('render contextmenu')
+    const callBack = () => {
+        dispatch(openModalCalls({
+                        mode: null,
+                        callerUid: chat.uid,
+                        roomId: null,
+                        callInfo: {caller: curentUser, callee: chat}
+                    }))
+    }
 
-    return (
+    const menu = (
         <div
             className={classNames(styles.cover, { [styles.showContextMenu]: animationOpen })}
             onClick={close}
@@ -88,18 +101,22 @@ const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, positionMe
                 className={classNames(styles.contextMenu, { [styles.contextMenu_open]: animationOpen })}
                 >
                 <ul>
+                    {message?.callStatus &&
+                        <li onClick={callBack}><CallIcon /><span>{t('call.callback')}</span></li>
+                    }
                     {chat?.channel ? 
                         isOwner ? <li onClick={replyToMessage}><Reply /><span>{t('answer')}</span></li> : null
                         :
                         <li onClick={replyToMessage}><Reply /><span>{t('answer')}</span></li>
                     }
-                    {/* <li onClick={replyToMessage}><Reply /><span>{t('answer')}</span></li> */}
-                    <li onClick={forwardMessage}><SendMessage /><span>{t('forward')}</span></li>
+                    {
+                        !message?.callStatus && <li onClick={forwardMessage}><SendMessage /><span>{t('forward')}</span></li>
+                    }
                     <li onClick={copyMessage}><Copy /><span>{t('copyText')}</span></li>
                     {isOwner && !isForwarder && !isCallMessage &&
                         <li onClick={change}><Change /><span>{t('change')}</span></li>
                     }
-                    {/* <li onClick={deleteMessage}><Delete /><span>{t('delete')}</span></li> */}
+                    
                     {chat?.channel ? 
                         isOwner ? <li onClick={deleteMessage}><Delete /><span>{t('delete')}</span></li> : null
                         :
@@ -115,6 +132,12 @@ const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, positionMe
                 </ul>
             </div>
         </div>
+    )
+
+    console.log('render contextmenu')
+
+    return (
+        createPortal(menu, portalRootRef.current)
     );
 }
 

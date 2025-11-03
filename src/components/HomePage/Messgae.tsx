@@ -14,6 +14,7 @@ import { messagesAPI } from "../../API/api";
 import { useInView } from 'react-intersection-observer';
 import { setTempChat } from "../../store/slices/appSlice";
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
+import { openModalCalls } from "../../store/slices/callsSlice";
 
 
 const HEIGHT_MENU_FOR_OWNER = 220
@@ -21,6 +22,7 @@ const HEIGHT_MENU_FOR_GUEST = 168
 const HEIGHT_MENU_FOR_GUEST_CHANNEL = 126
 const WIDTH_MENU = 200
 const HEIGHT_HEADER = 66
+const HEIGHT_ROW = 42
 
 interface IMessagesContent {
     onEnterViewport: () => void,
@@ -78,7 +80,7 @@ const ViewportContent: FC<IMessagesContent> = ({ onEnterViewport, message }) => 
     })
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
     const checkMessageObj = checkMessage(message.message)
-    const {t} = useTypedTranslation()
+    const { t } = useTypedTranslation()
     const status: CallEndStatus = message.callStatus
 
     useEffect(() => {
@@ -87,11 +89,11 @@ const ViewportContent: FC<IMessagesContent> = ({ onEnterViewport, message }) => 
         }
     }, [inView])
 
-    if(message?.callStatus) {
+    if (message?.callStatus) {
         return (
             <div className={styles.call__info}>
                 <div className={styles.call__status} ref={ref}>
-                    <CallIcon fontSize={'0.9rem'}/>
+                    <CallIcon fontSize={'0.9rem'} />
                     <h5>{t(`call.${status}`)}</h5>
                 </div>
                 <span className={styles.call__time}>{message.message}</span>
@@ -124,7 +126,7 @@ type Props = {
 const ReplyToMessage: FC<Message1> = (props) => {
     const { replyToMessage, sender } = props
     const isMessageCall = replyToMessage?.callStatus
-    const {t} = useTypedTranslation()
+    const { t } = useTypedTranslation()
 
     function getFirst30Chars(inputString: string) {
         if (!inputString) return ''
@@ -141,7 +143,7 @@ const ReplyToMessage: FC<Message1> = (props) => {
             </div>
             <div style={{ paddingRight: '2px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 {isMessageCall ?
-                    <>  
+                    <>
                         <CallIcon />
                         <span>{t(`call.${replyToMessage.callStatus}`)}</span>
                     </>
@@ -158,9 +160,11 @@ const Message: FC<Props> = ({ messageInfo }) => {
     const owner = useAppSelector(state => state.app.currentUser)
     const isShowCheckbox = useAppSelector(state => state.app.showCheckbox)
     const chat = useAppSelector(state => state.app.selectedChat)
+    const dispatch = useAppDispatch()
     const [offset, setOffset] = useState<Offset>({ top: 0, left: 0 })
     const [contextMenuIsOpen, setContextMenu] = useState(false)
-    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent)
+    //const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent)
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
     const isOwner = owner.email === messageInfo.sender.email
     const isForwarder = Boolean(messageInfo?.forwardedFrom)
     const isFavorites = messageInfo.hasOwnProperty('read')
@@ -181,46 +185,66 @@ const Message: FC<Props> = ({ messageInfo }) => {
     const refSpan = useRef<HTMLDivElement>(null)
 
     const setPositionMenu = (e: MouseEvent) => {
-        const position = { top: 0, left: 0 }
-        function getAdjustedTop(clickY: number): number {
-            const windowHeight = window.innerHeight
-            const spaceBelow = windowHeight - clickY
-            if (spaceBelow >= HEIGHT_MENU_FOR_OWNER) {
-                return clickY
-            } else {
-                const offset = HEIGHT_MENU_FOR_OWNER - spaceBelow
-                return Math.max(0, clickY - offset)
+        if (!isShowCheckbox) {
+            const position = { top: 0, left: 0 }
+            function getAdjustedTop(clickY: number): number {
+                const windowHeight = window.innerHeight
+                const spaceBelow = windowHeight - clickY
+                if (spaceBelow >= HEIGHT_MENU_FOR_OWNER) {
+                    return clickY
+                } else {
+                    const offset = HEIGHT_MENU_FOR_OWNER - spaceBelow
+                    return Math.max(0, clickY - offset)
+                }
             }
+            const styleContainer: HTMLDivElement = document.querySelector('.ReactVirtualized__Grid')
+            const parentContainer: HTMLDivElement = document.querySelector('.ReactVirtualized__Grid__innerScrollContainer')
+            virtualizedListElementRef.current = styleContainer
+            const parentRect = parentContainer.getBoundingClientRect();
+            const clickX = e.clientX - parentRect.left;
+            const positionClickTop = e.clientY
+            const positionClickLeft = e.clientX
+            const topIndent = positionClickTop //- HEIGHT_HEADER
+            clickX > WIDTH_MENU ? position.left = positionClickLeft - 168 : position.left = positionClickLeft
+            topIndent > HEIGHT_MENU_FOR_OWNER ?
+                position.top = positionClickTop - (isOwner && !isForwarder ?
+                    HEIGHT_MENU_FOR_OWNER : isChannel ?
+                        HEIGHT_MENU_FOR_GUEST_CHANNEL : HEIGHT_MENU_FOR_GUEST)
+                :
+                position.top = getAdjustedTop(positionClickTop)
+            if (messageInfo?.callStatus) position.top -= HEIGHT_ROW
+            setOffset(position)
         }
-        const styleContainer: HTMLDivElement = document.querySelector('.ReactVirtualized__Grid')
-        const parentContainer: HTMLDivElement = document.querySelector('.ReactVirtualized__Grid__innerScrollContainer')
-        virtualizedListElementRef.current = styleContainer
-        const parentRect = parentContainer.getBoundingClientRect();
-        const clickX = e.clientX - parentRect.left;
-        const positionClickTop = e.clientY
-        const positionClickLeft = e.clientX
-        const topIndent = positionClickTop //- HEIGHT_HEADER
-        clickX > WIDTH_MENU ? position.left = positionClickLeft - 168 : position.left = positionClickLeft
-        topIndent > HEIGHT_MENU_FOR_OWNER ?
-            position.top = positionClickTop - (isOwner && !isForwarder ? 
-                HEIGHT_MENU_FOR_OWNER : isChannel ?
-                    HEIGHT_MENU_FOR_GUEST_CHANNEL : HEIGHT_MENU_FOR_GUEST)
-            :
-            position.top = getAdjustedTop(positionClickTop)
-        setOffset(position)
     }
 
-    const setPositionMenuForIOS = (e: MouseEvent) => {
-        if (isIOS) setPositionMenu(e)
-    }
+    // const setPositionMenuForIOS = (e: MouseEvent) => {
+    //     if (isIOS) setPositionMenu(e)
+    // }
 
-    const ios = ({ target }: React.MouseEvent) => {
-        if (!isIOS) return
+    // const ios = ({ target }: React.MouseEvent) => {
+    //     if (!isIOS) return
+    //     const targetElement: HTMLDivElement = target as HTMLDivElement;
+    //     if (targetElement.nodeName !== 'A' && !isShowCheckbox && targetElement.id !== 'forwardedFromName') setContextMenu(true)
+    // }
+
+    const mobileHandleClick = ({ target }: React.MouseEvent) => {
+        if (!isMobile) {
+            if (messageInfo?.callStatus && !isShowCheckbox) {
+                dispatch(openModalCalls({
+                    mode: null,
+                    callerUid: chat.uid,
+                    roomId: null,
+                    callInfo: { caller: owner, callee: chat }
+                }))
+            }
+            return
+        }
         const targetElement: HTMLDivElement = target as HTMLDivElement;
         if (targetElement.nodeName !== 'A' && !isShowCheckbox && targetElement.id !== 'forwardedFromName') setContextMenu(true)
     }
 
     const openContextMenu = (e: React.MouseEvent) => {
+        if (isMobile) return
         e.preventDefault()
         if (!isShowCheckbox) setContextMenu(true)
     }
@@ -230,12 +254,16 @@ const Message: FC<Props> = ({ messageInfo }) => {
 
     useEffect(() => {
         if (refSpan.current) {
+            // refSpan.current.addEventListener('contextmenu', setPositionMenu)
+            // refSpan.current.addEventListener('click', setPositionMenuForIOS)
             refSpan.current.addEventListener('contextmenu', setPositionMenu)
-            refSpan.current.addEventListener('click', setPositionMenuForIOS)
+            refSpan.current.addEventListener('click', setPositionMenu)
 
             return () => {
+                // refSpan.current?.removeEventListener('contextmenu', setPositionMenu)
+                // refSpan.current?.removeEventListener('click', setPositionMenuForIOS)
                 refSpan.current?.removeEventListener('contextmenu', setPositionMenu)
-                refSpan.current?.removeEventListener('click', setPositionMenuForIOS)
+                refSpan.current?.removeEventListener('click', setPositionMenu)
             }
         }
     }, [])
@@ -274,8 +302,8 @@ const Message: FC<Props> = ({ messageInfo }) => {
                     }
                 </div>
                 <div
-                    className={classNames(styles.messageData, 
-                        {   
+                    className={classNames(styles.messageData,
+                        {
                             [styles.owner]: !isGuestMessage,
                             [styles.guest]: isGuestMessage,
                             [styles.noSelect]: contextMenuIsOpen,
@@ -284,7 +312,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
                         })
                     }
                     onContextMenu={openContextMenu}
-                    onClick={ios}
+                    onClick={mobileHandleClick}
                     ref={refSpan}
                 >
                     {messageInfo.forwardedFrom && <ForwardedFrom user={messageInfo.forwardedFrom} />}
@@ -309,6 +337,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
                         message={messageInfo}
                         positionMenu={positionMenu}
                         isForwarder={isForwarder}
+                        curentUser={owner}
                     />}
             </label>
         </li>

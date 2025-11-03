@@ -45,11 +45,12 @@ export const PreviewLastMessage: FC<{message: Message1, currentUserId: string}> 
     const targetEl = () => {
         if(!message?.callStatus) return (
             <div className={styles.lastMessage}>
-                <span>{truncateText(message.message)}</span>
+                {/* <span>{truncateText(message.message)}</span> */}
+                <span>{message.message}</span>
             </div>
         )
         return (
-            <div className={styles.lastMessage} style={{color: isErrorColor ? 'hsla(0, 73.92%, 60.75%, 0.75)' : 'auto'}}>
+            <div className={styles.lastMessage} style={{color: isErrorColor ? 'hsla(0, 73.92%, 60.75%, 0.75)' : 'auto', display: 'flex', gap: "6px", alignItems: 'center'}}>
                 <CallIcon />
                 <span>{t(`call.${message.callStatus}`)}</span>
             </div>

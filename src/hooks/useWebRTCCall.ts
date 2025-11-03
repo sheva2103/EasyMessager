@@ -309,7 +309,12 @@ interface UseWebRTCCallReturn {
 }
 
 
-export const useWebRTCCall = (myUid: string, calleeUid: string, endCallFunc?: (callDuration: string, status: CallEndStatus) => void): UseWebRTCCallReturn => {
+export const useWebRTCCall = (
+        myUid: string, 
+        calleeUid: string,
+        startCallFunc: (mode: "incoming" | "outgoing") => void, 
+        endCallFunc?: (callDuration: string, status: CallEndStatus) => void,
+    ): UseWebRTCCallReturn => {
     const [roomId, setRoomId] = useState('');
     const [callState, setCallState] = useState<CallState>('idle');
     const [incomingRoomId, setIncomingRoomId] = useState<string | null>(null);
@@ -317,7 +322,6 @@ export const useWebRTCCall = (myUid: string, calleeUid: string, endCallFunc?: (c
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [callDuration, setCallDuration] = useState(0);
 
-    // НОВОЕ: Ref для хранения актуальной длительности звонка
     const callDurationRef = useRef(callDuration);
 
     const localStreamRef = useRef<MediaStream | null>(null);
@@ -330,7 +334,6 @@ export const useWebRTCCall = (myUid: string, calleeUid: string, endCallFunc?: (c
     const pendingCandidates: RTCIceCandidateInit[] = [];
     const hasEndedRef = useRef(false);
 
-    // НОВОЕ: useEffect для синхронизации state и ref длительности
     useEffect(() => {
         callDurationRef.current = callDuration;
     }, [callDuration]);
@@ -410,7 +413,6 @@ export const useWebRTCCall = (myUid: string, calleeUid: string, endCallFunc?: (c
 
         if (endCallFunc) {
             if(callState === 'idle' && callDurationRef.current === 0) finalStatus = 'rejected'
-            // ИЗМЕНЕНО: Используем ref для получения актуального значения
             endCallFunc(formatDuration(callDurationRef.current), finalStatus);
         }
 
@@ -448,7 +450,7 @@ export const useWebRTCCall = (myUid: string, calleeUid: string, endCallFunc?: (c
         setRoomId('');
         setIncomingRoomId(null);
         setCallerUid(null);
-        setCallDuration(0); // Сбрасываем длительность в конце
+        setCallDuration(0); // Сбрасываю длительность в конце
     };
 
     const setupPeerConnection = (isCaller: boolean, roomRef: any) => {
@@ -474,7 +476,7 @@ export const useWebRTCCall = (myUid: string, calleeUid: string, endCallFunc?: (c
             }
         };
 
-        // НОВОЕ: Cтраховка от обрывов связи (закрытие вкладки, потеря сети)
+        // Cтраховка от обрывов связи (закрытие вкладки, потеря сети)
         pcRef.current.oniceconnectionstatechange = () => {
             if (
                 pcRef.current?.iceConnectionState === 'disconnected' ||
@@ -536,6 +538,7 @@ export const useWebRTCCall = (myUid: string, calleeUid: string, endCallFunc?: (c
                 pendingCandidates.length = 0;
             }
         });
+        startCallFunc('outgoing')
     };
 
     const acceptCall = async () => {

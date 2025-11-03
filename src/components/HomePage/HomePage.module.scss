@@ -18,6 +18,7 @@
             height: 100%;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
             background-color: var(--background-color-chatlist);
             gap: 8px;
             color: var(--color-chatlist);
@@ -44,7 +45,7 @@
                 }
             }
 
-            @media (max-width: 576px) {
+            @media (max-width: 769px) {
                 width: 100%;
                 height: 100%;
                 position: absolute;
@@ -53,9 +54,9 @@
                 display: flex;
             }
 
-            @media (min-width: 577px) {
-                width: 220px;
-            }
+            // @media (min-width: 577px) {
+            //     width: 220px;
+            // }
 
             @media (min-width: 769px) {
                 width: 364px;
@@ -89,7 +90,9 @@
                 cursor: pointer;
 
                 &__noRead {
-                    margin-right: 10px;
+                    //margin-right: 10px;
+                    margin-left: auto;
+                    padding-right: 10px;
                 }
 
                 &:hover {
@@ -139,19 +142,17 @@
                 flex-direction: column;
                 padding-left: 4px;
                 gap: 2px;
-                width: 100%;
+                //width: 100%;
+                max-width: 70%;
 
                 .lastMessage {
                     font-size: 0.8rem;
                     font-weight: 500;
                     //width: 180px;
-                    // white-space: nowrap;
-                    // text-overflow: ellipsis;
-                    // overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    overflow: hidden;
                     color: var(--color-preview-message);
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
                 }
             }
         }
@@ -191,7 +192,7 @@
                 }
             }
 
-            @media (max-width: 576px) {
+            @media (max-width: 769px) {
                 position: absolute;
                 right: -100%;
                 opacity: 0;
@@ -854,6 +855,7 @@
     box-shadow: var(--menu-box-shadow);
     transform: scale(0.1);
     transition: all 0.3s;
+    color: var(--color);
 
     &_open {
         transform: scale(1);
@@ -865,12 +867,15 @@
         font-size: 0.95rem;
 
         & li {
-            padding: 12px 8px;
+            padding: 10px 8px;
             display: flex;
             gap: 8px;
             align-items: center;
             cursor: pointer;
             position: relative;
+            @media (max-height: 576px) {
+                padding: 8px 6px;
+            }
 
             &:hover {
                 background-color: rgba(90, 90, 90, 0.3294117647);

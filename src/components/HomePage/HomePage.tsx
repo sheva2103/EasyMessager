@@ -74,6 +74,7 @@ const HomaPage = () => {
 
     return (
         <div className={styles.wrapper}>
+            <MenuComponent />
             <div className={styles.container}>
                 <div className={styles.chatListContainer}>
                     <div className={classNames(styles.menuIcon, styles.item)}>
@@ -91,7 +92,7 @@ const HomaPage = () => {
                     <ChatList />
                 </div>
                 <ChatContent />
-                <MenuComponent />
+                
                 <CallsListenerComponent />
                 <AudioUnlocker />
             </div>

@@ -79,6 +79,14 @@
         "unanswered": "Unanswered",
         "rejected": "Rejected",
         "missed": "Missed",
-        "error": "Error"
+        "error": "Error",
+        "callback": "Call back",
+        "idle": "Idle",
+        "incoming": "Incoming",
+        "calling": "Waiting for a response",
+        "connected": "Connected",
+        "accept": "Accept",
+        "reject": "Reject",
+        "call": "Call"
     }
 }

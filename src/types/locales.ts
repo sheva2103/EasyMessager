@@ -74,4 +74,12 @@ export type TranslationKeys =
     | 'call.unanswered' 
     | 'call.rejected' 
     | 'call.missed' 
-    | 'call.error';
+    | 'call.error'
+    | 'call.callback'
+    | 'call.idle'
+    | 'call.incoming'
+    | 'call.calling'
+    | 'call.connected'
+    | 'call.reject'
+    | 'call.accept'
+    | 'call.call'

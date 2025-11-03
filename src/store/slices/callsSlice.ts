@@ -35,15 +35,19 @@ export const callsSlice = createSlice({
             state.roomId = action.payload.roomId
             state.callInfo = action.payload.callInfo
         },
-        closeModalCalls(state) {
+        closeModalCalls(state, action: PayloadAction<boolean>) {
+            if(action.payload && state.mode) return
             state.isOpen = false
             state.callerUid = null
             state.mode = null
             state.roomId = null
             state.callInfo = null
         },
+        setStatusMod(state, action: PayloadAction<"incoming" | "outgoing">) {
+            state.mode = action.payload
+        }
     }
 })
 
-export const {openModalCalls, closeModalCalls} = callsSlice.actions
+export const {openModalCalls, closeModalCalls, setStatusMod} = callsSlice.actions
 export default callsSlice.reducer

@@ -62,20 +62,21 @@ const OnlineStatusComponent: FC = () => {
 const CallButton: FC<{isChannel: boolean, callerUid: string}> = ({isChannel, callerUid}) => {
 
     const isShow = useAppSelector(state => state.app.showCheckbox)
+    const isFavorites = useAppSelector(state => state.app.isFavorites)
     const caller = useAppSelector(state => state.app.currentUser)
     const callee = useAppSelector(state => state.app.selectedChat)
 
     const dispatch = useAppDispatch()
     const startCall = () => {
         dispatch(openModalCalls({
-            mode: 'outgoing',
+            mode: null,
             callerUid,
             roomId: null,
             callInfo: {caller, callee}
         }))
     }
 
-    if(isShow || isChannel) return null
+    if(isShow || isChannel || isFavorites) return null
 
     return (
         <div className={styles.contentHeader__callButton}>

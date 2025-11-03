@@ -19,6 +19,7 @@ import { useWebRTCCall } from '../../hooks/useWebRTCCall';
 import { profileAPI } from '../../API/api';
 import styles from './Styles.module.scss'
 import { CallEndStatus, CallMessageOptionsType } from '../../types/types';
+import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 
 // export const CallRoom = ({ myUid, calleeUid }: { myUid: string; calleeUid: string }) => {
 
@@ -316,32 +317,27 @@ const ShowCallerName: FC<{ id: string }> = ({ id }) => {
     )
 }
 
-export const CallRoom = ({ myUid, calleeUid, endCallFunc }: { myUid: string; calleeUid: string, endCallFunc?: (callDuration: string, status: CallEndStatus) => void }) => {
-
+export const CallRoom = ({ myUid, calleeUid, endCallFunc, startCallFunc }: { 
+    myUid: string, 
+    calleeUid: string, 
+    endCallFunc?: (callDuration: string, status: CallEndStatus) => void,
+    startCallFunc: (mode: "incoming" | "outgoing") => void
+    }) => {
     const { callState, errorMessage, callDuration, callerUid,
         startCall, acceptCall, rejectCall, endCall, formatDuration,
-        remoteAudioRef, ringtoneRef, incomingRef } = useWebRTCCall(myUid, calleeUid, endCallFunc)
+        remoteAudioRef, ringtoneRef, incomingRef } = useWebRTCCall(myUid, calleeUid, startCallFunc, endCallFunc)
 
-        useEffect(() => {
-            return () => {
-                if( callState === 'connected' || callState === 'calling') {
-                    endCall()
-                }
-                if( callState === 'incoming') {
-                    rejectCall()
-                }
-            }
-        }, [callState]);
+    const {t} = useTypedTranslation()
 
     return (
         <div className={styles.wrapper}>
             <h4 className={styles.callState}>
                 {
-                    callState === 'idle' ? 'Ожидание' :
-                        callState === 'calling' ? 'Ожидание ответа' :
-                            callState === 'incoming' ? 'Входящий звонок' :
-                                callState === 'connected' ? 'Подключено' :
-                                    callState === 'error' ? 'Ошибка' : 'Завершено'
+                    callState === 'idle' ? t('call.idle') :
+                        callState === 'calling' ? t('call.calling') :
+                            callState === 'incoming' ? t('call.incoming') :
+                                callState === 'connected' ? t('call.connected') :
+                                    callState === 'error' ? 'Ошибка' : t('call.error')
                 }
             </h4>
 
@@ -363,18 +359,18 @@ export const CallRoom = ({ myUid, calleeUid, endCallFunc }: { myUid: string; cal
 
             <div className={styles.buttons}>
                 {callState === 'idle' && (
-                    <button onClick={startCall} style={{ marginTop: 10 }}>Позвонить</button>
+                    <button onClick={startCall} style={{ marginTop: 10 }}>{t('call.call')}</button>
                 )}
 
                 {callState === 'incoming' && (
                     <>
-                        <button onClick={acceptCall} >Принять</button>
-                        <button onClick={rejectCall} style={{ backgroundColor: 'hsl(0, 98%, 64%)' }}>Отклонить</button>
+                        <button onClick={acceptCall} >{t('call.accept')}</button>
+                        <button onClick={rejectCall} style={{ backgroundColor: 'hsl(0, 98%, 64%)' }}>{t('call.reject')}</button>
                     </>
                 )}
 
                 {(callState === 'connected' || callState === 'calling') && (
-                    <button onClick={endCall} style={{ backgroundColor: 'hsl(0, 98%, 64%)' }}>Завершить</button>
+                    <button onClick={endCall} style={{ backgroundColor: 'hsl(0, 98%, 64%)' }}>{t('call.reject')}</button>
                 )}
             </div>
         </div>
