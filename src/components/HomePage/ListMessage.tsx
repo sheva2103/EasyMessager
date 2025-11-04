@@ -1,5 +1,5 @@
 import styles from './HomePage.module.scss'
-import { FC, memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { FC, memo, MutableRefObject, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Message from './Messgae';
 import { Chat, Message1, NoReadMessagesType } from '../../types/types';
 import { createNewDate, getDatefromDate, getQuantityNoReadMessages } from '../../utils/utils';
@@ -9,95 +9,95 @@ import Worker from 'web-worker';
 import { List, AutoSizer, CellMeasurer, CellMeasurerCache, ListRowRenderer } from 'react-virtualized'
 import AdvancedContent from './AdvancedContent';
 import SearchMessages from './SearchMessages';
+import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+
 
 
 interface VariableHeightListProps {
     items: Message1[],
-    noRead: NoReadMessagesType
-    assignElementToScroll: (element: List) => List,
-    searchIndexes: Set<number>
+    noRead: NoReadMessagesType,
+    assignElementToScroll: (handle: VirtuosoHandle | null) => void,
+    searchIndexes: Set<number>,
+    scrollerDomRef: MutableRefObject<any>
 }
 
-const VariableHeightList: FC<VariableHeightListProps> = ({ items, noRead, assignElementToScroll, searchIndexes }) => {
+const VariableHeightList: FC<VariableHeightListProps> = ({ 
+    items, 
+    noRead, 
+    assignElementToScroll, 
+    searchIndexes,
+    scrollerDomRef
+}) => {
 
-    const cache = new CellMeasurerCache({
-        fixedWidth: true,
-        defaultHeight: 49,
-    })
-
-    const listRef = useRef<List>(null);
+    const virtuosoRef = useRef<VirtuosoHandle>(null);
 
     useLayoutEffect(() => {
-        if (listRef.current && items.length) {
+        if (virtuosoRef.current && items.length) {
             setTimeout(() => {
-                listRef.current.scrollToRow(noRead.targetIndex)
-            }, 100)
+                virtuosoRef.current?.scrollToIndex({
+                    index: noRead.targetIndex,
+                    align: 'start', 
+                    behavior: 'auto' 
+                });
+            }, 100);
         }
-    }, [items.length])
+    }, [items.length]); 
 
     useEffect(() => {
-        assignElementToScroll(listRef.current)
-    }, [listRef]);
+        assignElementToScroll(virtuosoRef.current)
+        return () => assignElementToScroll(null)
+    }, [assignElementToScroll]);
 
-    const rowRenderer: ListRowRenderer = ({ index, key, parent, style }) => {
+    const setScrollerRef = (ref: HTMLElement | Window | null) => {
+        scrollerDomRef.current = (ref as HTMLDivElement) ?? null;
+    }
 
-        const isHighlighted = searchIndexes.has(index)
-        const rowStyle = {
-            ...style,
+    const renderRow = (index: number, item: Message1) => {
+        const isHighlighted = searchIndexes.has(index);
+        const rowStyle: React.CSSProperties = {
             borderRadius: '16px',
             backgroundColor: isHighlighted ? "#53525270" : "transparent",
             borderBottom: isHighlighted ? "2px solid #2368af7a" : "transparent",
             transition: "background-color 0.3s ease",
-        };
+            padding: '2px 0'
+        }
+
+        const showDate = index === 0 || 
+            (getDatefromDate(createNewDate(item.date)) !== getDatefromDate(createNewDate(items[index - 1].date)));
 
         return (
-            <CellMeasurer
-                key={key}
-                cache={cache}
-                parent={parent}
-                columnIndex={0}
-                rowIndex={index}
-            >
-                {({ measure, registerChild }) => (
-                    <div ref={registerChild} style={rowStyle} onLoad={measure}>
-                        {index !== 0 && getDatefromDate(createNewDate(items[index].date)) === getDatefromDate(createNewDate(items[index - 1].date)) ?
-                            <Message messageInfo={items[index]} />
-                            :
-                            <div key={items[index].messageID}>
-                                <GetDateMessage date={items[index].date} />
-                                <Message messageInfo={items[index]} key={items[index].messageID} />
-                            </div>
-                        }
-                    </div>
-                )}
-            </CellMeasurer>
+            <div style={rowStyle}>
+                {showDate && <GetDateMessage date={item.date} />}
+                <Message 
+                    messageInfo={item}
+                    scrollerDomRef={scrollerDomRef} 
+                    key={item.messageID}    
+                />
+            </div>
         );
     };
 
     return (
-        <AutoSizer>
-            {({ height, width }) => (
-                <List
-                    width={width}
-                    height={height}
-                    rowCount={items.length}
-                    rowHeight={cache.rowHeight}
-                    deferredMeasurementCache={cache}
-                    rowRenderer={rowRenderer}
-                    overscanRowCount={3}
-                    ref={listRef}
-                />
-            )}
-        </AutoSizer>
+        <Virtuoso
+            ref={virtuosoRef}
+            data={items}
+            itemContent={renderRow}
+            overscan={800}
+            scrollerRef={setScrollerRef} 
+        />
     );
-};
+}
 
 const ListMessages: FC = () => {
 
     const list = useAppSelector(state => state.messages)
     const [targetMessages, setTargetMessages] = useState<Set<number>>(new Set())
-    const scrollElementRef = useRef<List>(null)
-    const assignElementToScroll = (element: List) => scrollElementRef.current = element 
+    const scrollElementRef = useRef<VirtuosoHandle | null>(null) 
+
+    const scrollerDomRef = useRef<MutableRefObject<HTMLDivElement>>(null)
+    const assignElementToScroll = (element: VirtuosoHandle | null) => {
+        scrollElementRef.current = element 
+    }
 
     console.log('render list messages')
 
@@ -110,10 +110,16 @@ const ListMessages: FC = () => {
                         items={list.messages}
                         noRead={list.noRead} 
                         assignElementToScroll={assignElementToScroll} 
-                        searchIndexes={targetMessages}/>
+                        searchIndexes={targetMessages}
+                        scrollerDomRef={scrollerDomRef}    
+                    />
                 </ul>
             </div>
-            <AdvancedContent noRead={list.noRead} scrollElement={scrollElementRef} scrollIndexes={targetMessages}/>
+            <AdvancedContent 
+                noRead={list.noRead} 
+                scrollElement={scrollElementRef}
+                scrollIndexes={targetMessages}
+            />
         </div>
     );
 }

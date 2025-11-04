@@ -433,8 +433,8 @@
             &.selectedMessage {
                 background-color: #53525270;
                 border-radius: 16px;
-                width: fit-content;
-                position: relative;
+                // width: fit-content;
+                // position: relative;
 
                 &.guest {
                     @media (max-width: 568px) {
@@ -959,7 +959,7 @@
     .skeleton__Name {
         height: 20px;
         background-color: var(--background-color-content-block);
-        width: 180px;
+        width: 75%;
         padding-left: 4px;
         border-radius: 8px;
         animation: pusling 2.5s infinite;

@@ -1,4 +1,4 @@
-import { FC, memo, useEffect, useRef, useState } from "react";
+import { FC, memo, MutableRefObject, RefObject, useEffect, useRef, useState } from "react";
 import Avatar from "../Avatar/Avatar";
 import classNames from "classnames";
 import styles from './HomePage.module.scss'
@@ -121,6 +121,7 @@ type Offset = {
 
 type Props = {
     messageInfo: Message1,
+    scrollerDomRef: MutableRefObject<HTMLDivElement>
 }
 
 const ReplyToMessage: FC<Message1> = (props) => {
@@ -155,7 +156,7 @@ const ReplyToMessage: FC<Message1> = (props) => {
     )
 }
 
-const Message: FC<Props> = ({ messageInfo }) => {
+const Message: FC<Props> = ({ messageInfo, scrollerDomRef }) => {
 
     const owner = useAppSelector(state => state.app.currentUser)
     const isShowCheckbox = useAppSelector(state => state.app.showCheckbox)
@@ -180,13 +181,14 @@ const Message: FC<Props> = ({ messageInfo }) => {
         top: offset.top + 'px',
         left: offset.left + 'px'
     }
-    const virtualizedListElementRef: { current: HTMLDivElement } = useRef(null)
+    //const virtualizedListElementRef: { current: HTMLDivElement } = useRef(null)
     const messageRef = useRef(null)
     const refSpan = useRef<HTMLDivElement>(null)
 
     const setPositionMenu = (e: MouseEvent) => {
         if (!isShowCheckbox) {
             const position = { top: 0, left: 0 }
+
             function getAdjustedTop(clickY: number): number {
                 const windowHeight = window.innerHeight
                 const spaceBelow = windowHeight - clickY
@@ -197,14 +199,15 @@ const Message: FC<Props> = ({ messageInfo }) => {
                     return Math.max(0, clickY - offset)
                 }
             }
-            const styleContainer: HTMLDivElement = document.querySelector('.ReactVirtualized__Grid')
-            const parentContainer: HTMLDivElement = document.querySelector('.ReactVirtualized__Grid__innerScrollContainer')
-            virtualizedListElementRef.current = styleContainer
+            const styleContainer = scrollerDomRef.current;
+            const parentContainer = styleContainer?.firstElementChild as HTMLDivElement | undefined;
+            if (!styleContainer || !parentContainer) return
+
             const parentRect = parentContainer.getBoundingClientRect();
             const clickX = e.clientX - parentRect.left;
             const positionClickTop = e.clientY
             const positionClickLeft = e.clientX
-            const topIndent = positionClickTop //- HEIGHT_HEADER
+            const topIndent = positionClickTop
             clickX > WIDTH_MENU ? position.left = positionClickLeft - 168 : position.left = positionClickLeft
             topIndent > HEIGHT_MENU_FOR_OWNER ?
                 position.top = positionClickTop - (isOwner && !isForwarder ?
@@ -212,6 +215,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
                         HEIGHT_MENU_FOR_GUEST_CHANNEL : HEIGHT_MENU_FOR_GUEST)
                 :
                 position.top = getAdjustedTop(positionClickTop)
+
             if (messageInfo?.callStatus) position.top -= HEIGHT_ROW
             setOffset(position)
         }
@@ -268,19 +272,6 @@ const Message: FC<Props> = ({ messageInfo }) => {
         }
     }, [])
 
-    useEffect(() => {
-        const styleContainer = document.querySelector('.ReactVirtualized__Grid') as HTMLDivElement;
-        if (!styleContainer) return;
-
-        if (contextMenuIsOpen) {
-            styleContainer.style.overflow = 'hidden';
-            styleContainer.style.willChange = 'auto';
-        } else {
-            styleContainer.style.overflow = 'auto';
-            styleContainer.style.willChange = 'transform';
-        }
-    }, [contextMenuIsOpen]);
-
     const readMessage = () => {
         if (messageInfo.sender.email !== owner.email && isFavorites && !messageInfo.read) {
             messagesAPI.readMessage(chat.chatID, messageInfo)
@@ -290,8 +281,13 @@ const Message: FC<Props> = ({ messageInfo }) => {
     console.log('message render')
 
     return (
-        <li className={classNames({ [styles.selectedMessage]: contextMenuIsOpen }, { [styles.guest]: !isOwner })} ref={messageRef}>
-            {contextMenuIsOpen && <div className={styles.selectedMessage__selected} />}
+        <li
+            className={classNames(
+                { [styles.selectedMessage]: contextMenuIsOpen },
+                //{ [styles.guest]: !isOwner }
+            )}
+            ref={messageRef}>
+            {/* {contextMenuIsOpen && <div className={styles.selectedMessage__selected} />} */}
             <label data-id={messageInfo.messageID}>
                 {isShowCheckbox && <SelectMessageInput messageInfo={messageInfo} />}
                 <div className={styles.avatar}>
