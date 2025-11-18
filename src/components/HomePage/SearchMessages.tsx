@@ -1,28 +1,24 @@
-import { ChangeEvent, FC, useEffect, useRef, useState } from "react";
-import { Message1 } from "../../types/types";
+import { FC, useEffect, useRef, useState } from "react";
 import styles from './HomePage.module.scss'
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
-import { setSearchMessages } from "../../store/slices/appSlice";
+import { setSearchMessages, setTargetMessages } from "../../store/slices/appSlice";
 import { searchMessagesInList } from "../../utils/utils";
 import { useDebounce } from 'use-debounce';
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
+import InputComponent from "../../InputComponent/InputComponent";
 
-type Props = {
-    list: Message1[],
-    setTargetMessages: (indexes: Set<number>) => void
-}
-
-const SearchMessages: FC<Props> = ({ list, setTargetMessages }) => {
+const SearchMessages: FC = () => {
 
     const [text, setText] = useState('')
-    const isOpen = useAppSelector(state => state.app.isSearchMessage)
+    // const isOpen = useAppSelector(state => state.app.isSearchMessage)
+    const list = useAppSelector(state => state.messages.messages)
     const [debouncedText] = useDebounce(text, 1000);
     const inputRefContainer = useRef<HTMLDivElement>(null)
     const inputRef = useRef<HTMLInputElement>(null)
     const {t} = useTypedTranslation()
     const dispatch = useAppDispatch()
     const show = () => {
-        if (inputRefContainer.current) {
+        if (inputRefContainer.current && inputRef.current) {
             inputRef.current.focus()
             inputRefContainer.current.style.width = '100%'
         }
@@ -32,43 +28,38 @@ const SearchMessages: FC<Props> = ({ list, setTargetMessages }) => {
         setTimeout(() => {
             if (text.length) setText('')
             dispatch(setSearchMessages(false))
-            setTargetMessages(new Set())
-        }, 500)
-    }
-
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        setText(e.target.value)
+            dispatch(setTargetMessages([]))
+        }, 400)
     }
 
     useEffect(() => {
         const delay = setTimeout(show, 100)
         return () => {
             setText('')
-            setTargetMessages(new Set())
+            dispatch(setTargetMessages([]))
             clearTimeout(delay)
         }
-    }, [isOpen]);
+    }, []);
 
     useEffect(() => {
         if (debouncedText) {
             const result = searchMessagesInList(list, text)
-            setTargetMessages(result)
+            dispatch(setTargetMessages([...result]))
+        } else {
+            dispatch(setTargetMessages([]))
         }
     }, [debouncedText]);
 
-    if (!isOpen) return null
-
     return (
-        <div className={styles.searchMessages}>
-            <div className={styles.searchMessages_container}>
-                <div className={styles.searchMessages_input} ref={inputRefContainer}>
-                    <input
-                        type="text"
-                        ref={inputRef}
-                        value={text}
-                        onChange={handleChange}
+        <div className={styles.inputNewMessage}>
+            <div className={styles.searchMessages}>
+                    <InputComponent 
+                        returnValue={setText} 
+                        isCleanIcon 
+                        refInput={inputRef}
+                        refContainer={inputRefContainer} 
+                        classes={styles.searchMessages_input} 
                     />
-                </div>
                 <div className={styles.searchMessages_button}>
                     <button onClick={hide}>{t('cancel')}</button>
                 </div>

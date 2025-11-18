@@ -5,11 +5,24 @@
     flex-direction: column;
     //padding: 0 0 8px 0;
     height: 100%;
+    position: relative;
 
     &>:first-child {
         text-align: center;
         font-weight: 600;
         font-size: 1.2rem;
+    }
+
+    &__preloader {
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 0;
+        bottom: 0;
+        background-color: var(--background-color-cover);
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 }
 

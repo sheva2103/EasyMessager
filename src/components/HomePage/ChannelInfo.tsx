@@ -49,24 +49,7 @@ const ChannelInfo: FC<Props> = (channel) => {
     const lastMessage = messages.messages[messages.messages.length - 1]
     const { handleClickToChannel } = useChannelClickHandler();
 
-    //console.log(isNotAccess)
     const handleClick = () => {
-        // if(!isSelected) {
-        //     const chanelObj: Chat = createObjectChannel(updateChannel)
-        //     if(!updateChannel.isOpen) {
-        //         const isSubscriber = updateChannel.listOfSubscribers.some(sub => sub.uid === currentUser.uid)
-        //         if(isSubscriber) {
-        //             delete chanelObj.channel.listOfSubscribers
-        //             dispatch(setSelectedChannel(chanelObj))
-        //         } else (
-        //             setIsNotAccess(true)
-        //         )
-        //     }
-        //     if(updateChannel.isOpen) {
-        //         delete chanelObj.channel.listOfSubscribers
-        //         dispatch(setSelectedChannel(chanelObj))
-        //     }
-        // }
         handleClickToChannel({isSelected, channel: channel.channel, currentUserID: currentUser.uid, setIsNotAccess})
             .catch((() => setNotFoundChannel(true)))
     }
@@ -105,11 +88,12 @@ const ChannelInfo: FC<Props> = (channel) => {
             listenerChannelInfo = onSnapshot(doc(db, CHANNELS_INFO, updateChannel.channelID), async(doc: DocumentSnapshot<TypeChannel>) => {
                 if(doc.data()) {
                     const currentInfoChannel = doc.data()
-                    if(currentInfoChannel.dateOfChange !== channel.dateOfChange) {
+                    const isSubscriber = currentInfoChannel.listOfSubscribers.some(item => item.uid === currentUser.uid)
+                    if(isSubscriber && currentInfoChannel.dateOfChange !== channel.dateOfChange) {
                         const toChat = createObjectChannel(currentInfoChannel)
                         await channelAPI.updateChannelInMyChatList(currentUser.email, toChat)
                     }
-                    dispatch(updateSelectedChannel(doc.data()))
+                    dispatch(updateSelectedChannel({...currentInfoChannel, owner: updateChannel.owner}))
                 } else (
                     setNotFoundChannel(true)
                 )
@@ -118,7 +102,7 @@ const ChannelInfo: FC<Props> = (channel) => {
         return () => {
             if(listenerChannelInfo) listenerChannelInfo()
         }
-    }, [isSelected, channel]);
+    }, [isSelected, channel, updateChannel]);
 
     useEffect(() => {
         const channelObj: Chat = createObjectChannel(updateChannel)

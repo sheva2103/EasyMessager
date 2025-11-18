@@ -35,6 +35,8 @@ type AppState = {
     clearGlobalSearchUser: boolean,
     onlineStatusSelectedUser: UsePresenceReturn,
     tempChat: Chat | null,
+    isAtBottomScroll: boolean,
+    targetMessages: Array<number>
 }
 
 const resetChatState = (state: AppState) => {
@@ -75,6 +77,8 @@ const initialState: AppState = {
     clearGlobalSearchUser: false,
     onlineStatusSelectedUser: null,
     tempChat: null,
+    isAtBottomScroll: false,
+    targetMessages: []
 
 }
 
@@ -90,7 +94,7 @@ export const appSlice = createSlice({
             state.menu.bar = false
             state.menu.cover = false
             state.menu.menuChild = ''
-            if (state.selectedMessages.length) state.selectedMessages = []
+            if (state.selectedMessages?.length) state.selectedMessages = []
         },
         closeBar(state, action: PayloadAction<string>) {
             state.menu.bar = false
@@ -192,6 +196,12 @@ export const appSlice = createSlice({
         setTempChat(state, action: PayloadAction<Chat>) {
             state.tempChat = action.payload
         },
+        setIsAtBottomScroll(state, action: PayloadAction<boolean>) {
+            state.isAtBottomScroll = action.payload
+        },
+        setTargetMessages(state, action: PayloadAction<Array<number>>) {
+            state.targetMessages = action.payload
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -238,5 +248,7 @@ export const { openMenu,
     setClearGlobalSearchUser,
     setOnlineStatusSelectedUser,
     setTempChat,
+    setIsAtBottomScroll,
+    setTargetMessages
 } = appSlice.actions
 export default appSlice.reducer

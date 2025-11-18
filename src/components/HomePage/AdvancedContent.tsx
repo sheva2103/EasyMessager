@@ -5,21 +5,23 @@ import Badge from '@mui/material/Badge';
 import { NoReadMessagesType } from "../../types/types";
 import EmojiComponent from "./EmojiComponent";
 import { VirtuosoHandle } from "react-virtuoso";
+import { useAppSelector } from "../../hooks/hook";
 
 type Props = {
     noRead: NoReadMessagesType,
     scrollElement?: MutableRefObject<VirtuosoHandle | null>,
-    scrollIndexes: Set<number>
+    //scrollIndexes: Set<number>
 }
 
 type IndexesNavigatorProps = {
-    numbers: Set<number>,
+    //numbers: Set<number>,
+    numberArray: Array<number>
     scrollElement: MutableRefObject<VirtuosoHandle | null>
 }
 
-const IndexesNavigator: React.FC<IndexesNavigatorProps> = ({ numbers, scrollElement }) => {
+const IndexesNavigator: React.FC<IndexesNavigatorProps> = ({ numberArray ,scrollElement }) => {
 
-    const numberArray = useMemo(() => Array.from(numbers).sort((a, b) => a - b), [numbers]);    
+    // const numberArray = useMemo(() => Array.from(numbers).sort((a, b) => a - b), [numbers]);     
     const [currentValue, setCurrentValue] = useState<number>(numberArray[0]);
 
     const goToNext = () => {
@@ -81,23 +83,26 @@ const IndexesNavigator: React.FC<IndexesNavigatorProps> = ({ numbers, scrollElem
     );
 }
 
-const ScrollButton: FC<Props> = ({ noRead, scrollElement, scrollIndexes }) => {
+const ScrollButton: FC<Props> = ({ noRead, scrollElement }) => {
 
-    console.log('scrollbutton')
+    const isAtBottom = useAppSelector(state => state.app.isAtBottomScroll)
+    const scrollIndexes = useAppSelector(state => state.app.targetMessages)
 
     const handleClick = () => {
         scrollElement.current?.scrollToIndex({
             index: noRead.targetIndex,
-            align: 'start',
+            align: 'center',
             behavior: 'smooth'
         })
     }
 
     if (!scrollElement) return null;
 
-    if (scrollIndexes.size) {
-        return <IndexesNavigator numbers={scrollIndexes} scrollElement={scrollElement} />
+    if (scrollIndexes.length) {
+        return <IndexesNavigator numberArray={scrollIndexes} scrollElement={scrollElement} />
     }
+
+    if(isAtBottom) return null
 
     return (
         <div onClick={handleClick}>
@@ -108,7 +113,7 @@ const ScrollButton: FC<Props> = ({ noRead, scrollElement, scrollIndexes }) => {
     );
 }
 
-const AdvancedContent: FC<Props> = ({ noRead, scrollElement, scrollIndexes }) => {
+const AdvancedContent: FC<Props> = ({ noRead, scrollElement }) => {
 
     const parentRef = useRef<HTMLDivElement>(null)
     const [height, setHeight] = useState(350)
@@ -136,8 +141,7 @@ const AdvancedContent: FC<Props> = ({ noRead, scrollElement, scrollIndexes }) =>
                     {scrollElement && (
                         <ScrollButton 
                             noRead={noRead} 
-                            scrollElement={scrollElement} 
-                            scrollIndexes={scrollIndexes} 
+                            scrollElement={scrollElement}  
                         />
                     )}
                 </div>

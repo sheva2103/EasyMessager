@@ -9,7 +9,8 @@ import LoginInput from './LoginInput';
 import ButtonSubmit from './ButtonSubmit';
 import { getAuth, createUserWithEmailAndPassword, setPersistence, browserSessionPersistence } from "firebase/auth";
 import EmailInput from './EmailInput';
-import { profileAPI } from '../../API/api';
+import { channelAPI, messagesAPI, profileAPI } from '../../API/api';
+import { createObjectChannel } from '../../utils/utils';
 
 const ERROR_NEW_EMAIL = 'auth/email-already-in-use'
 
@@ -45,6 +46,22 @@ const SignUp: FC = () => {
                 console.log(errorCode)
                 if (errorCode === ERROR_NEW_EMAIL) setError('email', { message: 'Такой пользователь уже существует' })
             });
+        // try {
+        //     const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password)
+        //     const user = userCredential.user
+        //     profileAPI.createNewUserInDB(user)
+        //     if (!data.rememberMe) {
+        //         await setPersistence(auth, browserSessionPersistence)
+        //     }
+        //     const reservedСhannel = await channelAPI.getCurrentInfo('3e84602c-4833-403b-a9b6-a3cec690a43b')
+        //     await messagesAPI.addChat(user, createObjectChannel(reservedСhannel), reservedСhannel.channelID)
+        // } catch(error: any) {
+        //     const errorCode = error.code;
+        //     const errorMessage = error.message;
+        //     console.error('Ошибка при регистрации:', error);
+        //     console.log(errorCode, '>>>>', errorMessage)
+        //     if (errorCode === ERROR_NEW_EMAIL) setError('email', { message: 'Такой пользователь уже существует' })
+        // }
 
     }
 

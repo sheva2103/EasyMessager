@@ -2,8 +2,8 @@ import { FC } from "react";
 import { useBlackList } from "../../hooks/useBlackList";
 import { Chat } from "../../types/types";
 import InputNewMessage from "./InputNewMessage";
-import styles from './HomePage.module.scss'
-import MessagesAreProhibited from "./MessagesAreProhibited";
+import { useAppSelector } from "../../hooks/hook";
+import SearchMessages from "./SearchMessages";
 
 type Props = {
     selectedChat: Chat
@@ -13,13 +13,12 @@ type Props = {
 
 const MessageInputField: FC<Props> = ({selectedChat}) => {
 
+    const isSearchMessage = useAppSelector(state => state.app.isSearchMessage)
     const {myBlackList, guestBlackList} = useBlackList()
 
-    if(myBlackList || guestBlackList) return (
-        <div className={styles.inputNewMessage}>
-            <MessagesAreProhibited />
-        </div>
-    )
+    if(isSearchMessage) return <SearchMessages />
+
+    if(myBlackList || guestBlackList) return null
 
     return ( 
         <InputNewMessage chatInfo={selectedChat} />

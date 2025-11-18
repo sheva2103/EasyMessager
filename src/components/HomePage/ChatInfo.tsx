@@ -6,7 +6,7 @@ import { Chat, Message1, NoReadMessagesType } from "../../types/types";
 import { setChat } from "../../store/slices/setChatIDSlice";
 import { messagesAPI, profileAPI } from "../../API/api";
 import classNames from "classnames";
-import { createMessageList, createOnlineStatusUser, getChatType, getQuantityNoReadMessages, truncateText } from "../../utils/utils";
+import { createMessageList, getChatType, getQuantityNoReadMessages } from "../../utils/utils";
 import { DocumentSnapshot, onSnapshot } from "firebase/firestore";
 import { setMessages } from "../../store/slices/messagesSlice";
 import { Badge } from "@mui/material";
@@ -45,7 +45,6 @@ export const PreviewLastMessage: FC<{message: Message1, currentUserId: string}> 
     const targetEl = () => {
         if(!message?.callStatus) return (
             <div className={styles.lastMessage}>
-                {/* <span>{truncateText(message.message)}</span> */}
                 <span>{message.message}</span>
             </div>
         )
@@ -93,11 +92,14 @@ const ChatInfo: FC<Chat> = (user) => {
                     const currentInfo = await profileAPI.getCurrentInfo(user.uid);
                     const chatID = await Promise.all([messagesAPI.getChatID(currentUser.email, currentInfo.email), messagesAPI.getChatID(currentInfo.email, currentUser.email)])
                     if (currentInfo) {
+                        if(chatID[0] && (user.displayName !== currentInfo.displayName || user.photoURL !== currentInfo.photoURL)) {
+                            await profileAPI.updateUserInMyChatList(currentInfo.email, currentInfo)
+                        }
                         setUpdateUser((prev) => {
-                            const info: Chat = { ...currentInfo }
-                            if (chatID[0] || chatID[1]) info.chatID = chatID[0] || chatID[1]
-                            return { ...prev, ...info }
-                        })
+                                const info: Chat = { ...currentInfo }
+                                if (chatID[0] || chatID[1]) info.chatID = chatID[0] || chatID[1]
+                                return { ...prev, ...info }
+                            })
                     }
                 } catch (error) {
                     console.error('Error fetching current info:', error);

@@ -92,44 +92,125 @@ export function getDatefromDate(date: string): string {
 }
 
 
+// export function checkMessage(str: string): CheckMessageType {
+//     const reg = /(https?:\/\/|ftps?:\/\/|www\.)((?![.,?!;:()]*(\s|$))[^\s]){2,}/gim;
+//     const imageExtReg = /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i;
+//     const youtubeRegex =
+//         /(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})(?:\S+)?/i;
+//     let imgUrl = null
+//     let YTUrl = null
+//     const isYTlink = str.match(youtubeRegex)
+//     if (isYTlink && isYTlink[1]) {
+//         const videoId = isYTlink[1];
+//         YTUrl = `https://www.youtube.com/embed/${videoId}`;
+//     }
+//     const message = str.split(' ');
+//     const newStr = message.map((item) => {
+//         if (reg.test(item)) {
+//             if (imageExtReg.test(item)) imgUrl = item
+//             const url = item.startsWith('www.') ? `http://${item}` : item;
+//             return `<a href="${url}" target="_blank" rel="noopener noreferrer">${item}</a>`;
+//         }
+//         return item
+//     });
+//     return ({ message: newStr.join(' '), imgUrl, YTUrl })
+// }
+
 export function checkMessage(str: string): CheckMessageType {
-    const reg = /(https?:\/\/|ftps?:\/\/|www\.)((?![.,?!;:()]*(\s|$))[^\s]){2,}/gim;
+    const reg = /(https?:\/\/|ftps?:\/\/|www\.)((?![.,?!;:()]*(\s|$))[^\s]){2,}/im; 
     const imageExtReg = /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i;
-    let imgUrl = null
-    const message = str.split(' ');
+    const youtubeRegex =
+        /(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})(?:\S+)?/i;
+
+    const imgUrls: string[] = []
+    const YTUrls: string[] = []
+    let hasLink = false
+
+    const message = str.split(/\s+/)
+    
     const newStr = message.map((item) => {
         if (reg.test(item)) {
-            if (imageExtReg.test(item)) imgUrl = item
+            hasLink = true
+            const isYTlink = item.match(youtubeRegex);
+            if (isYTlink && isYTlink[1]) {
+                const videoId = isYTlink[1];
+                const YTUrl = `https://www.youtube.com/embed/${videoId}`;
+                YTUrls.push(YTUrl)
+            }
+            
+            if (imageExtReg.test(item) && YTUrls.indexOf(`https://www.youtube.com/embed/${item.match(youtubeRegex)?.[1]}`) === -1) {
+                imgUrls.push(item)
+            }
+
             const url = item.startsWith('www.') ? `http://${item}` : item;
             return `<a href="${url}" target="_blank" rel="noopener noreferrer">${item}</a>`;
         }
         return item
     });
-    return ({ message: newStr.join(' '), imgUrl })
+
+    return ({ message: newStr.join(' '), imgUrls, YTUrls, hasLink });
 }
 
-export function getQuantityNoReadMessages(list: Message1[], currentId: string): NoReadMessagesType {
+// export function getQuantityNoReadMessages(list: Message1[], currentId: string): NoReadMessagesType {
 
-    let quantity = 0
-    let targetIndex = Math.max(0, list.length - 1)
-    if (list.length !== 0 && list[list.length - 1].sender.uid !== currentId) {
-        for (let i = list.length - 1; i >= 0; i--) {
-            if (!list[i].read && list[i].sender.uid !== currentId) {
-                quantity++
-                targetIndex = i
+//     let quantity = 0
+//     let targetIndex = Math.max(0, list.length - 1)
+//     if (list.length !== 0 && list[list.length - 1].sender.uid !== currentId) {
+//         for (let i = list.length - 1; i >= 0; i--) {
+//             if (!list[i].read && list[i].sender.uid !== currentId) {
+//                 quantity++
+//                 targetIndex = i
+//             }
+//         }
+//     }
+//     if (list.length !== 0 && list[list.length - 1].sender.uid === currentId) targetIndex = list.length
+//     return { quantity, targetIndex }
+// }
+
+
+
+
+export function getQuantityNoReadMessages(messages: Message1[], currentId: string): NoReadMessagesType {
+    let quantity = 0;
+    let targetIndex = -1;
+
+    for (let i = 0; i < messages.length; i++) {
+        const msg = messages[i];
+        const isUnread = msg.read === false;
+        const isFromOtherUser = msg.sender.uid !== currentId;
+
+        if (isUnread && isFromOtherUser) {
+            quantity++;
+            if (targetIndex === -1) {
+                targetIndex = i;
             }
         }
     }
-    if (list.length !== 0 && list[list.length - 1].sender.uid === currentId) targetIndex = list.length
-    return { quantity, targetIndex }
+
+    if (quantity === 0) {
+        targetIndex = messages.length > 0 ? messages.length - 1 : -1;
+    }
+
+    return { targetIndex, quantity };
 }
 
+// export function searchMessagesInList(array: Message1[], substring: string): Set<number> {
+//     return array.reduce((indicesSet, str, index) => {
+//         if (str.message.includes(substring)) {
+//             indicesSet.add(index);
+//         }
+//         return indicesSet
+//     }, new Set<number>());
+// }
+
 export function searchMessagesInList(array: Message1[], substring: string): Set<number> {
-    return array.reduce((indicesSet, str, index) => {
-        if (str.message.includes(substring)) {
+    const lowerSubstring = substring.toLowerCase();
+
+    return array.reduce((indicesSet, item, index) => {
+        if (item.message.toLowerCase().includes(lowerSubstring)) {
             indicesSet.add(index);
         }
-        return indicesSet
+        return indicesSet;
     }, new Set<number>());
 }
 

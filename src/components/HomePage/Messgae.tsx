@@ -1,4 +1,4 @@
-import { FC, memo, MutableRefObject, RefObject, useEffect, useRef, useState } from "react";
+import { FC, memo, MutableRefObject, RefObject, useCallback, useEffect, useRef, useState } from "react";
 import Avatar from "../Avatar/Avatar";
 import classNames from "classnames";
 import styles from './HomePage.module.scss'
@@ -60,7 +60,6 @@ const ImageLoader: FC<{ src: string | null }> = ({ src }) => {
 
     return (
         <div className={styles.messageData__img}>
-            <a href={src} target="_blank">
                 <img
                     src={src}
                     alt="Загруженное изображение"
@@ -68,10 +67,32 @@ const ImageLoader: FC<{ src: string | null }> = ({ src }) => {
                     onError={() => setLoaded(false)}
                     style={{ display: loaded ? 'block' : 'none' }}
                 />
-            </a>
         </div>
     );
 };
+
+const YTPlayer: FC<{src: string}> = ({src}) => {
+
+    return (
+        <div className={styles.messageData_playerConatiner}>
+                    <iframe
+                        width="100%"
+                        height="100%"
+                        src={src}
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        title="Встроенный YouTube-плеер"
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            borderRadius: '16px'
+                        }}
+                    />
+                </div>
+    )
+}
 
 const ViewportContent: FC<IMessagesContent> = ({ onEnterViewport, message }) => {
 
@@ -106,10 +127,15 @@ const ViewportContent: FC<IMessagesContent> = ({ onEnterViewport, message }) => 
             <span
                 dangerouslySetInnerHTML={{ __html: checkMessageObj.message }}
                 ref={ref}
-                className={classNames({ [styles.mobileDevice]: isMobile })}
+                className={classNames({ [styles.mobileDevice]: isMobile, [styles.hasLink]: checkMessageObj.hasLink })}
             >
             </span>
-            {checkMessageObj.imgUrl && <ImageLoader src={checkMessageObj.imgUrl} />}
+            {!!checkMessageObj.imgUrls.length && 
+                checkMessageObj.imgUrls.map((item, index) => <ImageLoader src={item} key={index}/>)
+                }
+            {!!checkMessageObj.YTUrls &&
+                checkMessageObj.YTUrls.map((item, index) => <YTPlayer src={item} key={index} />)
+            }
         </>
     )
 }
@@ -181,11 +207,10 @@ const Message: FC<Props> = ({ messageInfo, scrollerDomRef }) => {
         top: offset.top + 'px',
         left: offset.left + 'px'
     }
-    //const virtualizedListElementRef: { current: HTMLDivElement } = useRef(null)
     const messageRef = useRef(null)
     const refSpan = useRef<HTMLDivElement>(null)
 
-    const setPositionMenu = (e: MouseEvent) => {
+    const setPositionMenu = useCallback((e: MouseEvent) => {
         if (!isShowCheckbox) {
             const position = { top: 0, left: 0 }
 
@@ -219,17 +244,7 @@ const Message: FC<Props> = ({ messageInfo, scrollerDomRef }) => {
             if (messageInfo?.callStatus) position.top -= HEIGHT_ROW
             setOffset(position)
         }
-    }
-
-    // const setPositionMenuForIOS = (e: MouseEvent) => {
-    //     if (isIOS) setPositionMenu(e)
-    // }
-
-    // const ios = ({ target }: React.MouseEvent) => {
-    //     if (!isIOS) return
-    //     const targetElement: HTMLDivElement = target as HTMLDivElement;
-    //     if (targetElement.nodeName !== 'A' && !isShowCheckbox && targetElement.id !== 'forwardedFromName') setContextMenu(true)
-    // }
+    }, [isShowCheckbox])
 
     const mobileHandleClick = ({ target }: React.MouseEvent) => {
         if (!isMobile) {
@@ -270,7 +285,7 @@ const Message: FC<Props> = ({ messageInfo, scrollerDomRef }) => {
                 refSpan.current?.removeEventListener('click', setPositionMenu)
             }
         }
-    }, [])
+    }, [isShowCheckbox])
 
     const readMessage = () => {
         if (messageInfo.sender.email !== owner.email && isFavorites && !messageInfo.read) {
@@ -281,13 +296,7 @@ const Message: FC<Props> = ({ messageInfo, scrollerDomRef }) => {
     console.log('message render')
 
     return (
-        <li
-            className={classNames(
-                { [styles.selectedMessage]: contextMenuIsOpen },
-                //{ [styles.guest]: !isOwner }
-            )}
-            ref={messageRef}>
-            {/* {contextMenuIsOpen && <div className={styles.selectedMessage__selected} />} */}
+        <li className={classNames({ [styles.selectedMessage]: contextMenuIsOpen })} ref={messageRef}>
             <label data-id={messageInfo.messageID}>
                 {isShowCheckbox && <SelectMessageInput messageInfo={messageInfo} />}
                 <div className={styles.avatar}>

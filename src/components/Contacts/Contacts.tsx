@@ -5,9 +5,10 @@ import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { clearSelectedMessage, closeMenu, setIsFavorites, setTempChat } from "../../store/slices/appSlice";
 import { Chat, CurrentUser } from "../../types/types";
 import { contactsAPI, messagesAPI } from "../../API/api";
-import { setChat } from "../../store/slices/setChatIDSlice";
 import InputComponent from "../../InputComponent/InputComponent";
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
+import Preloader from '../../assets/preloader.svg'
+import pLimit from 'p-limit'
 
 const test: CurrentUser[] = [
     { displayName: 'alexdb', photoURL: '', email: 'test1rt@test.com', uid: 'uhrtugjfghdhc' },
@@ -27,6 +28,9 @@ const test: CurrentUser[] = [
     { displayName: 'test1', photoURL: '', email: 'test1dete@test.com', uid: 'uhuhjhggjfghdhc' },
 ]
 
+const CONCURRENCY_LIMIT = 3;
+const limit = pLimit(CONCURRENCY_LIMIT)
+
 
 const Contacts: FC = () => {
 
@@ -37,7 +41,7 @@ const Contacts: FC = () => {
     const isSend = useAppSelector(state => state.app.isSendMessage)
     const selectedMessageList = useAppSelector(state => state.app.selectedMessages)
     const currentUser = useAppSelector(state => state.app.currentUser)
-    const {t} = useTypedTranslation()
+    const { t } = useTypedTranslation()
 
     const removeFromContacts = (e: React.MouseEvent, contact: Chat) => {
         e.stopPropagation()
@@ -47,47 +51,53 @@ const Contacts: FC = () => {
 
     const handleClickName = (user: Chat) => {
         if (isSend) {
-            const allMessages: Promise<void>[] = []
-            selectedMessageList.forEach(item => allMessages.push(messagesAPI.forwardedMessageFrom(currentUser, user, item)))
             setSending(true)
-            Promise.all(allMessages)
-                .then(() => {
+
+            const limitedPromises = selectedMessageList.map(item =>
+                limit(() => messagesAPI.forwardedMessageFrom(currentUser, user, item))
+            )
+
+            Promise.all(limitedPromises)
+                .then(() => setSending(false))
+                .finally(() => {
                     dispatch(closeMenu())
                     dispatch(clearSelectedMessage())
                 })
-                .finally(() => setSending(false))
             return
         }
-        //dispatch(setChat({currentUserEmail: user.email, guestInfo: user}))
         dispatch(setTempChat(user))
         dispatch(closeMenu())
     }
 
     const sendToFavorites = () => {
-        if(!isSend) {
+        if (!isSend) {
             dispatch(setIsFavorites(true))
             dispatch(closeMenu())
             return
         }
-        const allMessages: Promise<void>[] = []
-        selectedMessageList.forEach(item => allMessages.push(messagesAPI.addToFavorites(currentUser.email, item)))
+
+        const limitedPromises = selectedMessageList.map(item =>
+            limit(() => messagesAPI.addToFavorites(currentUser.email, item))
+        )
+
         setSending(true)
-            Promise.all(allMessages)
-                .then(() => {
-                    dispatch(closeMenu())
-                    dispatch(clearSelectedMessage())
-                })
-                .finally(() => setSending(false))
+        Promise.all(limitedPromises)
+            .then(() => setSending(false))
+            .finally(() => {
+                dispatch(closeMenu())
+                dispatch(clearSelectedMessage())
+            })
     }
 
     const filter = contactsList.filter(item => item.displayName.includes(name))
 
     return (
         <div className={styles.container}>
+            {sending && <div className={styles.container__preloader}><Preloader fontSize={'2rem'} /></div>}
             <div className={styles.item}>
                 <span>{t('contacts')}</span>
             </div>
-            <InputComponent classes={styles.item} returnValue={setName}/>
+            <InputComponent classes={styles.item} returnValue={setName} />
             <div className={styles.item}>
                 <ul className={styles.list}>
                     <li onClick={sendToFavorites}><span>{t('favorites')}</span></li>

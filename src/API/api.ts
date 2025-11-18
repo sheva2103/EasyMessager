@@ -6,13 +6,17 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
 import { createChatList, createMessageList, createNewDate, createObjectChannel, getChatType } from "../utils/utils";
 import { ADD_TO_LIST_SUBSCRIBERS, BLACKLIST, CHANNELS, CHANNELS_INFO, CHATLIST, CHATS, CONTACTS, FAVOTITES, REMOVE_FROM_LIST_SUBSCRIBERS, USERS } from "../constants/constants";
+import pLimit from "p-limit";
+
+const CONCURRENCY_LIMIT = 3; 
+const limit = pLimit(CONCURRENCY_LIMIT)
 
 
 type ProfileApi = {
     createNewUserInDB: (e: UserInfo) => void,
     changeUserInfo: (data: CurrentUser) => void,
     getCurrentInfo: (uid: string) => Promise<CurrentUser | null>,
-    //changeVisitingTime: (id: string) => Promise<void>
+    updateUserInMyChatList: (email: string, user: CurrentUser) => Promise<void>
 }
 
 type SearchAPI = {
@@ -84,13 +88,10 @@ export const profileAPI: ProfileApi = {
             return null
         }
     },
-    // async changeVisitingTime(id) {
-    //     const userRef = doc(db, USERS, id);
-    //     const date = new Date()
-    //     await updateDoc(userRef, {
-    //         visitingTime: JSON.stringify(date)
-    //     });
-    // }
+    async updateUserInMyChatList(email, user) {
+        const ref = doc(db, email, CHATLIST)
+        await setDoc(ref, { [user.uid]: user }, { merge: true });
+    }
 }
 
 
@@ -219,12 +220,11 @@ export const messagesAPI: MessagesAPI = {
     async clearChat(chat, isFavorites) {
         const docRef = getChatType(isFavorites, chat)
         const docSnap = await getDoc(docRef)
-        const promises: Promise<void>[] = []
         const list: any = docSnap.data()
-        createMessageList(list).forEach(message => {
-            promises.push(messagesAPI.deleteMessage(chat, message, isFavorites))
-        })
-        return Promise.all(promises)
+        const limitedPromises = createMessageList(list).map(message => 
+                limit(() => messagesAPI.deleteMessage(chat, message, isFavorites))
+            )
+        return Promise.all(limitedPromises)
     },
     async deleteChat(currentUser, selectedChat) {
         const chatCurrentRef = doc(db, currentUser.email, CHATLIST);
@@ -334,7 +334,8 @@ export const channelAPI: ChannelAPI = {
 
         if (docSnap.exists()) {
             const info: TypeChannel = docSnap.data() as TypeChannel
-            return info
+            const owner = await profileAPI.getCurrentInfo(info.owner.uid)
+            return ({...info, owner})
         } else {
             return null
         }

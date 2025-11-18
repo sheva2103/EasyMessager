@@ -12,7 +12,6 @@ import { useChannelClickHandler } from "../../hooks/useHandleClickToChannel";
 import DialogComponent, { ConfirmComponent, NotFoundChannel } from "../Settings/DialogComponent";
 import { channelAPI, messagesAPI } from "../../API/api";
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
-import { AutoSizer, CellMeasurer, CellMeasurerCache, List, ListRowRenderer } from "react-virtualized";
 
 const ListComponent: FC<{ list: Chat[] }> = ({ list }) => {
     return (
@@ -34,104 +33,6 @@ const ListComponent: FC<{ list: Chat[] }> = ({ list }) => {
     );
 }
 
-// const DEFAULT_ROW_HEIGHT = 54;
-
-// type Props = { list: Chat[] };
-
-// const ListComponent: FC<Props> = ({ list }) => {
-//     const rowCount = list.length;
-
-//     const cacheRef = useRef(
-//         new CellMeasurerCache({
-//             fixedWidth: true,
-//             defaultHeight: DEFAULT_ROW_HEIGHT,
-//             keyMapper: (rowIndex: number) => {
-//                 const item = list[rowIndex];
-//                 return "channel" in item ? `channel_${item.chatID}` : `chat_${item.uid}`;
-//             },
-//         })
-//     );
-
-//     const listRef = useRef<List | null>(null);
-
-//     useEffect(() => {
-//         cacheRef.current = new CellMeasurerCache({
-//             fixedWidth: true,
-//             defaultHeight: DEFAULT_ROW_HEIGHT,
-//             keyMapper: (rowIndex: number) => {
-//                 const item = list[rowIndex];
-//                 return "channel" in item ? `channel_${item.chatID}` : `chat_${item.uid}`;
-//             },
-//         });
-
-//         if (listRef.current) {
-//             listRef.current.recomputeRowHeights();
-//             listRef.current.forceUpdateGrid();
-//         }
-//     }, [list.length])
-
-//     const rowRenderer: ListRowRenderer = useCallback(
-//         ({ index, key, parent, style }) => {
-//             const item = list[index];
-//             const rowStyle = {
-//                 ...style,
-//                 minHeight: '58px'
-//             }
-
-//             return (
-//                 <CellMeasurer
-//                     cache={cacheRef.current}
-//                     columnIndex={0}
-//                     rowIndex={index}
-//                     key={key}
-//                     parent={parent}
-//                 >
-//                     {({ measure, registerChild }) => (
-//                         <div
-//                             ref={registerChild as any}
-//                             style={rowStyle}
-//                             onLoad={measure}
-//                         >
-//                             {"channel" in item ? (
-//                                 <ChannelInfo {...item} />
-//                             ) : (
-//                                 <ChatInfo {...item} />
-//                             )}
-//                         </div>
-//                     )}
-//                 </CellMeasurer>
-//             );
-//         },
-//         [list]
-//     );
-
-//     if (rowCount === 0) {
-//         return null;
-//     }
-
-//     return (
-//         <div style={{ width: "100%", height: "100%" }}>
-//             <AutoSizer>
-//                 {({ height, width }) => (
-//                     <List
-//                         ref={(ref) => (listRef.current = ref)}
-//                         height={height}
-//                         width={width}
-//                         rowCount={rowCount}
-//                         rowHeight={cacheRef.current.rowHeight}
-//                         rowRenderer={rowRenderer}
-//                         overscanRowCount={4}
-//                         style={{ outline: "none" }}
-//                         rowClassName="virtual-row"
-//                     />
-//                 )}
-//             </AutoSizer>
-//         </div>
-//     );
-// };
-
-
-
 
 
 const TempChatComponent: FC = () => {
@@ -140,7 +41,9 @@ const TempChatComponent: FC = () => {
     const dispatch = useAppDispatch()
 
     useEffect(() => {
-        if (tempChat && selectedChat?.uid !== tempChat.uid) dispatch(setTempChat(null))
+        if (tempChat && selectedChat?.uid !== tempChat.uid) {
+            dispatch(setTempChat(null))
+        }
     }, [selectedChat]);
 
     return (
@@ -155,7 +58,7 @@ const TempChat: FC<{ tempChat: Chat | null }> = ({ tempChat }) => {
     const [isNotAccess, setIsNotAccess] = useState(false)
     const [notFoundChannel, setNotFoundChannel] = useState(false)
     const { t } = useTypedTranslation()
-    const isChannel = tempChat?.channel ? true : false
+    const isChannel = !!tempChat?.channel
     const currentComponent = isChannel ? <ChannelInfo {...tempChat} /> : <ChatInfo {...tempChat} />
     const { handleClickToChannel } = useChannelClickHandler()
 
@@ -176,10 +79,8 @@ const TempChat: FC<{ tempChat: Chat | null }> = ({ tempChat }) => {
 
     useEffect(() => {
         if (tempChat) {
-            console.log(tempChat)
             const isChatList = chatList.some((item) => item.uid === (isChannel ? tempChat.channel.channelID : tempChat.uid))
             isChannel ?
-                // dispatch(setSelectedChannel(createObjectChannel(tempChat.channel)))
                 handleClickToChannel({ isSelected: false, channel: tempChat.channel, currentUserID: currentUser.uid, setIsNotAccess })
                     .catch(() => setNotFoundChannel(true))
                 :

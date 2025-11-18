@@ -77,7 +77,9 @@ export type NoReadMessagesType = {quantity: number, targetIndex: number}
 
 export type CheckMessageType = {
     message: string,
-    imgUrl: string | null
+    imgUrls: string[] | null,
+    YTUrls: string[] | null,
+    hasLink: boolean
 }
 
 export type TypeCreateChannel = {

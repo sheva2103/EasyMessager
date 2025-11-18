@@ -1,15 +1,14 @@
 import styles from './HomePage.module.scss'
-import { FC, memo, MutableRefObject, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { FC, memo, MutableRefObject, useEffect, useLayoutEffect, useRef } from 'react';
 import Message from './Messgae';
-import { Chat, Message1, NoReadMessagesType } from '../../types/types';
-import { createNewDate, getDatefromDate, getQuantityNoReadMessages } from '../../utils/utils';
+import { Message1, NoReadMessagesType } from '../../types/types';
+import { createNewDate, getDatefromDate } from '../../utils/utils';
 import GetDateMessage from './GetDateMessage';
-import { useAppSelector } from '../../hooks/hook';
+import { useAppDispatch, useAppSelector } from '../../hooks/hook';
 import Worker from 'web-worker';
-import { List, AutoSizer, CellMeasurer, CellMeasurerCache, ListRowRenderer } from 'react-virtualized'
 import AdvancedContent from './AdvancedContent';
-import SearchMessages from './SearchMessages';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
+import { setIsAtBottomScroll } from '../../store/slices/appSlice';
 
 
 
@@ -17,7 +16,7 @@ interface VariableHeightListProps {
     items: Message1[],
     noRead: NoReadMessagesType,
     assignElementToScroll: (handle: VirtuosoHandle | null) => void,
-    searchIndexes: Set<number>,
+    //searchIndexes: Set<number>,
     scrollerDomRef: MutableRefObject<any>
 }
 
@@ -25,18 +24,22 @@ const VariableHeightList: FC<VariableHeightListProps> = ({
     items, 
     noRead, 
     assignElementToScroll, 
-    searchIndexes,
     scrollerDomRef
 }) => {
 
     const virtuosoRef = useRef<VirtuosoHandle>(null);
+    const dispatch = useAppDispatch()
+    const searchIndexes = useAppSelector(state => state.app.targetMessages)
+    const setAtBottomScroll = (isBottom: boolean) => {
+        dispatch(setIsAtBottomScroll(isBottom))
+    }
 
     useLayoutEffect(() => {
         if (virtuosoRef.current && items.length) {
             setTimeout(() => {
                 virtuosoRef.current?.scrollToIndex({
                     index: noRead.targetIndex,
-                    align: 'start', 
+                    align: 'center', 
                     behavior: 'auto' 
                 });
             }, 100);
@@ -53,7 +56,7 @@ const VariableHeightList: FC<VariableHeightListProps> = ({
     }
 
     const renderRow = (index: number, item: Message1) => {
-        const isHighlighted = searchIndexes.has(index);
+        const isHighlighted = new Set(searchIndexes).has(index);
         const rowStyle: React.CSSProperties = {
             borderRadius: '16px',
             backgroundColor: isHighlighted ? "#53525270" : "transparent",
@@ -83,7 +86,8 @@ const VariableHeightList: FC<VariableHeightListProps> = ({
             data={items}
             itemContent={renderRow}
             overscan={800}
-            scrollerRef={setScrollerRef} 
+            scrollerRef={setScrollerRef}
+            atBottomStateChange={setAtBottomScroll} 
         />
     );
 }
@@ -91,7 +95,6 @@ const VariableHeightList: FC<VariableHeightListProps> = ({
 const ListMessages: FC = () => {
 
     const list = useAppSelector(state => state.messages)
-    const [targetMessages, setTargetMessages] = useState<Set<number>>(new Set())
     const scrollElementRef = useRef<VirtuosoHandle | null>(null) 
 
     const scrollerDomRef = useRef<MutableRefObject<HTMLDivElement>>(null)
@@ -104,13 +107,12 @@ const ListMessages: FC = () => {
     return (
         <div className={styles.contentWrapper}>
             <div className={styles.listMessages}>
-                <SearchMessages list={list.messages} setTargetMessages={setTargetMessages}/>
                 <ul id='listForMessages'>
                     <VariableHeightList 
                         items={list.messages}
                         noRead={list.noRead} 
                         assignElementToScroll={assignElementToScroll} 
-                        searchIndexes={targetMessages}
+                        
                         scrollerDomRef={scrollerDomRef}    
                     />
                 </ul>
@@ -118,7 +120,6 @@ const ListMessages: FC = () => {
             <AdvancedContent 
                 noRead={list.noRead} 
                 scrollElement={scrollElementRef}
-                scrollIndexes={targetMessages}
             />
         </div>
     );

@@ -8,7 +8,7 @@ import Change from '../../assets/change.svg'
 import Reply from '../../assets/reply-fill.svg'
 import CallIcon from '../../assets/telephone-fill.svg'
 
-import { FC, memo, useEffect, useRef, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from '../../hooks/hook';
 import { CurrentUser, Message1, StyleContextMenu } from '../../types/types';
 import { addSelectedMessage, changeMessage, closeBar, isSendMessage, setReplyToMessage, setShowCheckbox } from '../../store/slices/appSlice';
@@ -25,7 +25,7 @@ type Props = {
     isOwner: boolean,
     message: Message1
     closeContextMenu: (e: React.MouseEvent) => void,
-    positionMenu: StyleContextMenu,
+    positionMenu: StyleContextMenu | {},
     isForwarder: boolean,
     curentUser: CurrentUser
 }
@@ -39,7 +39,6 @@ const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, positionMe
     const isFavorites = useAppSelector(state => state.app.isFavorites)
     const isCallMessage = !!message?.callStatus
     const [animationOpen, setAnimationOpen] = useState(false)
-    //const {t} = useTranslation()
     const {t} = useTypedTranslation()
     const portalRootRef = useRef<HTMLElement | null>(typeof document !== "undefined" ? document.body : null);
 
@@ -96,10 +95,7 @@ const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, positionMe
             onClick={close}
             onContextMenu={close}
         >
-            <div style={positionMenu} 
-                //className={styles.contextMenu}
-                className={classNames(styles.contextMenu, { [styles.contextMenu_open]: animationOpen })}
-                >
+            <div style={positionMenu} className={classNames(styles.contextMenu, { [styles.contextMenu_open]: animationOpen })}>
                 <ul>
                     {message?.callStatus &&
                         <li onClick={callBack}><CallIcon /><span>{t('call.callback')}</span></li>

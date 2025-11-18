@@ -125,7 +125,7 @@
 
             .name {
                 font-size: 1.05rem;
-                
+
                 width: 200px;
                 white-space: nowrap;
                 text-overflow: ellipsis;
@@ -369,6 +369,27 @@
     }
 }
 
+.searchMessages {
+    display: flex;
+    width: 70%;
+    align-items: center;
+    gap: 8px;
+
+    @media (max-width: 569px) {
+        width: 100%;
+    }
+
+    & .searchMessages_input {
+        width: 10px;
+        transition: 0.5s;
+        display: flex;
+
+        & input {
+            width: 100%;
+        }
+    }
+}
+
 .listMessages {
     width: 100%;
     overflow: auto;
@@ -382,36 +403,36 @@
         max-width: 90%;
     }
 
-    .searchMessages {
-        // position: absolute;
-        // top: 0px;
-        // left: 0px;
-        // z-index: 2;
-        width: 99%;
-        @media (max-width: 569px) {
-            width: 100%;
-        }
+    // .searchMessages {
+    //     // position: absolute;
+    //     // top: 0px;
+    //     // left: 0px;
+    //     // z-index: 2;
+    //     width: 99%;
+    //     @media (max-width: 569px) {
+    //         width: 100%;
+    //     }
 
-        & .searchMessages_container {
-            display: flex;
-            justify-content: space-between;
-            gap: 4px;
-            padding: 0px 8px 8px 4px;
-            align-items: center;
-            background-color: var(--background-color-content-block);
-            border-radius: 0px 0px 10px 0;
+    //     & .searchMessages_container {
+    //         display: flex;
+    //         justify-content: space-between;
+    //         gap: 4px;
+    //         padding: 0px 8px 8px 4px;
+    //         align-items: center;
+    //         background-color: var(--background-color-content-block);
+    //         border-radius: 0px 0px 10px 0;
 
-            & .searchMessages_input {
-                width: 10px;
-                transition: 0.5s;
-                display: flex;
+    //         & .searchMessages_input {
+    //             width: 10px;
+    //             transition: 0.5s;
+    //             display: flex;
 
-                & input {
-                    width: 100%;
-                }
-            }
-        }
-    }
+    //             & input {
+    //                 width: 100%;
+    //             }
+    //         }
+    //     }
+    // }
 
     & ul {
         list-style: none;
@@ -480,9 +501,11 @@
                         padding-top: 4px;
                         height: 150px;
                         float: right;
-                        // @media (max-width: 568px) {
-                        //     width: 100%;
-                        // }
+                        max-width: 400px;
+                        height: auto;
+                        @media (max-width: 992px) {
+                            max-width: 100%;
+                        }
                     }
                 }
 
@@ -534,6 +557,22 @@
                 span {
                     margin-left: auto;
                 }
+
+                &_playerConatiner {
+                    width: 100%;
+                    max-width: 400px;
+                    position: relative;
+                    padding-bottom: 56.25%;
+                    height: 0;
+                    overflow: hidden;
+                    margin: 16px 0;
+                }
+                &_player {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    border-radius: 16px;
+                }
             }
 
             span {
@@ -546,6 +585,10 @@
             .mobileDevice {
                 user-select: none;
                 -webkit-user-select: none;
+            }
+
+            .hasLink {
+                max-width: 400px;
             }
 
             .owner {
@@ -567,8 +610,8 @@
                 border-bottom-left-radius: 0;
                 padding: 4px 12px 6px 12px;
                 @media (max-width: 468px) {
-                        box-shadow: -12px 8px 20px -10px rgba(15, 15, 15, 0.87);
-                        margin-left: auto;
+                    box-shadow: -12px 8px 20px -10px rgba(15, 15, 15, 0.87);
+                    margin-left: auto;
                 }
 
                 a {
@@ -581,7 +624,7 @@
                 }
                 &.call_error {
                     color: #ffffff;
-            }
+                }
             }
 
             input[type="checkbox"] {
