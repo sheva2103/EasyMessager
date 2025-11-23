@@ -306,6 +306,10 @@ interface UseWebRTCCallReturn {
     ringtoneRef: React.RefObject<HTMLAudioElement>;
     incomingRef: React.RefObject<HTMLAudioElement>;
     formatDuration: (seconds: number) => string;
+    isMicMuted: boolean;       
+    isSpeakerMuted: boolean;   
+    toggleMic: () => void;     
+    toggleSpeaker: () => void; 
 }
 
 
@@ -321,6 +325,9 @@ export const useWebRTCCall = (
     const [callerUid, setCallerUid] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [callDuration, setCallDuration] = useState(0);
+
+    const [isMicMuted, setIsMicMuted] = useState(false);
+    const [isSpeakerMuted, setIsSpeakerMuted] = useState(false);
 
     const callDurationRef = useRef(callDuration);
 
@@ -362,9 +369,28 @@ export const useWebRTCCall = (
         return () => unsubscribe();
     }, [myUid, callState, endCallFunc]);
 
+    const toggleMic = () => {
+        if (localStreamRef.current) {
+            localStreamRef.current.getAudioTracks().forEach(track => {
+                track.enabled = !track.enabled;
+            });
+            setIsMicMuted(prev => !prev);
+        }
+    };
+
+    
+    const toggleSpeaker = () => {
+        if (remoteAudioRef.current) {
+            remoteAudioRef.current.muted = !remoteAudioRef.current.muted;
+            setIsSpeakerMuted(prev => !prev);
+        }
+    };
+
     const requestMicrophone = async (): Promise<MediaStream | null> => {
         try {
-            return await navigator.mediaDevices.getUserMedia({ audio: true });
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            setIsMicMuted(false); 
+            return stream;
         } catch {
             if (endCallFunc) {
                 endCallFunc(formatDuration(0), 'error'); // Длительность 0
@@ -394,6 +420,7 @@ export const useWebRTCCall = (
     const attachRemoteAudio = () => {
         if (remoteAudioRef.current && remoteStreamRef.current) {
             remoteAudioRef.current.srcObject = remoteStreamRef.current;
+            remoteAudioRef.current.muted = isSpeakerMuted;
             remoteAudioRef.current.play().catch(() => { });
         }
     };
@@ -424,6 +451,10 @@ export const useWebRTCCall = (
         localStreamRef.current?.getTracks().forEach(t => t.stop());
         remoteStreamRef.current?.getTracks().forEach(t => t.stop());
         setCallState('ended');
+
+        setIsMicMuted(false);
+        setIsSpeakerMuted(false);
+        if (remoteAudioRef.current) remoteAudioRef.current.muted = false;
 
         const currentRoomId = roomId || incomingRoomId;
         if (currentRoomId) {
@@ -595,6 +626,7 @@ export const useWebRTCCall = (
     return {
         callState, errorMessage, callDuration, callerUid,
         startCall, acceptCall, rejectCall, endCall, formatDuration,
-        remoteAudioRef, ringtoneRef, incomingRef
+        remoteAudioRef, ringtoneRef, incomingRef, isMicMuted,
+        isSpeakerMuted, toggleMic, toggleSpeaker
     }
 }

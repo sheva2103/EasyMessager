@@ -28,7 +28,7 @@ const Avatar: FC<Props> = ({url, name, zoom, isOnline}) => {
     }, [url]);
 
     return (  
-        <div className={zoom && styles.wrapper}>
+        <div className={zoom ? styles.wrapper : undefined}>
             {Boolean(isLoad) ?
                 <div className={isOnline ? styles.avatar_isOnline : ''}>
                     <img src={url} alt={name[0]} className={styles.container} style={zoom ? zoomStyle : undefined}/>

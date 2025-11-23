@@ -19,11 +19,25 @@
 
     .buttons {
         display: flex;
-        justify-content: center;
+        justify-content: space-around;
         gap: 12px;
 
         & button {
             min-width: 100px;
+        }
+
+        &__settings {
+            background-color: var(--color);
+            font-size: 1.3rem;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+            
         }
     }
 
