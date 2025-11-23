@@ -23,7 +23,6 @@ const SignOutButton: FC = () => {
     }
 
     return (
-        <div className={styles.group}>
             <button className={styles.button} onClick={handleClick}>
                 {!load ?
                     <div className={styles.button__content}>
@@ -34,7 +33,6 @@ const SignOutButton: FC = () => {
                     <Preloader />
                 }
             </button>
-        </div>
     );
 }
 

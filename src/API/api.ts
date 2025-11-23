@@ -1,22 +1,25 @@
 import { DocumentData, QueryDocumentSnapshot, QuerySnapshot, deleteDoc, deleteField, doc, getDoc, setDoc, updateDoc, increment, arrayRemove, arrayUnion } from "firebase/firestore";
 import { db } from "../firebase";
-import { UserInfo } from "firebase/auth";
+import { deleteUser, EmailAuthProvider, getAuth, reauthenticateWithCredential, UserInfo } from "firebase/auth";
 import { CallMessageOptionsType, Chat, CurrentUser, Message1, SenderMessageType, TypeChannel, TypeCreateChannel } from "../types/types";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
 import { createChatList, createMessageList, createNewDate, createObjectChannel, getChatType } from "../utils/utils";
 import { ADD_TO_LIST_SUBSCRIBERS, BLACKLIST, CHANNELS, CHANNELS_INFO, CHATLIST, CHATS, CONTACTS, FAVOTITES, REMOVE_FROM_LIST_SUBSCRIBERS, USERS } from "../constants/constants";
 import pLimit from "p-limit";
+import { FirebaseError } from "firebase/app";
 
-const CONCURRENCY_LIMIT = 3; 
+const CONCURRENCY_LIMIT = 3;
 const limit = pLimit(CONCURRENCY_LIMIT)
 
 
 type ProfileApi = {
-    createNewUserInDB: (e: UserInfo) => void,
+    createNewUserInDB: (e: UserInfo) => Promise<CurrentUser>,
     changeUserInfo: (data: CurrentUser) => void,
     getCurrentInfo: (uid: string) => Promise<CurrentUser | null>,
-    updateUserInMyChatList: (email: string, user: CurrentUser) => Promise<void>
+    updateUserInMyChatList: (email: string, user: CurrentUser) => Promise<void>,
+    deleteUserAndData: (password: string) => Promise<void>,
+    deletUserInMyChatlist: (id: {myEmail: string, deleteId: string}) => Promise<void>
 }
 
 type SearchAPI = {
@@ -63,13 +66,16 @@ type ContactsAPI = {
 export const profileAPI: ProfileApi = {
 
     async createNewUserInDB(user) {
-        await setDoc(doc(db, USERS, user.uid), {
+        const userObj: CurrentUser = {
             email: user.email,
             displayName: user.email.slice(0, user.email.indexOf('@')),
             uid: user.uid,
             registrationDate: new Date().toLocaleDateString()
-        });
+        }
+        await setDoc(doc(db, USERS, user.uid), userObj);
+        return userObj
     },
+
     async changeUserInfo(data) {
         const userRef = doc(db, USERS, data.uid);
         await updateDoc(userRef, {
@@ -91,6 +97,45 @@ export const profileAPI: ProfileApi = {
     async updateUserInMyChatList(email, user) {
         const ref = doc(db, email, CHATLIST)
         await setDoc(ref, { [user.uid]: user }, { merge: true });
+    },
+    async deleteUserAndData(password) {
+        const auth = getAuth();
+        const user = auth.currentUser;
+        const credential = EmailAuthProvider.credential(user.email, password)
+        if (!user) {
+            console.error('Нет текущего пользователя');
+            return;
+        }
+        
+        try {
+            await reauthenticateWithCredential(user, credential)
+            console.log('Переаутентификация успешна')
+        } catch(err) {
+            const error = err as FirebaseError
+            console.error('Ошибка переаутентификации:', error.message)
+            throw err
+        }
+
+        try {
+            const userColRef = collection(db, user.email);
+            const snapshot = await getDocs(userColRef);
+            await Promise.all(snapshot.docs.map((d) => deleteDoc(d.ref)));
+            console.log(`Коллекция "${user.email}" очищена.`);
+
+            await deleteDoc(doc(db, 'users', user.uid));
+            console.log('Документ пользователя удалён');
+
+            await deleteUser(user);
+            console.log('Пользователь удалён из Firebase Auth');
+        } catch (err) {
+            console.error('Ошибка при удалении пользователя:', err);
+        }
+    },
+    async deletUserInMyChatlist(options) {
+        const chatCurrentRef = doc(db, options.myEmail, CHATLIST);
+        await updateDoc(chatCurrentRef, {
+            [options.deleteId]: deleteField()
+        });
     }
 }
 
@@ -143,14 +188,14 @@ export const messagesAPI: MessagesAPI = {
         const date = JSON.stringify(new Date())
         const reference = getChatType(isFavorites, chat)
         //console.log('send message', chat)
-        
+
         const id = uuidv4()
         const messageObj: Message1 = { message: message, messageID: id, date: date, sender: { ...sender } }
         if (!isFavorites && !chat?.channel) messageObj.read = false
         if (chat?.channel) messageObj.sender.channel = chat.channel
         if (replyToMessage) messageObj.replyToMessage = replyToMessage
-        
-        if(chat.channel) {
+
+        if (chat.channel) {
             await channelAPI.changeCannelInfo(chat.channel, true)
         }
 
@@ -189,14 +234,14 @@ export const messagesAPI: MessagesAPI = {
         const date = JSON.stringify(new Date())
         // const forwardedFrom = message.forwardedFrom?.channel ?  createObjectChannel(message.forwardedFrom?.channel) : message.sender
         const forwardedFrom = message.forwardedFrom?.channel ?
-            createObjectChannel(message.forwardedFrom?.channel) 
+            createObjectChannel(message.forwardedFrom?.channel)
             :
             message.sender?.channel ?
                 createObjectChannel(message.sender.channel)
                 :
                 message.sender
         const messageObj: Message1 = { message: message.message, messageID: id, date, read: false, sender, forwardedFrom }
-        if(message?.callStatus) messageObj.callStatus = message?.callStatus
+        if (message?.callStatus) messageObj.callStatus = message?.callStatus
         const isID = await Promise.all([messagesAPI.getChatID(sender.email, recipient.email), messagesAPI.getChatID(recipient.email, sender.email)])
         if (isID[0] || isID[1]) {
             const currentID = isID[0] || isID[1]
@@ -221,9 +266,9 @@ export const messagesAPI: MessagesAPI = {
         const docRef = getChatType(isFavorites, chat)
         const docSnap = await getDoc(docRef)
         const list: any = docSnap.data()
-        const limitedPromises = createMessageList(list).map(message => 
-                limit(() => messagesAPI.deleteMessage(chat, message, isFavorites))
-            )
+        const limitedPromises = createMessageList(list).map(message =>
+            limit(() => messagesAPI.deleteMessage(chat, message, isFavorites))
+        )
         return Promise.all(limitedPromises)
     },
     async deleteChat(currentUser, selectedChat) {
@@ -335,7 +380,7 @@ export const channelAPI: ChannelAPI = {
         if (docSnap.exists()) {
             const info: TypeChannel = docSnap.data() as TypeChannel
             const owner = await profileAPI.getCurrentInfo(info.owner.uid)
-            return ({...info, owner})
+            return ({ ...info, owner })
         } else {
             return null
         }
@@ -385,7 +430,7 @@ export const channelAPI: ChannelAPI = {
         if (list.exists()) {
             const info: TypeChannel = list.data() as TypeChannel
             const targetUser = info.applyForMembership?.find(item => item.uid === user.uid)
-            if(targetUser) return
+            if (targetUser) return
             else {
                 await updateDoc(ref, {
                     applyForMembership: arrayUnion(user)
@@ -396,7 +441,7 @@ export const channelAPI: ChannelAPI = {
     async getApplyForMembership(channelID) {
         const ref = doc(db, CHANNELS_INFO, channelID)
         const list = await getDoc(ref);
-        if(list.exists()) {
+        if (list.exists()) {
             const info: TypeChannel = list.data() as TypeChannel
             return info.applyForMembership || []
         }
@@ -404,8 +449,8 @@ export const channelAPI: ChannelAPI = {
     async deleteApplication(channelID, user) {
         const ref = doc(db, CHANNELS_INFO, channelID)
         await updateDoc(ref, {
-                    applyForMembership: arrayRemove(user)
-                });
+            applyForMembership: arrayRemove(user)
+        });
     },
     async changeAccessChannel(channelID, action) {
         const ref = doc(db, CHANNELS_INFO, channelID)

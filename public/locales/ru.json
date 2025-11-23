@@ -47,6 +47,7 @@
     "online": "В сети",
     "selectChat": "Выберите чат",
     "notFoundChannel": "Канал больше недоступен",
+    "notFoundUser": "Пользователь больше не доступен",
     "cancel": "отмена",
     "deleteSelected": "Удалить выбранное",
     "leaveTheChannel": "Покинуть канал",

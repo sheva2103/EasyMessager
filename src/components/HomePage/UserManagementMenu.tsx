@@ -19,6 +19,8 @@ type Props = {
     chatInfo: Chat
 }
 
+const RESERVED_CHANNEL = '3e84602c-4833-403b-a9b6-a3cec690a43b'
+
 const ListItem: FC<{ user: CurrentUser }> = ({ user }) => {
 
     const channel = useAppSelector(state => state.app.selectedChannel)
@@ -85,6 +87,7 @@ const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
     const isFavorites = useAppSelector(state => state.app.isFavorites)
     const quantity = useAppSelector(selectApplyForMembership)
     const {t} = useTypedTranslation()
+    const isReservedChannel = RESERVED_CHANNEL === chatInfo?.channel?.channelID
 
     const dispatch = useAppDispatch()
     const [animationOpen, setAnimationOpen] = useState(false)
@@ -180,10 +183,12 @@ const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
         else if (selectedChat?.channel) return (
             <ul>
                 <li onClick={showSearchMessages}>{t('search')}</li>
-                {isMyChat ?
-                    !isOwner && <li onClick={unsubscribe}>{t('leaveTheChannel')}</li>
-                    :
-                    <li onClick={subscribe}>{t('subscribe')}</li>
+                {!isReservedChannel &&
+                    (isMyChat ?
+                        !isOwner && <li onClick={unsubscribe}>{t('leaveTheChannel')}</li>
+                        :
+                        <li onClick={subscribe}>{t('subscribe')}</li>
+                    )
                 }
                 <li onClick={showInformation}>{t('information')}</li>
                 {isOpen && isOwner && <MembershipApplications quantity={quantity} />}

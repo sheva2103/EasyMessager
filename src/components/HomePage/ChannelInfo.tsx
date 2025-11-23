@@ -13,7 +13,7 @@ import { setSelectedChannel, updateSelectedChannel } from "../../store/slices/ap
 import { db } from "../../firebase";
 import { CHANNELS_INFO } from "../../constants/constants";
 import ShowNameChat from "./ShowNameChat";
-import DialogComponent, { ConfirmComponent, NotFoundChannel } from "../Settings/DialogComponent";
+import DialogComponent, { ConfirmComponent, NotFoundChat } from "../Settings/DialogComponent";
 import { setChat } from "../../store/slices/setChatIDSlice";
 import { useChannelClickHandler } from "../../hooks/useHandleClickToChannel";
 import { PreviewLastMessage } from "./ChatInfo";
@@ -47,12 +47,8 @@ const ChannelInfo: FC<Props> = (channel) => {
     const dispatch = useAppDispatch()
     const isSelected = selectedChat?.channel?.channelID === updateChannel.channelID
     const lastMessage = messages.messages[messages.messages.length - 1]
-    const { handleClickToChannel } = useChannelClickHandler();
+    const { handleClickToChannel } = useChannelClickHandler({isSelected, channel: channel.channel, currentUserID: currentUser.uid, setIsNotAccess, setNotFoundChannel});
 
-    const handleClick = () => {
-        handleClickToChannel({isSelected, channel: channel.channel, currentUserID: currentUser.uid, setIsNotAccess})
-            .catch((() => setNotFoundChannel(true)))
-    }
     const unsubscribe = () => {
         messagesAPI.deleteChat(currentUser, createObjectChannel(channel.channel))
             .catch((err) => console.log('Произошла ошибка', err))
@@ -131,12 +127,12 @@ const ChannelInfo: FC<Props> = (channel) => {
 
     if(notFoundChannel) return (
         <DialogComponent isOpen={notFoundChannel} onClose={unsubscribe}>
-            <NotFoundChannel confirmFunc={unsubscribe}/>
+            <NotFoundChat confirmFunc={unsubscribe}/>
         </DialogComponent>
     )
 
     return (
-        <li className={styles.chatInfo} onClick={handleClick}>
+        <li className={styles.chatInfo} onClick={handleClickToChannel}>
             {isSelected &&
                 <div className={styles.selected}></div>
             }

@@ -15,6 +15,7 @@ import usePresenceStatus from "../../hooks/useCheckOnlineStatus";
 import { setOnlineStatusSelectedUser } from "../../store/slices/appSlice";
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 import CallIcon from '../../assets/telephone-fill.svg'
+import DialogComponent, { NotFoundChat } from "../Settings/DialogComponent";
 
 
 
@@ -68,6 +69,7 @@ const ChatInfo: FC<Chat> = (user) => {
     const [updateUser, setUpdateUser] = useState<Chat>({ ...user })
     const [messages, setMessagesList] = useState<{ messages: Message1[], noRead: NoReadMessagesType }>({ messages: [], noRead: { quantity: 0, targetIndex: 0 } })
     const [fetchingCurrentInfo, setFetchingCurrentInfo] = useState(true)
+    const [notFoundUser, setNotFoundUser] = useState(false)
     const dispatch = useAppDispatch()
     const selectedChat = useAppSelector(state => state.app.selectedChat)
     const currentUser = useAppSelector(state => state.app.currentUser)
@@ -78,6 +80,14 @@ const ChatInfo: FC<Chat> = (user) => {
     const isSelected = selectedChat?.uid === user.uid
     const lastMessage = messages.messages[messages.messages.length - 1]
     const presence = usePresenceStatus(updateUser.uid)
+
+    const unsubscribe = () => {
+        profileAPI.deletUserInMyChatlist({myEmail: currentUser.email, deleteId: user.uid})
+            .finally(() => {
+                setNotFoundUser(false)
+                dispatch(setChat(null))
+            })
+    }
 
     useEffect(() => {
         if(isSelected) {
@@ -90,6 +100,7 @@ const ChatInfo: FC<Chat> = (user) => {
                 try {
                     
                     const currentInfo = await profileAPI.getCurrentInfo(user.uid);
+                    if(!currentInfo) throw currentInfo
                     const chatID = await Promise.all([messagesAPI.getChatID(currentUser.email, currentInfo.email), messagesAPI.getChatID(currentInfo.email, currentUser.email)])
                     if (currentInfo) {
                         if(chatID[0] && (user.displayName !== currentInfo.displayName || user.photoURL !== currentInfo.photoURL)) {
@@ -103,6 +114,7 @@ const ChatInfo: FC<Chat> = (user) => {
                     }
                 } catch (error) {
                     console.error('Error fetching current info:', error);
+                    setNotFoundUser(true)
                 } finally {
                     setFetchingCurrentInfo(false);
                 }
@@ -141,6 +153,12 @@ const ChatInfo: FC<Chat> = (user) => {
     }, [selectedChat?.chatID]);
 
     if (fetchingCurrentInfo) return <Skeleton />
+
+    if(notFoundUser) return (
+        <DialogComponent isOpen={notFoundUser} onClose={unsubscribe}>
+            <NotFoundChat confirmFunc={unsubscribe} user/>
+        </DialogComponent>
+    )
 
     return (
         <li className={styles.chatInfo} onClick={handleClick}>

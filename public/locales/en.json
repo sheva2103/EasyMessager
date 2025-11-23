@@ -47,6 +47,7 @@
     "online": "Online",
     "selectChat": "Select a chat",
     "notFoundChannel": "The channel is no longer available",
+    "notFoundUser": "The user is no longer available",
     "cancel": "cancel",
     "deleteSelected": "Delete selected",
     "leaveTheChannel": "Leave the channel",

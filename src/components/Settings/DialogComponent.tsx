@@ -33,12 +33,16 @@ export const ConfirmComponent: FC<ConfirmProps> = ({confirmFunc, handleClose, te
     )
 }
 
-export const NotFoundChannel: FC<{confirmFunc: () => void}> = ({confirmFunc}) => {
+export const NotFoundChat: FC<{confirmFunc: () => void, user?: boolean, channel?: boolean}> = ({confirmFunc, user}) => {
     const {t} = useTypedTranslation()
+    const typeChat = () => {
+        if(user) return t('notFoundUser')
+        return t('notFoundChannel')
+    }
     return (
         <div className={styles.confirm}>
             <div className={styles.text}>
-                <span>{t('notFoundChannel')}</span>
+                <span>{typeChat()}</span>
             </div>
             <div className={styles.buttons}>
                 <button onClick={confirmFunc}>{t("yes")}</button>

@@ -31,7 +31,13 @@
 
 .passwordInput {
     position: relative;
-    width: 240px;
+    //width: 240px;
+    display: flex;
+    width: 100%;
+
+    input {
+        width: 100%;
+    }
 
     svg {
         position: absolute;
@@ -46,13 +52,17 @@
     display: flex;
     flex-direction: column;
 
+    form {
+        display: flex;
+        justify-content: center;
+    }
+
     .item {
         padding: 8px 16px;
-
-        & input[type='text'] {
+    }
+    input[type='text'] {
             width: calc(100% - 20px);
         }
-    }
 
     &>:first-child {
         padding-bottom: 0;
@@ -63,12 +73,9 @@
     }
 
     button {
-        margin: 2px;
-        justify-content: center;
+        margin: 0 auto;
+        width: 130px;
     }
-    // .item:hover {
-    //     background-color: var(--background-color-input);
-    // }
 }
 
 .labelGroup {

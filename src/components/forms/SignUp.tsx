@@ -32,36 +32,36 @@ const SignUp: FC = () => {
         //setError('email', {message: 'такой уже есть'})
 
         const auth = getAuth();
-        await createUserWithEmailAndPassword(auth, data.email, data.password)
-            .then((userCredential) => {
-                const user = userCredential.user;
-                profileAPI.createNewUserInDB(user)
-                if (!data.rememberMe) {
-                    setPersistence(auth, browserSessionPersistence)
-                }
-            })
-            .catch((error: any) => {
-                const errorCode = error.code;
-                //const errorMessage = error.message;
-                console.log(errorCode)
-                if (errorCode === ERROR_NEW_EMAIL) setError('email', { message: 'Такой пользователь уже существует' })
-            });
-        // try {
-        //     const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password)
-        //     const user = userCredential.user
-        //     profileAPI.createNewUserInDB(user)
-        //     if (!data.rememberMe) {
-        //         await setPersistence(auth, browserSessionPersistence)
-        //     }
-        //     const reservedСhannel = await channelAPI.getCurrentInfo('3e84602c-4833-403b-a9b6-a3cec690a43b')
-        //     await messagesAPI.addChat(user, createObjectChannel(reservedСhannel), reservedСhannel.channelID)
-        // } catch(error: any) {
-        //     const errorCode = error.code;
-        //     const errorMessage = error.message;
-        //     console.error('Ошибка при регистрации:', error);
-        //     console.log(errorCode, '>>>>', errorMessage)
-        //     if (errorCode === ERROR_NEW_EMAIL) setError('email', { message: 'Такой пользователь уже существует' })
-        // }
+        // await createUserWithEmailAndPassword(auth, data.email, data.password)
+        //     .then((userCredential) => {
+        //         const user = userCredential.user;
+        //         profileAPI.createNewUserInDB(user)
+        //         if (!data.rememberMe) {
+        //             setPersistence(auth, browserSessionPersistence)
+        //         }
+        //     })
+        //     .catch((error: any) => {
+        //         const errorCode = error.code;
+        //         //const errorMessage = error.message;
+        //         console.log(errorCode)
+        //         if (errorCode === ERROR_NEW_EMAIL) setError('email', { message: 'Такой пользователь уже существует' })
+        //     });
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password)
+            const user = userCredential.user
+            const userObj = await profileAPI.createNewUserInDB(user)
+            if (!data.rememberMe) {
+                await setPersistence(auth, browserSessionPersistence)
+            }
+            const reservedСhannel = await channelAPI.getCurrentInfo('3e84602c-4833-403b-a9b6-a3cec690a43b')
+            await messagesAPI.addChat(userObj, createObjectChannel(reservedСhannel), reservedСhannel.channelID)
+        } catch(error: any) {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            console.error('Ошибка при регистрации:', error);
+            console.log(errorCode, '>>>>', errorMessage)
+            if (errorCode === ERROR_NEW_EMAIL) setError('email', { message: 'Такой пользователь уже существует' })
+        }
 
     }
 

@@ -9,8 +9,8 @@ import ChannelInfo from "./ChannelInfo";
 import { setChat } from "../../store/slices/setChatIDSlice";
 import { setTempChat } from "../../store/slices/appSlice";
 import { useChannelClickHandler } from "../../hooks/useHandleClickToChannel";
-import DialogComponent, { ConfirmComponent, NotFoundChannel } from "../Settings/DialogComponent";
-import { channelAPI, messagesAPI } from "../../API/api";
+import DialogComponent, { ConfirmComponent, NotFoundChat } from "../Settings/DialogComponent";
+import { channelAPI, messagesAPI, profileAPI } from "../../API/api";
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 
 const ListComponent: FC<{ list: Chat[] }> = ({ list }) => {
@@ -60,7 +60,7 @@ const TempChat: FC<{ tempChat: Chat | null }> = ({ tempChat }) => {
     const { t } = useTypedTranslation()
     const isChannel = !!tempChat?.channel
     const currentComponent = isChannel ? <ChannelInfo {...tempChat} /> : <ChatInfo {...tempChat} />
-    const { handleClickToChannel } = useChannelClickHandler()
+    const { handleClickToChannel } = useChannelClickHandler({ isSelected: false, channel: tempChat.channel, currentUserID: currentUser.uid, setIsNotAccess, setNotFoundChannel })
 
     const sendRequest = async () => {
         console.log('send a request')
@@ -69,20 +69,21 @@ const TempChat: FC<{ tempChat: Chat | null }> = ({ tempChat }) => {
     }
 
     const unsubscribe = () => {
-        messagesAPI.deleteChat(currentUser, createObjectChannel(tempChat.channel))
+        if(isChannel) {
+            messagesAPI.deleteChat(currentUser, createObjectChannel(tempChat.channel))
             .catch((err) => {
                 console.log('Канал удалён', err)
                 dispatch(setTempChat(null))
             })
             .finally(() => setNotFoundChannel(false))
+        } 
     }
 
     useEffect(() => {
         if (tempChat) {
             const isChatList = chatList.some((item) => item.uid === (isChannel ? tempChat.channel.channelID : tempChat.uid))
             isChannel ?
-                handleClickToChannel({ isSelected: false, channel: tempChat.channel, currentUserID: currentUser.uid, setIsNotAccess })
-                    .catch(() => setNotFoundChannel(true))
+                handleClickToChannel()
                 :
                 dispatch(setChat({ currentUserEmail: currentUser.email, guestInfo: tempChat }))
             if (isChatList) dispatch(setTempChat(null))
@@ -100,7 +101,7 @@ const TempChat: FC<{ tempChat: Chat | null }> = ({ tempChat }) => {
 
     if (notFoundChannel) return (
         <DialogComponent isOpen={notFoundChannel} onClose={unsubscribe}>
-            <NotFoundChannel confirmFunc={unsubscribe} />
+            <NotFoundChat confirmFunc={unsubscribe} user={!isChannel}/>
         </DialogComponent>
     )
 

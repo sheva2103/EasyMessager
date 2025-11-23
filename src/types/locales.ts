@@ -47,6 +47,7 @@ export type TranslationKeys =
     | "online"
     | "selectChat"
     | "notFoundChannel"
+    | "notFoundUser"
     | "cancel"
     | "deleteSelected"
     | "leaveTheChannel"

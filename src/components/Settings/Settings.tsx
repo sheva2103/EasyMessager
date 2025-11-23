@@ -8,16 +8,18 @@ import BlackList from "./BlackList";
 import SignOutButton from "./SignOutButton";
 import { useAppSelector } from "../../hooks/hook";
 import { useTranslation } from "react-i18next";
+import { profileAPI } from "../../API/api";
+import DeleteUserButton from "./DeleteUserButton";
 
 
 const Settings: FC = () => {
-    const {t} = useTranslation()
+    const { t } = useTranslation()
     const currentUser = useAppSelector(state => state.app.currentUser)
 
-    return (  
+    return (
         <div className={styles.settings}>
-            <UserInfo isSettings currentInfo={currentUser}/>
-            <hr className={styles.hr}/>
+            <UserInfo isSettings currentInfo={currentUser} />
+            <hr className={styles.hr} />
             <div className={styles.group}>
                 <div className={styles.item}>
                     <ToggleTheme />
@@ -25,7 +27,7 @@ const Settings: FC = () => {
                 <div className={styles.item}>
                     <div className={styles.container}>
                         <div>
-                            <LangIcon fontSize={'1.2rem'}/>
+                            <LangIcon fontSize={'1.2rem'} />
                         </div>
                         <div className={styles.containerItem}>
                             <div>
@@ -38,14 +40,18 @@ const Settings: FC = () => {
                     </div>
                 </div>
             </div>
-            <hr className={styles.hr}/>
+            <hr className={styles.hr} />
             <div className={styles.group}>
                 <BlackList />
             </div>
-            <hr className={styles.hr}/>
-            <SignOutButton />
+            <hr className={styles.hr} />
+
+            <div className={styles.group} style={{flexDirection: 'row'}}>
+                <SignOutButton />
+                <DeleteUserButton />
+            </div>
         </div>
     );
 }
- 
+
 export default Settings;
