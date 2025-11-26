@@ -1,10 +1,10 @@
-import { FC, memo, MutableRefObject, RefObject, useCallback, useEffect, useRef, useState } from "react";
+import { CSSProperties, FC, HTMLAttributes, memo, MutableRefObject, RefObject, useCallback, useEffect, useRef, useState } from "react";
 import Avatar from "../Avatar/Avatar";
 import classNames from "classnames";
 import styles from './HomePage.module.scss'
 import ContextMenu from "./ContextMenu";
 import SelectMessageInput from "./SelectMessageInput";
-import { CallEndStatus, Chat, Message1, StyleContextMenu } from "../../types/types";
+import { CallEndStatus, Chat, Message1 } from "../../types/types";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { checkMessage, createNewDate, getTimeFromDate } from "../../utils/utils";
 import UnreadIcon from '../../assets/check2.svg'
@@ -21,7 +21,6 @@ const HEIGHT_MENU_FOR_OWNER = 220
 const HEIGHT_MENU_FOR_GUEST = 168
 const HEIGHT_MENU_FOR_GUEST_CHANNEL = 126
 const WIDTH_MENU = 200
-const HEIGHT_HEADER = 66
 const HEIGHT_ROW = 42
 
 interface IMessagesContent {
@@ -202,10 +201,13 @@ const Message: FC<Props> = ({ messageInfo, scrollerDomRef }) => {
         if (messageInfo.callStatus === 'completed') return styles.call_completed
         return styles.call_error
     }
-    const positionMenu: StyleContextMenu = {
+    const positionMenu:  CSSProperties = {
         position: 'relative',
         top: offset.top + 'px',
-        left: offset.left + 'px'
+        left: offset.left + 'px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '4px'
     }
     const messageRef = useRef(null)
     const refSpan = useRef<HTMLDivElement>(null)
@@ -246,7 +248,13 @@ const Message: FC<Props> = ({ messageInfo, scrollerDomRef }) => {
         }
     }, [isShowCheckbox])
 
-    const mobileHandleClick = ({ target }: React.MouseEvent) => {
+    const mobileHandleClick = (e: React.MouseEvent) => {
+        const targetElement: HTMLDivElement = e.target as HTMLDivElement;
+
+        if (isShowCheckbox && targetElement.tagName === 'A') {
+            e.preventDefault();
+        }
+
         if (!isMobile) {
             if (messageInfo?.callStatus && !isShowCheckbox) {
                 dispatch(openModalCalls({
@@ -258,7 +266,6 @@ const Message: FC<Props> = ({ messageInfo, scrollerDomRef }) => {
             }
             return
         }
-        const targetElement: HTMLDivElement = target as HTMLDivElement;
         if (targetElement.nodeName !== 'A' && !isShowCheckbox && targetElement.id !== 'forwardedFromName') setContextMenu(true)
     }
 

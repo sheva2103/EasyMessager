@@ -676,6 +676,46 @@
     }
 }
 
+.reactions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    width: fit-content;
+    padding: 6px;
+    border-radius: 12px;
+    background-color: #8382824d;
+    transform: scale(0);
+    transition: 0.3s;
+
+    &_open {
+        transform: scale(1);
+    }
+}
+
+.reactionItem {
+    cursor: pointer;
+    font-size: 20px; 
+    line-height: 1;
+    transition:
+        transform 0.15s ease,
+        background-color 0.15s ease;
+    border-radius: 6px;
+    padding: 0 4px;
+    &:first-child {
+        padding-left: 0;
+    }
+    
+
+    &:hover {
+        transform: scale(1.2);
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+}
+
 .inputNewMessage {
     margin: 4px 8px 4px 8px;
     display: flex;
@@ -906,6 +946,7 @@
     }
 
     & ul {
+        margin: 0;
         padding: 0;
         font-size: 0.95rem;
 

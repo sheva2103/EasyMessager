@@ -1,5 +1,5 @@
 import { doc, DocumentReference } from "firebase/firestore"
-import { Chat, CheckMessageType, ListMessagesType, Message1, NoReadMessagesType, OnlineStatusUserType, TypeChannel } from "../types/types"
+import { Chat, CheckMessageType, CurrentUser, ListMessagesType, Message1, NoReadMessagesType, OnlineStatusUserType, TypeChannel } from "../types/types"
 import { format } from "@formkit/tempo"
 import { db } from "../firebase"
 import { searchAPI } from "../API/api";
@@ -93,79 +93,96 @@ export function getDatefromDate(date: string): string {
 
 
 // export function checkMessage(str: string): CheckMessageType {
-//     const reg = /(https?:\/\/|ftps?:\/\/|www\.)((?![.,?!;:()]*(\s|$))[^\s]){2,}/gim;
+//     const reg = /(https?:\/\/|ftps?:\/\/|www\.)((?![.,?!;:()]*(\s|$))[^\s]){2,}/im; 
 //     const imageExtReg = /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i;
 //     const youtubeRegex =
 //         /(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})(?:\S+)?/i;
-//     let imgUrl = null
-//     let YTUrl = null
-//     const isYTlink = str.match(youtubeRegex)
-//     if (isYTlink && isYTlink[1]) {
-//         const videoId = isYTlink[1];
-//         YTUrl = `https://www.youtube.com/embed/${videoId}`;
-//     }
-//     const message = str.split(' ');
+
+//     const imgUrls: string[] = []
+//     const YTUrls: string[] = []
+//     let hasLink = false
+
+//     const message = str.split(/\s+/)
+    
 //     const newStr = message.map((item) => {
 //         if (reg.test(item)) {
-//             if (imageExtReg.test(item)) imgUrl = item
+//             hasLink = true
+//             const isYTlink = item.match(youtubeRegex);
+//             if (isYTlink && isYTlink[1]) {
+//                 const videoId = isYTlink[1];
+//                 const YTUrl = `https://www.youtube.com/embed/${videoId}`;
+//                 YTUrls.push(YTUrl)
+//             }
+            
+//             if (imageExtReg.test(item) && YTUrls.indexOf(`https://www.youtube.com/embed/${item.match(youtubeRegex)?.[1]}`) === -1) {
+//                 imgUrls.push(item)
+//             }
+
 //             const url = item.startsWith('www.') ? `http://${item}` : item;
 //             return `<a href="${url}" target="_blank" rel="noopener noreferrer">${item}</a>`;
 //         }
 //         return item
 //     });
-//     return ({ message: newStr.join(' '), imgUrl, YTUrl })
+
+//     return ({ message: newStr.join(' '), imgUrls, YTUrls, hasLink });
 // }
 
+function escapeHtml(text: string): string {
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
 export function checkMessage(str: string): CheckMessageType {
-    const reg = /(https?:\/\/|ftps?:\/\/|www\.)((?![.,?!;:()]*(\s|$))[^\s]){2,}/im; 
+    const reg = /(https?:\/\/|ftps?:\/\/|www\.)((?![.,?!;:()]*(\s|$))[^\s]){2,}/im;
     const imageExtReg = /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i;
     const youtubeRegex =
         /(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})(?:\S+)?/i;
 
-    const imgUrls: string[] = []
-    const YTUrls: string[] = []
-    let hasLink = false
+    const imgUrls: string[] = [];
+    const YTUrls: string[] = [];
+    let hasLink = false;
 
-    const message = str.split(/\s+/)
-    
-    const newStr = message.map((item) => {
-        if (reg.test(item)) {
-            hasLink = true
-            const isYTlink = item.match(youtubeRegex);
-            if (isYTlink && isYTlink[1]) {
-                const videoId = isYTlink[1];
-                const YTUrl = `https://www.youtube.com/embed/${videoId}`;
-                YTUrls.push(YTUrl)
-            }
-            
-            if (imageExtReg.test(item) && YTUrls.indexOf(`https://www.youtube.com/embed/${item.match(youtubeRegex)?.[1]}`) === -1) {
-                imgUrls.push(item)
+    const lines = str.split('\n');
+
+    const processedLines = lines.map((line) => {
+        const words = line.split(/\s+/);
+        const processedWords = words.map((item) => {
+            const escaped = escapeHtml(item);
+
+            if (reg.test(item)) {
+                hasLink = true;
+                const isYTlink = item.match(youtubeRegex);
+                if (isYTlink && isYTlink[1]) {
+                    const videoId = isYTlink[1];
+                    const YTUrl = `https://www.youtube.com/embed/${videoId}`;
+                    YTUrls.push(YTUrl);
+                }
+
+                if (
+                    imageExtReg.test(item) &&
+                    YTUrls.indexOf(`https://www.youtube.com/embed/${item.match(youtubeRegex)?.[1]}`) === -1
+                ) {
+                    imgUrls.push(item);
+                }
+
+                const url = item.startsWith('www.') ? `http://${item}` : item;
+                return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escaped}</a>`;
             }
 
-            const url = item.startsWith('www.') ? `http://${item}` : item;
-            return `<a href="${url}" target="_blank" rel="noopener noreferrer">${item}</a>`;
-        }
-        return item
+            return escaped;
+        });
+
+        return processedWords.join(' ');
     });
 
-    return ({ message: newStr.join(' '), imgUrls, YTUrls, hasLink });
+    const finalMessage = processedLines.join('<br />');
+
+    return { message: finalMessage, imgUrls, YTUrls, hasLink };
 }
-
-// export function getQuantityNoReadMessages(list: Message1[], currentId: string): NoReadMessagesType {
-
-//     let quantity = 0
-//     let targetIndex = Math.max(0, list.length - 1)
-//     if (list.length !== 0 && list[list.length - 1].sender.uid !== currentId) {
-//         for (let i = list.length - 1; i >= 0; i--) {
-//             if (!list[i].read && list[i].sender.uid !== currentId) {
-//                 quantity++
-//                 targetIndex = i
-//             }
-//         }
-//     }
-//     if (list.length !== 0 && list[list.length - 1].sender.uid === currentId) targetIndex = list.length
-//     return { quantity, targetIndex }
-// }
 
 
 
@@ -247,6 +264,18 @@ export function createOnlineStatusUser(date: number): OnlineStatusUserType {
     const isOnline = currentDate - date < 60000 ? true : false
     return ({ isOnline, last_seen: date })
 }
+
+// export function calculateHeightMenu(message: Message1, isMobile: boolean, curentUser: CurrentUser): number {
+//     let heightRow = isMobile ? 34 : 38
+//     let quantityRow = 2
+
+//     if(message?.callStatus) quantityRow++
+//     if(message.sender.uid === curentUser.uid) quantityRow++
+
+
+
+//     return height
+// }
 
 export const formatStyle = (timestamp: number, t: (key: TranslationKeys, options?: Record<string, unknown>) => string, i18n: i18n): string => {
 

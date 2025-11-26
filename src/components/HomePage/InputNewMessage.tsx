@@ -88,14 +88,14 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
 
     const onKeyDown = (e: KeyboardEvent) => {
         if (e.key === 'Escape' && (isEditMessage || replyToMessage)) dispatch(changeMessage(null))
-        if (document.activeElement === refTextarea.current && e.key === 'Enter' && !isEditMessage) {
-            sendMessage()
-            refTextarea.current.blur()
-        }
-        if (document.activeElement === refTextarea.current && e.key === 'Enter' && isEditMessage) {
-            sendEditMessage()
-            refTextarea.current.blur()
-        }
+        // if (document.activeElement === refTextarea.current && e.key === 'Enter' && !isEditMessage) {
+        //     sendMessage()
+        //     refTextarea.current.blur()
+        // }
+        // if (document.activeElement === refTextarea.current && e.key === 'Enter' && isEditMessage) {
+        //     sendEditMessage()
+        //     refTextarea.current.blur()
+        // }
     }
 
     useEffect(() => {
