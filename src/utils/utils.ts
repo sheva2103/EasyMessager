@@ -103,7 +103,7 @@ export function getDatefromDate(date: string): string {
 //     let hasLink = false
 
 //     const message = str.split(/\s+/)
-    
+
 //     const newStr = message.map((item) => {
 //         if (reg.test(item)) {
 //             hasLink = true
@@ -113,7 +113,7 @@ export function getDatefromDate(date: string): string {
 //                 const YTUrl = `https://www.youtube.com/embed/${videoId}`;
 //                 YTUrls.push(YTUrl)
 //             }
-            
+
 //             if (imageExtReg.test(item) && YTUrls.indexOf(`https://www.youtube.com/embed/${item.match(youtubeRegex)?.[1]}`) === -1) {
 //                 imgUrls.push(item)
 //             }
@@ -265,17 +265,33 @@ export function createOnlineStatusUser(date: number): OnlineStatusUserType {
     return ({ isOnline, last_seen: date })
 }
 
-// export function calculateHeightMenu(message: Message1, isMobile: boolean, curentUser: CurrentUser): number {
-//     let heightRow = isMobile ? 34 : 38
-//     let quantityRow = 2
+type Position = { top: number; left: number };
 
-//     if(message?.callStatus) quantityRow++
-//     if(message.sender.uid === curentUser.uid) quantityRow++
+export function getContextMenuPosition(options: {clickX: number, clickY: number ,menuWidth: number ,menuHeight: number}): Position {
 
+    const {clickX, clickY, menuWidth, menuHeight} = options
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
 
+    let left: number;
+    let top: number;
 
-//     return height
-// }
+    if (clickX + menuWidth <= screenWidth) {
+        left = clickX
+    } else {
+        left = clickX - menuWidth
+        if (left < 0) left = screenWidth - menuWidth
+    }
+
+    if (clickY + menuHeight <= screenHeight) {
+        top = clickY
+    } else {
+        top = clickY - menuHeight
+        if (top < 0) top = screenHeight - menuHeight
+    }
+
+    return { top, left };
+}
 
 export const formatStyle = (timestamp: number, t: (key: TranslationKeys, options?: Record<string, unknown>) => string, i18n: i18n): string => {
 

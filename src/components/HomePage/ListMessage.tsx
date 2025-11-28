@@ -17,14 +17,14 @@ interface VariableHeightListProps {
     noRead: NoReadMessagesType,
     assignElementToScroll: (handle: VirtuosoHandle | null) => void,
     //searchIndexes: Set<number>,
-    scrollerDomRef: MutableRefObject<any>
+    //scrollerDomRef: MutableRefObject<any>
 }
 
 const VariableHeightList: FC<VariableHeightListProps> = ({ 
     items, 
     noRead, 
     assignElementToScroll, 
-    scrollerDomRef
+    //scrollerDomRef
 }) => {
 
     const virtuosoRef = useRef<VirtuosoHandle>(null);
@@ -51,9 +51,9 @@ const VariableHeightList: FC<VariableHeightListProps> = ({
         return () => assignElementToScroll(null)
     }, [assignElementToScroll]);
 
-    const setScrollerRef = (ref: HTMLElement | Window | null) => {
-        scrollerDomRef.current = (ref as HTMLDivElement) ?? null;
-    }
+    // const setScrollerRef = (ref: HTMLElement | Window | null) => {
+    //     scrollerDomRef.current = (ref as HTMLDivElement) ?? null;
+    // }
 
     const renderRow = (index: number, item: Message1) => {
         const isHighlighted = new Set(searchIndexes).has(index);
@@ -73,7 +73,7 @@ const VariableHeightList: FC<VariableHeightListProps> = ({
                 {showDate && <GetDateMessage date={item.date} />}
                 <Message 
                     messageInfo={item}
-                    scrollerDomRef={scrollerDomRef} 
+                    //scrollerDomRef={scrollerDomRef} 
                     key={item.messageID}    
                 />
             </div>
@@ -86,7 +86,7 @@ const VariableHeightList: FC<VariableHeightListProps> = ({
             data={items}
             itemContent={renderRow}
             overscan={800}
-            scrollerRef={setScrollerRef}
+            //scrollerRef={setScrollerRef}
             atBottomStateChange={setAtBottomScroll} 
         />
     );
@@ -97,7 +97,7 @@ const ListMessages: FC = () => {
     const list = useAppSelector(state => state.messages)
     const scrollElementRef = useRef<VirtuosoHandle | null>(null) 
 
-    const scrollerDomRef = useRef<MutableRefObject<HTMLDivElement>>(null)
+    //const scrollerDomRef = useRef<MutableRefObject<HTMLDivElement>>(null)
     const assignElementToScroll = (element: VirtuosoHandle | null) => {
         scrollElementRef.current = element 
     }
@@ -113,7 +113,7 @@ const ListMessages: FC = () => {
                         noRead={list.noRead} 
                         assignElementToScroll={assignElementToScroll} 
                         
-                        scrollerDomRef={scrollerDomRef}    
+                        //scrollerDomRef={scrollerDomRef}    
                     />
                 </ul>
             </div>

@@ -17,10 +17,10 @@ import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 import { openModalCalls } from "../../store/slices/callsSlice";
 
 
-const HEIGHT_MENU_FOR_OWNER = 220
-const HEIGHT_MENU_FOR_GUEST = 168
-const HEIGHT_MENU_FOR_GUEST_CHANNEL = 126
-const WIDTH_MENU = 200
+const HEIGHT_MENU_FOR_OWNER = 256
+const HEIGHT_MENU_FOR_GUEST = 104
+const HEIGHT_MENU_FOR_GUEST_CHANNEL = 162
+const WIDTH_MENU = 233
 const HEIGHT_ROW = 42
 
 interface IMessagesContent {
@@ -146,7 +146,7 @@ type Offset = {
 
 type Props = {
     messageInfo: Message1,
-    scrollerDomRef: MutableRefObject<HTMLDivElement>
+    //scrollerDomRef: MutableRefObject<HTMLDivElement>
 }
 
 const ReplyToMessage: FC<Message1> = (props) => {
@@ -181,13 +181,12 @@ const ReplyToMessage: FC<Message1> = (props) => {
     )
 }
 
-const Message: FC<Props> = ({ messageInfo, scrollerDomRef }) => {
+const Message: FC<Props> = ({ messageInfo }) => {
 
     const owner = useAppSelector(state => state.app.currentUser)
     const isShowCheckbox = useAppSelector(state => state.app.showCheckbox)
     const chat = useAppSelector(state => state.app.selectedChat)
     const dispatch = useAppDispatch()
-    const [offset, setOffset] = useState<Offset>({ top: 0, left: 0 })
     const [contextMenuIsOpen, setContextMenu] = useState(false)
     //const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent)
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
@@ -196,55 +195,20 @@ const Message: FC<Props> = ({ messageInfo, scrollerDomRef }) => {
     const isFavorites = messageInfo.hasOwnProperty('read')
     const isGuestMessage = messageInfo.sender.uid !== owner.uid
     const isCallMessage = !!messageInfo?.callStatus
-    const isChannel = !!chat?.channel
     const statusCallMessage = (): string => {
         if (messageInfo.callStatus === 'completed') return styles.call_completed
         return styles.call_error
     }
-    const positionMenu:  CSSProperties = {
-        position: 'relative',
-        top: offset.top + 'px',
-        left: offset.left + 'px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '4px'
-    }
     const messageRef = useRef(null)
     const refSpan = useRef<HTMLDivElement>(null)
 
+    const [positionClick, setPositionClick] = useState({ top: 0, left: 0 })
+
     const setPositionMenu = useCallback((e: MouseEvent) => {
         if (!isShowCheckbox) {
-            const position = { top: 0, left: 0 }
-
-            function getAdjustedTop(clickY: number): number {
-                const windowHeight = window.innerHeight
-                const spaceBelow = windowHeight - clickY
-                if (spaceBelow >= HEIGHT_MENU_FOR_OWNER) {
-                    return clickY
-                } else {
-                    const offset = HEIGHT_MENU_FOR_OWNER - spaceBelow
-                    return Math.max(0, clickY - offset)
-                }
-            }
-            const styleContainer = scrollerDomRef.current;
-            const parentContainer = styleContainer?.firstElementChild as HTMLDivElement | undefined;
-            if (!styleContainer || !parentContainer) return
-
-            const parentRect = parentContainer.getBoundingClientRect();
-            const clickX = e.clientX - parentRect.left;
-            const positionClickTop = e.clientY
-            const positionClickLeft = e.clientX
-            const topIndent = positionClickTop
-            clickX > WIDTH_MENU ? position.left = positionClickLeft - 168 : position.left = positionClickLeft
-            topIndent > HEIGHT_MENU_FOR_OWNER ?
-                position.top = positionClickTop - (isOwner && !isForwarder ?
-                    HEIGHT_MENU_FOR_OWNER : isChannel ?
-                        HEIGHT_MENU_FOR_GUEST_CHANNEL : HEIGHT_MENU_FOR_GUEST)
-                :
-                position.top = getAdjustedTop(positionClickTop)
-
-            if (messageInfo?.callStatus) position.top -= HEIGHT_ROW
-            setOffset(position)
+            const top = e.clientY
+            const left = e.clientX
+            setPositionClick({top, left})
         }
     }, [isShowCheckbox])
 
@@ -347,9 +311,9 @@ const Message: FC<Props> = ({ messageInfo, scrollerDomRef }) => {
                         closeContextMenu={closeContextMenu}
                         isOwner={isOwner}
                         message={messageInfo}
-                        positionMenu={positionMenu}
                         isForwarder={isForwarder}
                         curentUser={owner}
+                        positionClick={positionClick}
                     />}
             </label>
         </li>

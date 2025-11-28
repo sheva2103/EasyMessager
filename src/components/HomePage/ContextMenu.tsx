@@ -8,7 +8,7 @@ import Change from '../../assets/change.svg'
 import Reply from '../../assets/reply-fill.svg'
 import CallIcon from '../../assets/telephone-fill.svg'
 
-import { CSSProperties, FC, useEffect, useRef, useState } from "react";
+import { CSSProperties, FC, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from '../../hooks/hook';
 import { CurrentUser, Message1 } from '../../types/types';
 import { addSelectedMessage, changeMessage, closeBar, isSendMessage, setReplyToMessage, setShowCheckbox } from '../../store/slices/appSlice';
@@ -17,6 +17,7 @@ import { CONTACTS } from '../../constants/constants';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { createPortal } from 'react-dom';
 import { openModalCalls } from '../../store/slices/callsSlice';
+import { getContextMenuPosition } from '../../utils/utils';
 
 const ANIMATION_DURATION = 190
 
@@ -25,9 +26,9 @@ type Props = {
     isOwner: boolean,
     message: Message1
     closeContextMenu: (e: React.MouseEvent) => void,
-    positionMenu: CSSProperties | {},
     isForwarder: boolean,
-    curentUser: CurrentUser
+    curentUser: CurrentUser,
+    positionClick: { top: number, left: number }
 }
 
 // const reactions = ['🤡', '👍', '👎', '👋', '🙏', '😄', '😡'];
@@ -153,21 +154,27 @@ const reactions = ['🤡', '👍', '👎', '👋', '🙏', '😄'];
 //     );
 // }
 
-const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, positionMenu, isForwarder, curentUser }) => {
+const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, isForwarder, curentUser, positionClick }) => {
 
     const dispatch = useAppDispatch()
     const chat = useAppSelector(state => state.app.selectedChat)
     const isFavorites = useAppSelector(state => state.app.isFavorites)
     const isCallMessage = !!message?.callStatus
-    const [animationOpen, setAnimationOpen] = useState(false)
     const { t } = useTypedTranslation()
     const portalRootRef = useRef<HTMLElement | null>(typeof document !== "undefined" ? document.body : null);
-
-
-    useEffect(() => {
-        setAnimationOpen(true)
-        return () => setAnimationOpen(false)
-    }, []);
+    const [menuState, setMenuState] = useState<{ offset: { top: number, left: number }, open: boolean }>({
+        offset: { top: 0, left: 0 },
+        open: false
+    });
+    const positionMenu: CSSProperties = {
+        position: 'relative',
+        top: menuState.offset.top + 'px',
+        left: menuState.offset.left + 'px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '4px',
+        width: 'fit-content'
+    }
 
     const copyMessage = () => {
         navigator.clipboard.writeText(message.message);
@@ -193,9 +200,9 @@ const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, positionMe
     }
 
     const close = (e: React.MouseEvent) => {
-        setAnimationOpen(false)
-        setTimeout(() => closeContextMenu(e), ANIMATION_DURATION)
-    }
+        setMenuState(prev => ({ ...prev, open: false }));
+        menuRef.current?.addEventListener("transitionend", () => closeContextMenu(e), { once: true });
+    };
 
     const replyToMessage = () => {
         dispatch(setReplyToMessage(message))
@@ -211,7 +218,7 @@ const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, positionMe
     }
 
     const reactionsNode = (
-        <div  className={classNames(styles.reactions, { [styles.reactions_open]: animationOpen })}>
+        <div className={classNames(styles.reactions, { [styles.reactions_open]: menuState.open })}>
             {reactions.map((emoji, idx) => (
                 <span
                     key={idx}
@@ -223,20 +230,29 @@ const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, positionMe
             ))}
         </div>
     )
-    // const menuRef = useRef<HTMLDivElement>(null)
-    // useLayoutEffect(() => {
-    //     if(menuRef.current) console.log(menuRef.current.clientHeight)
-    // }, [menuRef]);
+
+    const menuRef = useRef<HTMLDivElement>(null)
+    useLayoutEffect(() => {
+        if (menuRef.current) {
+            const offset = getContextMenuPosition({
+                clickX :positionClick.left,
+                clickY :positionClick.top,
+                menuWidth :menuRef.current.clientWidth, 
+                menuHeight :menuRef.current.clientHeight
+            })
+            setMenuState({ offset, open: true })
+        }
+    }, []);
 
     const menu = (
         <div
-            className={classNames(styles.cover, { [styles.showContextMenu]: animationOpen })}
+            className={classNames(styles.cover, { [styles.showContextMenu]: menuState.open })}
             onClick={close}
             onContextMenu={close}
         >
-            <div style={positionMenu}>
+            <div style={positionMenu} ref={menuRef}>
                 {reactionsNode}
-                <div className={classNames(styles.contextMenu, { [styles.contextMenu_open]: animationOpen })}>
+                <div className={classNames(styles.contextMenu, { [styles.contextMenu_open]: menuState.open })}>
                     <ul>
                         {message?.callStatus &&
                             <li onClick={callBack}><CallIcon /><span>{t('call.callback')}</span></li>
@@ -249,7 +265,7 @@ const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, positionMe
                         {
                             !message?.callStatus && <li onClick={forwardMessage}><SendMessage /><span>{t('forward')}</span></li>
                         }
-                        <li onClick={copyMessage}><Copy /><span>{t('copyText')}</span></li>
+                        {!message?.callStatus && <li onClick={copyMessage}><Copy /><span>{t('copyText')}</span></li>}
                         {isOwner && !isForwarder && !isCallMessage &&
                             <li onClick={change}><Change /><span>{t('change')}</span></li>
                         }
