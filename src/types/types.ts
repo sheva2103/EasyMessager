@@ -47,6 +47,11 @@ export interface Chat extends CurrentUser  {
     ref?: DocumentReference
 }
 
+export type Reaction = {
+    reaction: string,
+    sender: CurrentUser
+}
+
 export type Message1 = {
     message: string,
     messageID: string,
@@ -56,7 +61,8 @@ export type Message1 = {
     changed?: string,
     forwardedFrom?: Chat,
     replyToMessage?: Message1,
-    callStatus?: CallEndStatus
+    callStatus?: CallEndStatus,
+    reactions?: Array<Reaction>
 }
 
 export type SenderMessageType = CurrentUser & {

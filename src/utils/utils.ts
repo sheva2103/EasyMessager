@@ -1,5 +1,5 @@
 import { doc, DocumentReference } from "firebase/firestore"
-import { Chat, CheckMessageType, CurrentUser, ListMessagesType, Message1, NoReadMessagesType, OnlineStatusUserType, TypeChannel } from "../types/types"
+import { Chat, CheckMessageType, CurrentUser, ListMessagesType, Message1, NoReadMessagesType, OnlineStatusUserType, Reaction, TypeChannel } from "../types/types"
 import { format } from "@formkit/tempo"
 import { db } from "../firebase"
 import { searchAPI } from "../API/api";
@@ -267,9 +267,9 @@ export function createOnlineStatusUser(date: number): OnlineStatusUserType {
 
 type Position = { top: number; left: number };
 
-export function getContextMenuPosition(options: {clickX: number, clickY: number ,menuWidth: number ,menuHeight: number}): Position {
+export function getContextMenuPosition(options: { clickX: number, clickY: number, menuWidth: number, menuHeight: number }): Position {
 
-    const {clickX, clickY, menuWidth, menuHeight} = options
+    const { clickX, clickY, menuWidth, menuHeight } = options
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
 
@@ -291,6 +291,38 @@ export function getContextMenuPosition(options: {clickX: number, clickY: number 
     }
 
     return { top, left };
+}
+
+type AggregatedReaction = {
+    reaction: string;
+    count: number;
+    users: CurrentUser[];
+    isMine: boolean;
+}
+
+
+export function aggregateReactions(reactions: Reaction[], currentUser: CurrentUser): AggregatedReaction[] {
+    const reactionMap = new Map<string, AggregatedReaction>();
+
+    for (const { reaction, sender } of reactions) {
+        const isMine = sender.uid === currentUser.uid;
+
+        if (!reactionMap.has(reaction)) {
+            reactionMap.set(reaction, {
+                reaction,
+                count: 1,
+                users: [sender],
+                isMine,
+            });
+        } else {
+            const entry = reactionMap.get(reaction)!;
+            entry.count += 1;
+            entry.users.push(sender);
+            if (isMine) entry.isMine = true;
+        }
+    }
+
+    return Array.from(reactionMap.values());
 }
 
 export const formatStyle = (timestamp: number, t: (key: TranslationKeys, options?: Record<string, unknown>) => string, i18n: i18n): string => {

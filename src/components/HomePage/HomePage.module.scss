@@ -511,9 +511,45 @@
 
                 .messageData__info {
                     display: flex;
+                    justify-content: space-between;
+                    width: 100%;
                     gap: 4px;
+                    align-items: center;
                     margin-left: auto;
                     margin-top: 4px;
+
+                    & > *:only-child {
+                        margin-left: auto;
+                    }
+                }
+
+                .infoWrapper {
+                    display: flex;
+                    gap: 4px;
+                }
+
+                .messageData__reactions {
+                    display: flex;
+                    font-size: 14px;
+                    border-radius: 18px;
+                    background-color: hsla(115, 74.42%, 66.14%, 0.603);
+                    padding: 2px 6px;
+                    gap: 4px;
+
+                    .reaction {
+                        padding-bottom: 2px 4px 2px 2px;
+                        display: flex;
+                        gap: 2px;
+                        align-items: center;
+                        &__owner {
+                            background-color: #1570e6;
+                            border-radius: 4px;
+                        }
+
+                        &__count {
+                            padding-right: 4px;
+                        }
+                    }
                 }
 
                 .messageData__date {
@@ -596,7 +632,7 @@
                 border-radius: 16px;
                 border-bottom-left-radius: 0;
                 background-color: rgb(123 118 147 / 88%);
-                padding: 4px 12px 0 12px;
+                padding: 4px 12px 6px 12px;
                 color: #ffffff;
                 a {
                     color: rgb(27, 27, 27);

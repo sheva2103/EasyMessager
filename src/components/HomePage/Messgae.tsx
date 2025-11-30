@@ -4,9 +4,9 @@ import classNames from "classnames";
 import styles from './HomePage.module.scss'
 import ContextMenu from "./ContextMenu";
 import SelectMessageInput from "./SelectMessageInput";
-import { CallEndStatus, Chat, Message1 } from "../../types/types";
+import { CallEndStatus, Chat, CurrentUser, Message1, Reaction } from "../../types/types";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
-import { checkMessage, createNewDate, getTimeFromDate } from "../../utils/utils";
+import { aggregateReactions, checkMessage, createNewDate, getTimeFromDate } from "../../utils/utils";
 import UnreadIcon from '../../assets/check2.svg'
 import ReadIcon from '../../assets/check2-all.svg'
 import CallIcon from '../../assets/telephone-fill.svg'
@@ -59,37 +59,37 @@ const ImageLoader: FC<{ src: string | null }> = ({ src }) => {
 
     return (
         <div className={styles.messageData__img}>
-                <img
-                    src={src}
-                    alt="Загруженное изображение"
-                    onLoad={() => setLoaded(true)}
-                    onError={() => setLoaded(false)}
-                    style={{ display: loaded ? 'block' : 'none' }}
-                />
+            <img
+                src={src}
+                alt="Загруженное изображение"
+                onLoad={() => setLoaded(true)}
+                onError={() => setLoaded(false)}
+                style={{ display: loaded ? 'block' : 'none' }}
+            />
         </div>
     );
 };
 
-const YTPlayer: FC<{src: string}> = ({src}) => {
+const YTPlayer: FC<{ src: string }> = ({ src }) => {
 
     return (
         <div className={styles.messageData_playerConatiner}>
-                    <iframe
-                        width="100%"
-                        height="100%"
-                        src={src}
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        title="Встроенный YouTube-плеер"
-                        style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            borderRadius: '16px'
-                        }}
-                    />
-                </div>
+            <iframe
+                width="100%"
+                height="100%"
+                src={src}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                title="Встроенный YouTube-плеер"
+                style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    borderRadius: '16px'
+                }}
+            />
+        </div>
     )
 }
 
@@ -129,19 +129,14 @@ const ViewportContent: FC<IMessagesContent> = ({ onEnterViewport, message }) => 
                 className={classNames({ [styles.mobileDevice]: isMobile, [styles.hasLink]: checkMessageObj.hasLink })}
             >
             </span>
-            {!!checkMessageObj.imgUrls.length && 
-                checkMessageObj.imgUrls.map((item, index) => <ImageLoader src={item} key={index}/>)
-                }
+            {!!checkMessageObj.imgUrls.length &&
+                checkMessageObj.imgUrls.map((item, index) => <ImageLoader src={item} key={index} />)
+            }
             {!!checkMessageObj.YTUrls &&
                 checkMessageObj.YTUrls.map((item, index) => <YTPlayer src={item} key={index} />)
             }
         </>
     )
-}
-
-type Offset = {
-    top: number,
-    left: number
 }
 
 type Props = {
@@ -181,6 +176,33 @@ const ReplyToMessage: FC<Message1> = (props) => {
     )
 }
 
+const Reactions: FC<{reactions: Array<Reaction>, curentUser: CurrentUser}> = ({reactions, curentUser}) => {
+
+    const test: Array<Reaction> = [
+        {reaction: '🤡', sender: {displayName: '', email: '', uid:'dadadada'}},
+        {reaction: '🤡', sender: {displayName: '', email: '', uid:'dadadadadd'}},
+        {reaction: '🤡', sender: {displayName: '', email: '', uid:'dadadadaaa'}},
+        {reaction: '🤡', sender: {displayName: '', email: '', uid:'GxYL3RFao3MQkPtp8PG3PpXEvgU2'}},
+        {reaction: '😄', sender: {displayName: '', email: '', uid:'dadadadaaaqqee'}},
+        {reaction: '👍', sender: {displayName: '', email: '', uid:'GxYL3RFao3MQkPtp8PG3PpXEvgU2q'}},
+    ]
+
+    const res = aggregateReactions(test, curentUser)
+    console.log(res)
+    // if(!reactions) return null
+
+    return (
+        <div className={styles.messageData__reactions}>
+            {res.map((r, i) => (
+                <div className={classNames(styles.reaction, {[styles.reaction__owner]: r.isMine})} key={i}>
+                    <span>{r.reaction}</span>
+                    {r.count > 1 && <span className={styles.reaction__count}>{r.count}</span>}
+                </div>
+            ))}
+        </div>
+    )
+}
+
 const Message: FC<Props> = ({ messageInfo }) => {
 
     const owner = useAppSelector(state => state.app.currentUser)
@@ -208,7 +230,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
         if (!isShowCheckbox) {
             const top = e.clientY
             const left = e.clientX
-            setPositionClick({top, left})
+            setPositionClick({ top, left })
         }
     }, [isShowCheckbox])
 
@@ -295,14 +317,17 @@ const Message: FC<Props> = ({ messageInfo }) => {
                     {messageInfo.replyToMessage && <ReplyToMessage {...messageInfo} />}
                     <ViewportContent onEnterViewport={readMessage} message={messageInfo} />
                     <div className={styles.messageData__info}>
-                        <div className={styles.messageData__date} style={{ paddingBottom: !isFavorites ? '4px' : '0' }}>
-                            <span >{messageInfo.changed ? `ред.${getTimeFromDate(createNewDate(messageInfo.changed))}` : getTimeFromDate(createNewDate(messageInfo.date))}</span>
-                        </div>
-                        {messageInfo.sender.email === owner.email && isFavorites &&
-                            <div className={styles.messageData__status}>
-                                {messageInfo.read ? <ReadIcon /> : <UnreadIcon />}
+                        <Reactions reactions={messageInfo?.reactions} curentUser={owner}/>
+                        <div className={styles.infoWrapper}>
+                            <div className={styles.messageData__date} style={{ paddingBottom: !isFavorites ? '4px' : '0' }}>
+                                <span >{messageInfo.changed ? `ред.${getTimeFromDate(createNewDate(messageInfo.changed))}` : getTimeFromDate(createNewDate(messageInfo.date))}</span>
                             </div>
-                        }
+                            {messageInfo.sender.email === owner.email && isFavorites &&
+                                <div className={styles.messageData__status}>
+                                    {messageInfo.read ? <ReadIcon /> : <UnreadIcon />}
+                                </div>
+                            }
+                        </div>
                     </div>
                 </div>
                 {contextMenuIsOpen &&
