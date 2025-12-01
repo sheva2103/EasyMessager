@@ -1,7 +1,7 @@
 import { DocumentData, QueryDocumentSnapshot, QuerySnapshot, deleteDoc, deleteField, doc, getDoc, setDoc, updateDoc, increment, arrayRemove, arrayUnion } from "firebase/firestore";
 import { db } from "../firebase";
 import { deleteUser, EmailAuthProvider, getAuth, reauthenticateWithCredential, UserInfo } from "firebase/auth";
-import { CallMessageOptionsType, Chat, CurrentUser, Message1, SenderMessageType, TypeChannel, TypeCreateChannel } from "../types/types";
+import { CallMessageOptionsType, Chat, CurrentUser, Message1, SenderMessageType, SetReactionOptions, TypeChannel, TypeCreateChannel } from "../types/types";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
 import { createChatList, createMessageList, createNewDate, createObjectChannel, getChatType } from "../utils/utils";
@@ -41,6 +41,7 @@ type MessagesAPI = {
     deleteChat: (currentUser: CurrentUser, selectedChat: Chat) => Promise<void>,
     addToFavorites: (currentUser: string, message: Message1) => Promise<void>,
     sendCallInfoMessage: (options: CallMessageOptionsType) => Promise<void>,
+    setReaction: (options: SetReactionOptions) => Promise<void>
 }
 
 type ContactsAPI = {
@@ -303,6 +304,14 @@ export const messagesAPI: MessagesAPI = {
 
         await messagesAPI.addChat(options.caller, options.callee, options.callee.chatID)
         await messagesAPI.addChat(options.callee, options.caller, options.callee.chatID)
+    },
+
+    async setReaction({reaction, chat, message}) {
+        const messageRef = getChatType(false, chat)
+        const updateMessage: Message1 = {...message, reactions: message?.reactions ? [...message.reactions, reaction] : [reaction]}
+        await updateDoc(messageRef, {
+            [message.messageID]: updateMessage
+        });
     }
 }
 

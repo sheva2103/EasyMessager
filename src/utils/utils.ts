@@ -304,6 +304,8 @@ type AggregatedReaction = {
 export function aggregateReactions(reactions: Reaction[], currentUser: CurrentUser): AggregatedReaction[] {
     const reactionMap = new Map<string, AggregatedReaction>();
 
+    if(!reactions) return []
+
     for (const { reaction, sender } of reactions) {
         const isMine = sender.uid === currentUser.uid;
 

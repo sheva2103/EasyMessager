@@ -124,4 +124,10 @@ export type CallMessageOptionsType = {
     status?: CallEndStatus
 }
 
+export type SetReactionOptions = {
+    reaction: Reaction,
+    message: Message1,
+    chat: Chat
+}
+
 

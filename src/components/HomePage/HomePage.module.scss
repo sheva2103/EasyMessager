@@ -513,7 +513,7 @@
                     display: flex;
                     justify-content: space-between;
                     width: 100%;
-                    gap: 4px;
+                    gap: 8px;
                     align-items: center;
                     margin-left: auto;
                     margin-top: 4px;
@@ -526,6 +526,8 @@
                 .infoWrapper {
                     display: flex;
                     gap: 4px;
+                    align-items: center;
+                    align-self: flex-end;
                 }
 
                 .messageData__reactions {
@@ -558,6 +560,10 @@
 
                 .messageData__status {
                     font-size: 1rem;
+                    & svg {
+                        //vertical-align: middle;
+                        display: block;
+                    }
                 }
 
                 .messageData__forwardedFrom {

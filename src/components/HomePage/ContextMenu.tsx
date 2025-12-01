@@ -217,13 +217,21 @@ const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, isForwarde
         }))
     }
 
+    const setReactions = (reaction: string) => {
+        messagesAPI.setReaction({
+            message,
+            chat,
+            reaction: {reaction, sender: curentUser}
+        })
+    }
+
     const reactionsNode = (
         <div className={classNames(styles.reactions, { [styles.reactions_open]: menuState.open })}>
             {reactions.map((emoji, idx) => (
                 <span
                     key={idx}
                     className={styles.reactionItem}
-                    onClick={() => console.log('Reaction clicked:', emoji)}
+                    onClick={() => setReactions(emoji)}
                 >
                     {emoji}
                 </span>

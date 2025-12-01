@@ -187,9 +187,14 @@ const Reactions: FC<{reactions: Array<Reaction>, curentUser: CurrentUser}> = ({r
         {reaction: '👍', sender: {displayName: '', email: '', uid:'GxYL3RFao3MQkPtp8PG3PpXEvgU2q'}},
     ]
 
-    const res = aggregateReactions(test, curentUser)
-    console.log(res)
-    // if(!reactions) return null
+    const res = aggregateReactions(reactions, curentUser)
+    
+
+    const setReaction = (isMine: boolean) => {
+        
+    }
+
+    if(!reactions) return null
 
     return (
         <div className={styles.messageData__reactions}>
