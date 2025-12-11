@@ -1,7 +1,7 @@
 import { DocumentData, QueryDocumentSnapshot, QuerySnapshot, deleteDoc, deleteField, doc, getDoc, setDoc, updateDoc, increment, arrayRemove, arrayUnion } from "firebase/firestore";
 import { db } from "../firebase";
 import { deleteUser, EmailAuthProvider, getAuth, reauthenticateWithCredential, UserInfo } from "firebase/auth";
-import { CallMessageOptionsType, Chat, CurrentUser, Message1, SenderMessageType, SetReactionOptions, TypeChannel, TypeCreateChannel } from "../types/types";
+import { CallMessageOptionsType, Chat, CurrentUser, Message1, Reaction, SenderMessageType, SetReactionOptions, TypeChannel, TypeCreateChannel } from "../types/types";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
 import { createChatList, createMessageList, createNewDate, createObjectChannel, getChatType } from "../utils/utils";
@@ -306,12 +306,25 @@ export const messagesAPI: MessagesAPI = {
         await messagesAPI.addChat(options.callee, options.caller, options.callee.chatID)
     },
 
-    async setReaction({reaction, chat, message}) {
+    async setReaction({reaction, chat, isMine}) {
         const messageRef = getChatType(false, chat)
-        const updateMessage: Message1 = {...message, reactions: message?.reactions ? [...message.reactions, reaction] : [reaction]}
-        await updateDoc(messageRef, {
-            [message.messageID]: updateMessage
-        });
+        const getMessage = await getDoc(messageRef)
+        if(getMessage.exists()) {
+            const dataContainer = getMessage.data()
+            const id = Object.keys(dataContainer)[0]
+            const message: Message1 = getMessage.data()[id]
+            let updateMessage
+            if(message?.reactions && message?.reactions.length > 0) {
+                const newListReactions: Reaction[] = message.reactions.filter(item => item.sender.uid !== reaction.sender.uid)
+                if(!isMine) newListReactions.push(reaction)
+                updateMessage = {...message, reactions: newListReactions}
+            } else {
+                updateMessage = {...message, reactions: [reaction]}
+            }
+            await updateDoc(messageRef, {
+                [message.messageID]: updateMessage
+            })
+        }
     }
 }
 

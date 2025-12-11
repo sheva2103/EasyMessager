@@ -27,7 +27,7 @@ type Props = {
     message: Message1
     closeContextMenu: (e: React.MouseEvent) => void,
     isForwarder: boolean,
-    curentUser: CurrentUser,
+    currentUser: CurrentUser,
     positionClick: { top: number, left: number }
 }
 
@@ -154,7 +154,8 @@ const reactions = ['🤡', '👍', '👎', '👋', '🙏', '😄'];
 //     );
 // }
 
-const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, isForwarder, curentUser, positionClick }) => {
+
+const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, isForwarder, currentUser, positionClick }) => {
 
     const dispatch = useAppDispatch()
     const chat = useAppSelector(state => state.app.selectedChat)
@@ -213,15 +214,14 @@ const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, isForwarde
             mode: null,
             callerUid: chat.uid,
             roomId: null,
-            callInfo: { caller: curentUser, callee: chat }
+            callInfo: { caller: currentUser, callee: chat }
         }))
     }
 
     const setReactions = (reaction: string) => {
         messagesAPI.setReaction({
-            message,
             chat,
-            reaction: {reaction, sender: curentUser}
+            reaction: {reaction, sender: currentUser}
         })
     }
 

@@ -176,31 +176,25 @@ const ReplyToMessage: FC<Message1> = (props) => {
     )
 }
 
-const Reactions: FC<{reactions: Array<Reaction>, curentUser: CurrentUser}> = ({reactions, curentUser}) => {
+const Reactions: FC<{reactions: Array<Reaction>, currentUser: CurrentUser, chat: Chat}> = ({reactions, currentUser, chat}) => {
 
-    const test: Array<Reaction> = [
-        {reaction: '🤡', sender: {displayName: '', email: '', uid:'dadadada'}},
-        {reaction: '🤡', sender: {displayName: '', email: '', uid:'dadadadadd'}},
-        {reaction: '🤡', sender: {displayName: '', email: '', uid:'dadadadaaa'}},
-        {reaction: '🤡', sender: {displayName: '', email: '', uid:'GxYL3RFao3MQkPtp8PG3PpXEvgU2'}},
-        {reaction: '😄', sender: {displayName: '', email: '', uid:'dadadadaaaqqee'}},
-        {reaction: '👍', sender: {displayName: '', email: '', uid:'GxYL3RFao3MQkPtp8PG3PpXEvgU2q'}},
-    ]
-
-    const res = aggregateReactions(reactions, curentUser)
+    const res = aggregateReactions(reactions, currentUser)
     
-
-    const setReaction = (isMine: boolean) => {
-        
+    const setReaction = (reaction: Reaction) => {
+        messagesAPI.setReaction({
+            reaction,
+            chat,
+            isMine: reaction.isMine
+        })
     }
 
-    if(!reactions) return null
+    if(!reactions || reactions.length === 0) return null
 
     return (
         <div className={styles.messageData__reactions}>
             {res.map((r, i) => (
                 <div className={classNames(styles.reaction, {[styles.reaction__owner]: r.isMine})} key={i}>
-                    <span>{r.reaction}</span>
+                    <span onClick={() => setReaction({reaction: r.reaction, sender: currentUser, isMine: r.isMine})}>{r.reaction}</span>
                     {r.count > 1 && <span className={styles.reaction__count}>{r.count}</span>}
                 </div>
             ))}
@@ -322,7 +316,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
                     {messageInfo.replyToMessage && <ReplyToMessage {...messageInfo} />}
                     <ViewportContent onEnterViewport={readMessage} message={messageInfo} />
                     <div className={styles.messageData__info}>
-                        <Reactions reactions={messageInfo?.reactions} curentUser={owner}/>
+                        <Reactions reactions={messageInfo?.reactions} currentUser={owner} chat={chat}/>
                         <div className={styles.infoWrapper}>
                             <div className={styles.messageData__date} style={{ paddingBottom: !isFavorites ? '4px' : '0' }}>
                                 <span >{messageInfo.changed ? `ред.${getTimeFromDate(createNewDate(messageInfo.changed))}` : getTimeFromDate(createNewDate(messageInfo.date))}</span>
@@ -342,7 +336,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
                         isOwner={isOwner}
                         message={messageInfo}
                         isForwarder={isForwarder}
-                        curentUser={owner}
+                        currentUser={owner}
                         positionClick={positionClick}
                     />}
             </label>
@@ -351,7 +345,11 @@ const Message: FC<Props> = ({ messageInfo }) => {
 }
 
 function checkProps(prevProps: Props, nextProps: Props): boolean {
-    return prevProps.messageInfo.message === nextProps.messageInfo.message && prevProps.messageInfo.read === nextProps.messageInfo.read
+    return prevProps.messageInfo.message === nextProps.messageInfo.message
+            &&
+            prevProps.messageInfo.read === nextProps.messageInfo.read
+            &&
+            prevProps.messageInfo?.reactions === nextProps.messageInfo?.reactions
 }
 
 export default memo(Message, checkProps);

@@ -49,7 +49,8 @@ export interface Chat extends CurrentUser  {
 
 export type Reaction = {
     reaction: string,
-    sender: CurrentUser
+    sender: CurrentUser,
+    isMine?: boolean
 }
 
 export type Message1 = {
@@ -126,8 +127,8 @@ export type CallMessageOptionsType = {
 
 export type SetReactionOptions = {
     reaction: Reaction,
-    message: Message1,
-    chat: Chat
+    chat: Chat,
+    isMine?: boolean
 }
 
 
