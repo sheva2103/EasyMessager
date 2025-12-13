@@ -176,15 +176,17 @@ const ReplyToMessage: FC<Message1> = (props) => {
     )
 }
 
-const Reactions: FC<{reactions: Array<Reaction>, currentUser: CurrentUser, chat: Chat}> = ({reactions, currentUser, chat}) => {
+const Reactions: FC<{reactions: Array<Reaction>, currentUser: CurrentUser, chat: Chat, messageID: string}> = ({reactions, currentUser, chat, messageID}) => {
 
     const res = aggregateReactions(reactions, currentUser)
     
-    const setReaction = (reaction: Reaction) => {
+    const setReaction = (reaction: Reaction, e: React.MouseEvent) => {
+        e.stopPropagation()
         messagesAPI.setReaction({
             reaction,
             chat,
-            isMine: reaction.isMine
+            isMine: reaction.isMine,
+            messageID
         })
     }
 
@@ -194,7 +196,7 @@ const Reactions: FC<{reactions: Array<Reaction>, currentUser: CurrentUser, chat:
         <div className={styles.messageData__reactions}>
             {res.map((r, i) => (
                 <div className={classNames(styles.reaction, {[styles.reaction__owner]: r.isMine})} key={i}>
-                    <span onClick={() => setReaction({reaction: r.reaction, sender: currentUser, isMine: r.isMine})}>{r.reaction}</span>
+                    <span onClick={(e) => setReaction({reaction: r.reaction, sender: currentUser, isMine: r.isMine}, e)}>{r.reaction}</span>
                     {r.count > 1 && <span className={styles.reaction__count}>{r.count}</span>}
                 </div>
             ))}
@@ -316,7 +318,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
                     {messageInfo.replyToMessage && <ReplyToMessage {...messageInfo} />}
                     <ViewportContent onEnterViewport={readMessage} message={messageInfo} />
                     <div className={styles.messageData__info}>
-                        <Reactions reactions={messageInfo?.reactions} currentUser={owner} chat={chat}/>
+                        <Reactions reactions={messageInfo?.reactions} currentUser={owner} chat={chat} messageID={messageInfo.messageID}/>
                         <div className={styles.infoWrapper}>
                             <div className={styles.messageData__date} style={{ paddingBottom: !isFavorites ? '4px' : '0' }}>
                                 <span >{messageInfo.changed ? `ред.${getTimeFromDate(createNewDate(messageInfo.changed))}` : getTimeFromDate(createNewDate(messageInfo.date))}</span>

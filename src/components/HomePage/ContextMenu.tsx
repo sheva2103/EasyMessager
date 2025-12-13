@@ -7,17 +7,21 @@ import Select from '../../assets/check-all.svg'
 import Change from '../../assets/change.svg'
 import Reply from '../../assets/reply-fill.svg'
 import CallIcon from '../../assets/telephone-fill.svg'
+import HeartIcon from '../../assets/heart.svg'
 
 import { CSSProperties, FC, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from '../../hooks/hook';
-import { CurrentUser, Message1 } from '../../types/types';
-import { addSelectedMessage, changeMessage, closeBar, isSendMessage, setReplyToMessage, setShowCheckbox } from '../../store/slices/appSlice';
+import { CurrentUser, Message1, Reaction } from '../../types/types';
+import { addSelectedMessage, changeMessage, closeBar, closeMenu, isSendMessage, setReplyToMessage, setShowCheckbox, setTempChat } from '../../store/slices/appSlice';
 import { messagesAPI } from '../../API/api';
 import { CONTACTS } from '../../constants/constants';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { createPortal } from 'react-dom';
 import { openModalCalls } from '../../store/slices/callsSlice';
 import { getContextMenuPosition } from '../../utils/utils';
+import DialogComponent, { LayoutDialogList } from '../Settings/DialogComponent';
+import { Virtuoso } from 'react-virtuoso';
+import stylesContacts from '../Contacts/Contacts.module.scss'
 
 const ANIMATION_DURATION = 190
 
@@ -35,132 +39,57 @@ type Props = {
 const reactions = ['🤡', '👍', '👎', '👋', '🙏', '😄'];
 
 
-// const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, positionMenu, isForwarder, curentUser }) => {
 
-//     const dispatch = useAppDispatch()
-//     const chat = useAppSelector(state => state.app.selectedChat)
-//     const isFavorites = useAppSelector(state => state.app.isFavorites)
-//     const isCallMessage = !!message?.callStatus
-//     const [animationOpen, setAnimationOpen] = useState(false)
-//     const { t } = useTypedTranslation()
-//     const portalRootRef = useRef<HTMLElement | null>(typeof document !== "undefined" ? document.body : null);
+const UserReaction: FC<{ reaction: Reaction }> = ({ reaction }) => {
 
+    const dispatch = useAppDispatch()
+    const currentUser = useAppSelector(state => state.app.currentUser)
 
-//     useEffect(() => {
-//         setAnimationOpen(true)
-//         return () => setAnimationOpen(false)
-//     }, []);
+    const handleClickName = (e: React.MouseEvent) => {
+        e.stopPropagation()
+        if(currentUser.uid === reaction.sender.uid) return
+        dispatch(closeMenu(null))
+        dispatch(setTempChat(reaction.sender))
+    }
 
-//     const copyMessage = () => {
-//         navigator.clipboard.writeText(message.message);
-//     }
+    return (
+        <li style={{ margin: '4px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} onClick={handleClickName}>
+            <span style={{ fontSize: '1.1rem', margin: '2px 0px' }}>
+                {reaction.sender.displayName}
+            </span>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div>
+                    <span>{reaction.reaction}</span>
+                </div>
+            </div>
+        </li>
+    )
+}
 
-//     const change = () => {
-//         dispatch(changeMessage(message))
-//     }
+const ReactionsList: FC<{ list: Reaction[] }> = ({ list }) => {
 
-//     const selectSeveral = () => {
-//         dispatch(setShowCheckbox(true))
-//     }
-
-//     const deleteMessage = () => {
-//         messagesAPI.deleteMessage(chat, message, isFavorites)
-//             .catch((error) => console.error("Ошибка при удалении сообщения:", error))
-//     }
-
-//     const forwardMessage = () => {
-//         dispatch(addSelectedMessage(message))
-//         dispatch(isSendMessage(true))
-//         dispatch(closeBar(CONTACTS))
-//     }
-
-//     const close = (e: React.MouseEvent) => {
-//         setAnimationOpen(false)
-//         setTimeout(() => closeContextMenu(e), ANIMATION_DURATION)
-//     }
-
-//     const replyToMessage = () => {
-//         dispatch(setReplyToMessage(message))
-//     }
-
-//     const callBack = () => {
-//         dispatch(openModalCalls({
-//             mode: null,
-//             callerUid: chat.uid,
-//             roomId: null,
-//             callInfo: { caller: curentUser, callee: chat }
-//         }))
-//     }
-
-//     const reactionsNode = (
-//         <div className={styles.reactions}>
-//             {reactions.map((emoji, idx) => (
-//                 <span
-//                     key={idx}
-//                     className={styles.reactionItem}
-//                     onClick={() => console.log('Reaction clicked:', emoji)}
-//                 >
-//                     {emoji}
-//                 </span>
-//             ))}
-//         </div>
-//     )
-
-//     const menu = (
-//         <div
-//             className={classNames(styles.cover, { [styles.showContextMenu]: animationOpen })}
-//             onClick={close}
-//             onContextMenu={close}
-//         >
-//             <div style={positionMenu} className={classNames(styles.contextMenu, { [styles.contextMenu_open]: animationOpen })}>
-//                 <ul>
-//                     {message?.callStatus &&
-//                         <li onClick={callBack}><CallIcon /><span>{t('call.callback')}</span></li>
-//                     }
-//                     {chat?.channel ?
-//                         isOwner ? <li onClick={replyToMessage}><Reply /><span>{t('answer')}</span></li> : null
-//                         :
-//                         <li onClick={replyToMessage}><Reply /><span>{t('answer')}</span></li>
-//                     }
-//                     {
-//                         !message?.callStatus && <li onClick={forwardMessage}><SendMessage /><span>{t('forward')}</span></li>
-//                     }
-//                     <li onClick={copyMessage}><Copy /><span>{t('copyText')}</span></li>
-//                     {isOwner && !isForwarder && !isCallMessage &&
-//                         <li onClick={change}><Change /><span>{t('change')}</span></li>
-//                     }
-
-//                     {chat?.channel ?
-//                         isOwner ? <li onClick={deleteMessage}><Delete /><span>{t('delete')}</span></li> : null
-//                         :
-//                         <li onClick={deleteMessage}><Delete /><span>{t('delete')}</span></li>
-//                     }
-//                     <li
-//                         onClick={selectSeveral}
-//                         className={classNames(styles.selectSeveral)}
-//                     >
-//                         <Select />
-//                         <span>{t('selectSeveral')}</span>
-//                     </li>
-//                 </ul>
-//             </div>
-//         </div>
-//     )
-
-//     console.log('render contextmenu')
-
-//     return (
-//         createPortal(menu, portalRootRef.current)
-//     );
-// }
-
+    return (
+        <LayoutDialogList>
+            <Virtuoso
+                style={{ height: '100%' }}
+                data={list}
+                totalCount={list.length}
+                itemContent={(index, item) => (
+                    <UserReaction reaction={item} />
+                )}
+            />
+        </LayoutDialogList>
+    );
+}
 
 const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, isForwarder, currentUser, positionClick }) => {
 
     const dispatch = useAppDispatch()
     const chat = useAppSelector(state => state.app.selectedChat)
     const isFavorites = useAppSelector(state => state.app.isFavorites)
+    const [openListReaction, setOpenListReaction] = useState(false)
     const isCallMessage = !!message?.callStatus
+    const isChannel = !!chat?.channel
     const { t } = useTypedTranslation()
     const portalRootRef = useRef<HTMLElement | null>(typeof document !== "undefined" ? document.body : null);
     const [menuState, setMenuState] = useState<{ offset: { top: number, left: number }, open: boolean }>({
@@ -201,6 +130,7 @@ const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, isForwarde
     }
 
     const close = (e: React.MouseEvent) => {
+        if(openListReaction) return
         setMenuState(prev => ({ ...prev, open: false }));
         menuRef.current?.addEventListener("transitionend", () => closeContextMenu(e), { once: true });
     };
@@ -221,8 +151,14 @@ const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, isForwarde
     const setReactions = (reaction: string) => {
         messagesAPI.setReaction({
             chat,
-            reaction: {reaction, sender: currentUser}
+            reaction: { reaction, sender: currentUser },
+            messageID: message.messageID
         })
+    }
+
+    const showReactions = (e: React.MouseEvent) => {
+        e.stopPropagation()
+        setOpenListReaction(true)
     }
 
     const reactionsNode = (
@@ -243,10 +179,10 @@ const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, isForwarde
     useLayoutEffect(() => {
         if (menuRef.current) {
             const offset = getContextMenuPosition({
-                clickX :positionClick.left,
-                clickY :positionClick.top,
-                menuWidth :menuRef.current.clientWidth, 
-                menuHeight :menuRef.current.clientHeight
+                clickX: positionClick.left,
+                clickY: positionClick.top,
+                menuWidth: menuRef.current.clientWidth,
+                menuHeight: menuRef.current.clientHeight
             })
             setMenuState({ offset, open: true })
         }
@@ -262,6 +198,9 @@ const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, isForwarde
                 {reactionsNode}
                 <div className={classNames(styles.contextMenu, { [styles.contextMenu_open]: menuState.open })}>
                     <ul>
+                        {isChannel && message?.reactions?.length > 0 &&
+                            <li onClick={showReactions}><HeartIcon /><span>Reactions</span></li>
+                        }
                         {message?.callStatus &&
                             <li onClick={callBack}><CallIcon /><span>{t('call.callback')}</span></li>
                         }
@@ -293,6 +232,9 @@ const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, isForwarde
                     </ul>
                 </div>
             </div>
+            <DialogComponent isOpen={openListReaction} onClose={setOpenListReaction}>
+                <ReactionsList list={message?.reactions} />
+            </DialogComponent>
         </div>
     )
 

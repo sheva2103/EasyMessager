@@ -306,13 +306,11 @@ export const messagesAPI: MessagesAPI = {
         await messagesAPI.addChat(options.callee, options.caller, options.callee.chatID)
     },
 
-    async setReaction({reaction, chat, isMine}) {
+    async setReaction({reaction, chat, isMine, messageID}) {
         const messageRef = getChatType(false, chat)
         const getMessage = await getDoc(messageRef)
         if(getMessage.exists()) {
-            const dataContainer = getMessage.data()
-            const id = Object.keys(dataContainer)[0]
-            const message: Message1 = getMessage.data()[id]
+            const message: Message1 = getMessage.data()[messageID]
             let updateMessage
             if(message?.reactions && message?.reactions.length > 0) {
                 const newListReactions: Reaction[] = message.reactions.filter(item => item.sender.uid !== reaction.sender.uid)

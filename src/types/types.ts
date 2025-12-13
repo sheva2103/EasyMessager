@@ -128,7 +128,8 @@ export type CallMessageOptionsType = {
 export type SetReactionOptions = {
     reaction: Reaction,
     chat: Chat,
-    isMine?: boolean
+    isMine?: boolean,
+    messageID: string
 }
 
 

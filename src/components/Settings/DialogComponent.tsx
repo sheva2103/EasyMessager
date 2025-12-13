@@ -3,6 +3,7 @@ import { cloneElement, FC, ReactElement, ReactNode } from "react";
 import styles from './Settings.module.scss'
 import CloseMenuIcon from '../../assets/closeDesktop.svg'
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
+import stylesContacts from '../Contacts/Contacts.module.scss'
 
 type Props = {
     children: ReactElement
@@ -51,9 +52,22 @@ export const NotFoundChat: FC<{confirmFunc: () => void, user?: boolean, channel?
     )
 }
 
+export const LayoutDialogList: FC<{children: ReactElement}> = ({children}) => {
+
+    return (
+        <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: '4px', height: '100%' }}>
+            <ul className={stylesContacts.list} style={{ display: 'flex', flexDirection: 'column', overflow: 'auto', marginBottom: '4px' }}>
+                {children}
+            </ul>
+        </div>
+    )
+}
+
 const DialogComponent: FC<Props> = ({children, onClose, isOpen}) => {
 
-    const handleClose = () => {
+    const handleClose = (e: React.MouseEvent) => {
+        // e.stopPropagation() !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1 
+        e.stopPropagation()
         onClose(false);
     };
 
