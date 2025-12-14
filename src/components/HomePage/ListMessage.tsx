@@ -86,7 +86,8 @@ const VariableHeightList: FC<VariableHeightListProps> = ({
             data={items}
             itemContent={renderRow}
             overscan={800}
-            //scrollerRef={setScrollerRef}
+            increaseViewportBy={300}
+            //initialTopMostItemIndex={items.length - 1}
             atBottomStateChange={setAtBottomScroll} 
         />
     );

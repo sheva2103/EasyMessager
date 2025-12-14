@@ -152,7 +152,8 @@ const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, isForwarde
         messagesAPI.setReaction({
             chat,
             reaction: { reaction, sender: currentUser },
-            messageID: message.messageID
+            messageID: message.messageID,
+            isFavorites
         })
     }
 

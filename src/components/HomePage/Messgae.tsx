@@ -58,13 +58,13 @@ const ImageLoader: FC<{ src: string | null }> = ({ src }) => {
     if (!src) return null;
 
     return (
-        <div className={styles.messageData__img}>
+        <div className={styles.messageData__img} >
             <img
                 src={src}
                 alt="Загруженное изображение"
                 onLoad={() => setLoaded(true)}
                 onError={() => setLoaded(false)}
-                style={{ display: loaded ? 'block' : 'none' }}
+                style={{ display: loaded ? 'block' : 'none' }} //для изображения выставить заданную высоту (200px) и групировать их в ряд
             />
         </div>
     );
@@ -131,6 +131,9 @@ const ViewportContent: FC<IMessagesContent> = ({ onEnterViewport, message }) => 
             </span>
             {!!checkMessageObj.imgUrls.length &&
                 checkMessageObj.imgUrls.map((item, index) => <ImageLoader src={item} key={index} />)
+                // <div style={{display: 'flex', flexWrap: 'wrap', gap: '6px'}}>
+                //     {checkMessageObj.imgUrls.map((item, index) => <ImageLoader src={item} key={index} />)} !!!!!!!!!!!!! сделать чтоб несколько изображений были в ряд
+                // </div>
             }
             {!!checkMessageObj.YTUrls &&
                 checkMessageObj.YTUrls.map((item, index) => <YTPlayer src={item} key={index} />)
@@ -178,6 +181,7 @@ const ReplyToMessage: FC<Message1> = (props) => {
 
 const Reactions: FC<{reactions: Array<Reaction>, currentUser: CurrentUser, chat: Chat, messageID: string}> = ({reactions, currentUser, chat, messageID}) => {
 
+    const isFavorites = useAppSelector(state => state.app.isFavorites)
     const res = aggregateReactions(reactions, currentUser)
     
     const setReaction = (reaction: Reaction, e: React.MouseEvent) => {
@@ -186,7 +190,8 @@ const Reactions: FC<{reactions: Array<Reaction>, currentUser: CurrentUser, chat:
             reaction,
             chat,
             isMine: reaction.isMine,
-            messageID
+            messageID,
+            isFavorites
         })
     }
 
@@ -283,7 +288,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
 
     const readMessage = () => {
         if (messageInfo.sender.email !== owner.email && isFavorites && !messageInfo.read) {
-            messagesAPI.readMessage(chat.chatID, messageInfo)
+            messagesAPI.readMessage(chat, messageInfo)
         }
     }
 
@@ -320,7 +325,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
                     <div className={styles.messageData__info}>
                         <Reactions reactions={messageInfo?.reactions} currentUser={owner} chat={chat} messageID={messageInfo.messageID}/>
                         <div className={styles.infoWrapper}>
-                            <div className={styles.messageData__date} style={{ paddingBottom: !isFavorites ? '4px' : '0' }}>
+                            <div className={styles.messageData__date}>
                                 <span >{messageInfo.changed ? `ред.${getTimeFromDate(createNewDate(messageInfo.changed))}` : getTimeFromDate(createNewDate(messageInfo.date))}</span>
                             </div>
                             {messageInfo.sender.email === owner.email && isFavorites &&

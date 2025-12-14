@@ -129,7 +129,8 @@ export type SetReactionOptions = {
     reaction: Reaction,
     chat: Chat,
     isMine?: boolean,
-    messageID: string
+    messageID: string,
+    isFavorites: boolean
 }
 
 

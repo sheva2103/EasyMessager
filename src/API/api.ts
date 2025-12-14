@@ -1,11 +1,11 @@
-import { DocumentData, QueryDocumentSnapshot, QuerySnapshot, deleteDoc, deleteField, doc, getDoc, setDoc, updateDoc, increment, arrayRemove, arrayUnion } from "firebase/firestore";
+import { QueryDocumentSnapshot, deleteDoc, deleteField, doc, getDoc, setDoc, updateDoc, arrayRemove, arrayUnion } from "firebase/firestore";
 import { db } from "../firebase";
 import { deleteUser, EmailAuthProvider, getAuth, reauthenticateWithCredential, UserInfo } from "firebase/auth";
-import { CallMessageOptionsType, Chat, CurrentUser, Message1, Reaction, SenderMessageType, SetReactionOptions, TypeChannel, TypeCreateChannel } from "../types/types";
+import { CallMessageOptionsType, Chat, CurrentUser, Message1, Reaction, SetReactionOptions, TypeChannel, TypeCreateChannel } from "../types/types";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
-import { createChatList, createMessageList, createNewDate, createObjectChannel, getChatType } from "../utils/utils";
-import { ADD_TO_LIST_SUBSCRIBERS, BLACKLIST, CHANNELS, CHANNELS_INFO, CHATLIST, CHATS, CONTACTS, FAVOTITES, REMOVE_FROM_LIST_SUBSCRIBERS, USERS } from "../constants/constants";
+import { createChatList, createMessageList, createObjectChannel, getChatType, getFakeChat } from "../utils/utils";
+import { ADD_TO_LIST_SUBSCRIBERS, BLACKLIST, CHANNELS, CHANNELS_INFO, CHATLIST, CHATS, CONTACTS, REMOVE_FROM_LIST_SUBSCRIBERS, USERS } from "../constants/constants";
 import pLimit from "p-limit";
 import { FirebaseError } from "firebase/app";
 
@@ -36,10 +36,10 @@ type MessagesAPI = {
     sendEditMessage: (chat: Chat, message: Message1, isFavorites: boolean) => Promise<void>,
     deleteMessage: (chat: Chat, message: Message1, isFavorites: boolean) => Promise<void>,
     forwardedMessageFrom: (sender: CurrentUser, recipient: Chat, message: Message1) => Promise<void>,
-    readMessage: (chatID: string, message: Message1) => Promise<void>,
+    readMessage: (chat: Chat, message: Message1) => Promise<void>,
     clearChat: (chat: Chat, isFavorites: boolean) => Promise<void[]>,
     deleteChat: (currentUser: CurrentUser, selectedChat: Chat) => Promise<void>,
-    addToFavorites: (currentUser: string, message: Message1) => Promise<void>,
+    addToFavorites: (currentUser: Chat, message: Message1) => Promise<void>,
     sendCallInfoMessage: (options: CallMessageOptionsType) => Promise<void>,
     setReaction: (options: SetReactionOptions) => Promise<void>
 }
@@ -123,7 +123,7 @@ export const profileAPI: ProfileApi = {
             await Promise.all(snapshot.docs.map((d) => deleteDoc(d.ref)));
             console.log(`Коллекция "${user.email}" очищена.`);
 
-            await deleteDoc(doc(db, 'users', user.uid));
+            await deleteDoc(doc(db, USERS, user.uid));
             console.log('Документ пользователя удалён');
 
             await deleteUser(user);
@@ -233,7 +233,6 @@ export const messagesAPI: MessagesAPI = {
     async forwardedMessageFrom(sender, recipient, message) {
         const id = uuidv4()
         const date = JSON.stringify(new Date())
-        // const forwardedFrom = message.forwardedFrom?.channel ?  createObjectChannel(message.forwardedFrom?.channel) : message.sender
         const forwardedFrom = message.forwardedFrom?.channel ?
             createObjectChannel(message.forwardedFrom?.channel)
             :
@@ -246,18 +245,23 @@ export const messagesAPI: MessagesAPI = {
         const isID = await Promise.all([messagesAPI.getChatID(sender.email, recipient.email), messagesAPI.getChatID(recipient.email, sender.email)])
         if (isID[0] || isID[1]) {
             const currentID = isID[0] || isID[1]
-            await setDoc(doc(db, CHATS, currentID), { [id]: messageObj }, { merge: true });
+            //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
+            const reference = getChatType(false, getFakeChat(currentID))
+            // await setDoc(doc(db, CHATS, currentID), { [id]: messageObj }, { merge: true });
+            await setDoc(reference, { [id]: messageObj }, { merge: true });
             await Promise.all([messagesAPI.addChat(sender, recipient, currentID), messagesAPI.addChat(recipient, sender, currentID)])
         }
         else {
+            const reference = getChatType(false, getFakeChat(id))
             await Promise.all([messagesAPI.addChat(sender, recipient, id), messagesAPI.addChat(recipient, sender, id)])
-            await setDoc(doc(db, CHATS, id), { [id]: messageObj }, { merge: true });
+            //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
+            // await setDoc(doc(db, CHATS, id), { [id]: messageObj }, { merge: true });
+            await setDoc(reference, { [id]: messageObj }, { merge: true });
         }
     },
 
-    async readMessage(chatID, message) {
-        const messageRef = doc(db, CHATS, chatID);
-
+    async readMessage(chat, message) {
+        const messageRef = getChatType(false, chat)
         const editMessage = { ...message, read: true }
         await updateDoc(messageRef, {
             [message.messageID]: editMessage
@@ -284,15 +288,16 @@ export const messagesAPI: MessagesAPI = {
             await deleteDoc(doc(db, CHATS, selectedChat.chatID));
         }
         if (selectedChat?.channel) {
-            //await channelAPI.changeSubscribers(selectedChat.channel.channelID, -1)
             await channelAPI.changeListSubscribers(REMOVE_FROM_LIST_SUBSCRIBERS, selectedChat.channel.channelID, currentUser)
         }
     },
     async addToFavorites(currentUser, message) {
+        const reference = getChatType(true, currentUser)
         const date = JSON.stringify(new Date())
         let modMessage = { ...message }
         delete modMessage.read
-        await setDoc(doc(db, currentUser, FAVOTITES), { [message.messageID]: { ...modMessage, date, forwardedFrom: message.sender, } }, { merge: true });
+        if(modMessage?.reactions) delete modMessage.reactions
+        await setDoc(reference, { [message.messageID]: { ...modMessage, date, forwardedFrom: message.sender, } }, { merge: true });
     },
     async sendCallInfoMessage(options) {
         const date = JSON.stringify(new Date())
@@ -306,8 +311,8 @@ export const messagesAPI: MessagesAPI = {
         await messagesAPI.addChat(options.callee, options.caller, options.callee.chatID)
     },
 
-    async setReaction({reaction, chat, isMine, messageID}) {
-        const messageRef = getChatType(false, chat)
+    async setReaction({reaction, chat, isMine, messageID, isFavorites}) {
+        const messageRef = getChatType(isFavorites, chat)
         const getMessage = await getDoc(messageRef)
         if(getMessage.exists()) {
             const message: Message1 = getMessage.data()[messageID]
@@ -356,10 +361,8 @@ type ChannelAPI = {
     createChannel(owner: CurrentUser, data: TypeCreateChannel): Promise<TypeChannel>,
     checkName(name: string): Promise<boolean>,
     getCurrentInfo: (uid: string) => Promise<TypeChannel | null>,
-    //changeSubscribers: (channelId: string, value: number) => Promise<void>,
     changeListSubscribers: (typeChange: string, channelId: string, user: CurrentUser) => Promise<void>,
     changeCannelInfo: (channel: TypeChannel, updateDateOfChange?: boolean) => Promise<void>,
-    //addChannelToChatlist: (email: string, channel: TypeChannel) => Promise<void>,
     deleteChannel: (id: string) => Promise<[void, void]>,
     applyForMembership: (user: CurrentUser, channelID: string) => Promise<void>,
     getApplyForMembership: (channelID: string) => Promise<CurrentUser[]>,
@@ -384,7 +387,6 @@ export const channelAPI: ChannelAPI = {
         await setDoc(doc(db, CHANNELS, channelID), {})
         await setDoc(doc(db, CHANNELS_INFO, channelID), info)
         await messagesAPI.addChat(owner, createObjectChannel(info))
-        //Promise.all([chanel, chanelInfo])
         return info
     },
     async checkName(name: string) {
@@ -405,13 +407,6 @@ export const channelAPI: ChannelAPI = {
             return null
         }
     },
-    // async changeSubscribers(channelId, value) {
-    //     const ref = doc(db, CHANNELS_INFO, channelId);
-    //     await updateDoc(ref, {
-    //         subscribers: increment(value)
-    //         // 1 || -1
-    //     });
-    // },
     async changeListSubscribers(typeChange, channelID, user) {
         const ref = doc(db, CHANNELS_INFO, channelID)
 

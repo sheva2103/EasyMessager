@@ -77,7 +77,7 @@ const Contacts: FC = () => {
         }
 
         const limitedPromises = selectedMessageList.map(item =>
-            limit(() => messagesAPI.addToFavorites(currentUser.email, item))
+            limit(() => messagesAPI.addToFavorites(currentUser, item))
         )
 
         setSending(true)

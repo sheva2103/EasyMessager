@@ -238,6 +238,15 @@ export function getChatType(isFavorites: boolean, selectedChat: Chat | null): Do
     return doc(db, CHATS, selectedChat.chatID)
 }
 
+export function getFakeChat(id: string): Chat {
+    return ({
+        displayName: '',
+        uid: '',
+        email: '',
+        chatID: id
+    })
+}
+
 
 export async function globalSearch(name: string, currentUserID: string) {
 
