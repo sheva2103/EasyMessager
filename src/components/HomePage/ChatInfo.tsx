@@ -7,7 +7,7 @@ import { setChat } from "../../store/slices/setChatIDSlice";
 import { messagesAPI, profileAPI } from "../../API/api";
 import classNames from "classnames";
 import { createMessageList, getChatType, getQuantityNoReadMessages } from "../../utils/utils";
-import { DocumentSnapshot, onSnapshot } from "firebase/firestore";
+import { DocumentSnapshot, onSnapshot, QuerySnapshot } from "firebase/firestore";
 import { setMessages } from "../../store/slices/messagesSlice";
 import { Badge } from "@mui/material";
 import soundFile from '../../assets/sound.mp3';
@@ -38,26 +38,26 @@ const Skeleton: FC = () => {
     )
 }
 
-export const PreviewLastMessage: FC<{message: Message1, currentUserId: string}> = ({message, currentUserId}) => {
+export const PreviewLastMessage: FC<{ message: Message1, currentUserId: string }> = ({ message, currentUserId }) => {
 
-    const {t} = useTypedTranslation()
+    const { t } = useTypedTranslation()
     const isErrorColor = (message?.callStatus === 'rejected' || message?.callStatus === 'unanswered') && message.sender.uid !== currentUserId
 
     const targetEl = () => {
-        if(!message?.callStatus) return (
+        if (!message?.callStatus) return (
             <div className={styles.lastMessage}>
                 <span>{message.message}</span>
             </div>
         )
         return (
-            <div className={styles.lastMessage} style={{color: isErrorColor ? 'hsla(0, 73.92%, 60.75%, 0.75)' : 'auto', display: 'flex', gap: "6px", alignItems: 'center'}}>
+            <div className={styles.lastMessage} style={{ color: isErrorColor ? 'hsla(0, 73.92%, 60.75%, 0.75)' : 'auto', display: 'flex', gap: "6px", alignItems: 'center' }}>
                 <CallIcon />
                 <span>{t(`call.${message.callStatus}`)}</span>
             </div>
         )
     }
 
-    if(!message) return null
+    if (!message) return null
 
     return (
         <>{targetEl()}</>
@@ -82,7 +82,7 @@ const ChatInfo: FC<Chat> = (user) => {
     const presence = usePresenceStatus(updateUser.uid)
 
     const unsubscribe = () => {
-        profileAPI.deletUserInMyChatlist({myEmail: currentUser.email, deleteId: user.uid})
+        profileAPI.deletUserInMyChatlist({ myEmail: currentUser.email, deleteId: user.uid })
             .finally(() => {
                 setNotFoundUser(false)
                 dispatch(setChat(null))
@@ -90,73 +90,113 @@ const ChatInfo: FC<Chat> = (user) => {
     }
 
     useEffect(() => {
-        if(isSelected) {
+        if (isSelected) {
             dispatch(setOnlineStatusSelectedUser(presence))
-        } 
-    }, [presence,isSelected]);
+        }
+    }, [presence, isSelected]);
 
     useEffect(() => {
-            const getInfo = async () => {
-                try {
-                    
-                    const currentInfo = await profileAPI.getCurrentInfo(user.uid);
-                    if(!currentInfo) throw currentInfo
-                    const chatID = await Promise.all([messagesAPI.getChatID(currentUser.email, currentInfo.email), messagesAPI.getChatID(currentInfo.email, currentUser.email)])
-                    if (currentInfo) {
-                        if(chatID[0] && (user.displayName !== currentInfo.displayName || user.photoURL !== currentInfo.photoURL)) {
-                            await profileAPI.updateUserInMyChatList(currentInfo.email, currentInfo)
-                        }
-                        setUpdateUser((prev) => {
-                                const info: Chat = { ...currentInfo }
-                                if (chatID[0] || chatID[1]) info.chatID = chatID[0] || chatID[1]
-                                return { ...prev, ...info }
-                            })
+        const getInfo = async () => {
+            try {
+
+                const currentInfo = await profileAPI.getCurrentInfo(user.uid);
+                if (!currentInfo) throw currentInfo
+                const chatID = await Promise.all([messagesAPI.getChatID(currentUser.email, currentInfo.email), messagesAPI.getChatID(currentInfo.email, currentUser.email)])
+                if (currentInfo) {
+                    if (chatID[0] && (user.displayName !== currentInfo.displayName || user.photoURL !== currentInfo.photoURL)) {
+                        await profileAPI.updateUserInMyChatList(currentUser.email, currentInfo)
                     }
-                } catch (error) {
-                    console.error('Error fetching current info:', error);
-                    setNotFoundUser(true)
-                } finally {
-                    setFetchingCurrentInfo(false);
+                    setUpdateUser((prev) => {
+                        const info: Chat = { ...currentInfo }
+                        if (chatID[0] || chatID[1]) info.chatID = chatID[0] || chatID[1]
+                        return { ...prev, ...info }
+                    })
                 }
+            } catch (error) {
+                console.error('Error fetching current info:', error);
+                setNotFoundUser(true)
+            } finally {
+                setFetchingCurrentInfo(false);
             }
-            getInfo()
+        }
+        getInfo()
     }, []);
 
+    // useEffect(() => {
+    //     let unsubscribe: () => void
+    //     if (updateUser.chatID) {
+    //         const reference = getChatType(false, { ...updateUser });
+    //         unsubscribe = onSnapshot(reference, (doc: DocumentSnapshot<Message1[]>) => {
+    //             const list = createMessageList(doc.data())
+    //             const noRead = getQuantityNoReadMessages(list, currentUser.uid)
+    //             //handleAudioPlay()
+    //             setMessagesList({ messages: list, noRead })
+    //         });
+    //     }
+    //     return () => {
+    //         if (unsubscribe) {
+    //             unsubscribe();
+    //         }
+    //     };
+    // }, [updateUser.chatID])
+
+    // Предполагаем, что все ваши функции и типы определены
+
     useEffect(() => {
-        let unsubscribe: () => void
+        let unsubscribe: () => void;
+
         if (updateUser.chatID) {
-            const reference = getChatType(false, { ...updateUser });
-            unsubscribe = onSnapshot(reference, (doc: DocumentSnapshot<Message1[]>) => {
-                const list = createMessageList(doc.data())
-                const noRead = getQuantityNoReadMessages(list, currentUser.uid)
-                //handleAudioPlay()
-                setMessagesList({ messages: list, noRead })
+            // Получаем ссылку на Коллекцию 'messages' (CollectionReference)
+            const messagesCollectionRef = getChatType(false, { ...updateUser} as Chat)
+
+            // Используем onSnapshot для подписки на Коллекцию
+            unsubscribe = onSnapshot(messagesCollectionRef, (querySnapshot: QuerySnapshot<Message1>) => {
+
+                // 1. Преобразуем QuerySnapshot.docs в массив объектов сообщений (включая messageID = doc.id)
+                const rawMessagesArray = querySnapshot.docs.map(doc => ({
+                    ...doc.data(),
+                    //messageID: doc.id
+                }));
+
+                // 2. Передаем массив объектов в вашу функцию сортировки/обработки
+                const list = createMessageList(rawMessagesArray);
+                console.log(list)
+
+                // 3. Расчет непрочитанных сообщений
+                const noRead = getQuantityNoReadMessages(list, currentUser.uid);
+
+                // 4. Обновляем состояние
+                //handleAudioPlay() // (Раскомментируйте, если нужно)
+                setMessagesList({ messages: list, noRead });
             });
         }
+
+        // Функция очистки
         return () => {
             if (unsubscribe) {
                 unsubscribe();
             }
         };
-    }, [updateUser.chatID])
 
-    useEffect(() => {       
+    }, [updateUser.chatID]);
+
+    useEffect(() => {
         if (isSelected) {
             dispatch(setMessages(messages))
         }
     }, [messages, selectedChat]);
 
     useEffect(() => {
-        if(isSelected && !updateUser?.chatID) {
-            setUpdateUser((prev) => ({...prev, chatID: selectedChat.chatID}))
+        if (isSelected && !updateUser?.chatID) {
+            setUpdateUser((prev) => ({ ...prev, chatID: selectedChat.chatID }))
         }
     }, [selectedChat?.chatID]);
 
     if (fetchingCurrentInfo) return <Skeleton />
 
-    if(notFoundUser) return (
+    if (notFoundUser) return (
         <DialogComponent isOpen={notFoundUser} onClose={unsubscribe}>
-            <NotFoundChat confirmFunc={unsubscribe} user/>
+            <NotFoundChat confirmFunc={unsubscribe} user />
         </DialogComponent>
     )
 
@@ -165,12 +205,12 @@ const ChatInfo: FC<Chat> = (user) => {
             {isSelected &&
                 <div className={styles.selected}></div>
             }
-            <Avatar url={updateUser?.photoURL} name={updateUser.displayName[0]} isOnline={presence.isOnline}/>
+            <Avatar url={updateUser?.photoURL} name={updateUser.displayName[0]} isOnline={presence.isOnline} />
             <div className={styles.nameBlock}>
                 <div className={styles.name}>
                     <span className={styles.name}>{updateUser.displayName}</span>
                 </div>
-                <PreviewLastMessage message={lastMessage} currentUserId={currentUser.uid}/>
+                <PreviewLastMessage message={lastMessage} currentUserId={currentUser.uid} />
             </div>
             <div className={styles.chatInfo__noRead}>
                 <Badge badgeContent={messages.noRead.quantity} color="primary" />

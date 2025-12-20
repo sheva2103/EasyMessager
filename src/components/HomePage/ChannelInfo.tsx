@@ -6,7 +6,7 @@ import { Chat, Message1, NoReadMessagesType, TypeChannel } from "../../types/typ
 import { channelAPI, messagesAPI, profileAPI } from "../../API/api";
 import classNames from "classnames";
 import { createMessageList, createObjectChannel, getChatType } from "../../utils/utils";
-import { doc, DocumentSnapshot, onSnapshot } from "firebase/firestore";
+import { doc, DocumentSnapshot, onSnapshot, QuerySnapshot } from "firebase/firestore";
 import { setMessages } from "../../store/slices/messagesSlice";
 import { Badge } from "@mui/material";
 import { setSelectedChannel, updateSelectedChannel } from "../../store/slices/appSlice";
@@ -47,15 +47,18 @@ const ChannelInfo: FC<Props> = (channel) => {
     const dispatch = useAppDispatch()
     const isSelected = selectedChat?.channel?.channelID === updateChannel.channelID
     const lastMessage = messages.messages[messages.messages.length - 1]
-    const { handleClickToChannel } = useChannelClickHandler({isSelected, channel: channel.channel, currentUserID: currentUser.uid, setIsNotAccess, setNotFoundChannel});
+    const { handleClickToChannel } = useChannelClickHandler({ isSelected, channel: channel.channel, currentUserID: currentUser.uid, setIsNotAccess, setNotFoundChannel });
 
     const unsubscribe = () => {
         messagesAPI.deleteChat(currentUser, createObjectChannel(channel.channel))
             .catch((err) => console.log('Произошла ошибка', err))
-            .finally(() => dispatch(setChat(null)))
+            .finally(() => {
+                dispatch(setChat(null))
+                setNotFoundChannel(false)
+            })
     }
 
-    const sendRequest = async() => {
+    const sendRequest = async () => {
         console.log('send a request')
         await channelAPI.applyForMembership(currentUser, updateChannel.channelID)
         setIsNotAccess(false)
@@ -80,35 +83,57 @@ const ChannelInfo: FC<Props> = (channel) => {
 
     useEffect(() => {
         let listenerChannelInfo: () => void
-        if(isSelected) {
-            listenerChannelInfo = onSnapshot(doc(db, CHANNELS_INFO, updateChannel.channelID), async(doc: DocumentSnapshot<TypeChannel>) => {
-                if(doc.data()) {
+            listenerChannelInfo = onSnapshot(doc(db, CHANNELS_INFO, updateChannel.channelID), async (doc: DocumentSnapshot<TypeChannel>) => {
+                if (doc.data()) {
                     const currentInfoChannel = doc.data()
                     const isSubscriber = currentInfoChannel.listOfSubscribers.some(item => item.uid === currentUser.uid)
-                    if(isSubscriber && currentInfoChannel.dateOfChange !== channel.dateOfChange) {
+                    if (isSubscriber && currentInfoChannel.dateOfChange !== channel.dateOfChange) {
                         const toChat = createObjectChannel(currentInfoChannel)
                         await channelAPI.updateChannelInMyChatList(currentUser.email, toChat)
                     }
-                    dispatch(updateSelectedChannel({...currentInfoChannel, owner: updateChannel.owner}))
+                    dispatch(updateSelectedChannel({ ...currentInfoChannel, owner: updateChannel.owner }))
                 } else (
                     setNotFoundChannel(true)
                 )
-            });
-        }
+            })
         return () => {
-            if(listenerChannelInfo) listenerChannelInfo()
+            if (listenerChannelInfo) listenerChannelInfo()
         }
     }, [isSelected, channel, updateChannel]);
 
+    // useEffect(() => {
+    //     const channelObj: Chat = createObjectChannel(updateChannel)
+    //     const reference = getChatType(false, channelObj);
+    //     const unsubscribe = onSnapshot(reference, (doc: DocumentSnapshot<Message1[]>) => {
+    //         const list = createMessageList(doc.data())
+    //         setMessagesList({ messages: list, noRead: { quantity: 0, targetIndex: list.length } })
+    //     });
+    //     return () => unsubscribe();
+    // }, [updateChannel])
+
     useEffect(() => {
-        const channelObj: Chat = createObjectChannel(updateChannel)
-        const reference = getChatType(false, channelObj);
-        const unsubscribe = onSnapshot(reference, (doc: DocumentSnapshot<Message1[]>) => {
-            const list = createMessageList(doc.data())
-            setMessagesList({ messages: list, noRead: { quantity: 0, targetIndex: list.length } })
+        const channelObj: Chat = createObjectChannel(updateChannel);
+        const messagesCollectionRef = getChatType(false, channelObj)
+        const unsubscribe = onSnapshot(messagesCollectionRef, (querySnapshot: QuerySnapshot<Message1>) => {
+
+            // 3. Итерируем по документам, чтобы собрать список сообщений
+            const tempList = querySnapshot.docs.map(doc => doc.data())
+                const list = createMessageList(tempList)
+            // Примечание: Если вам нужно сохранить старую логику createMessageList
+            // const list = createMessageList(querySnapshot.docs.map(doc => doc.data())); 
+            // Но это не рекомендуется, так как вы теряете ID документа.
+
+            // 4. Обновляем состояние
+            setMessagesList({
+                messages: list,
+                noRead: { quantity: 0, targetIndex: list.length }
+            });
         });
+
+        // 5. Функция очистки
         return () => unsubscribe();
-    }, [updateChannel])
+
+    }, [updateChannel]);
 
     useEffect(() => {
         if (isSelected) dispatch(setMessages(messages))
@@ -116,18 +141,18 @@ const ChannelInfo: FC<Props> = (channel) => {
 
     if (fetchingCurrentInfo) return <Skeleton />
 
-    if(isNotAccess) return (
+    if (isNotAccess) return (
         <DialogComponent onClose={setIsNotAccess} isOpen={isNotAccess}>
-            <ConfirmComponent 
-                confirmFunc={sendRequest} 
-                handleClose={() => setIsNotAccess(false)} 
-                text="Это закрытое сообщество. Хотите подать заявку ?"/>
+            <ConfirmComponent
+                confirmFunc={sendRequest}
+                handleClose={() => setIsNotAccess(false)}
+                text="Это закрытое сообщество. Хотите подать заявку ?" />
         </DialogComponent>
     )
 
-    if(notFoundChannel) return (
+    if (notFoundChannel) return (
         <DialogComponent isOpen={notFoundChannel} onClose={unsubscribe}>
-            <NotFoundChat confirmFunc={unsubscribe}/>
+            <NotFoundChat confirmFunc={unsubscribe} />
         </DialogComponent>
     )
 
@@ -141,7 +166,7 @@ const ChannelInfo: FC<Props> = (channel) => {
                 <div className={styles.name}>
                     <span className={styles.name}>{isSelected ? <ShowNameChat /> : updateChannel.displayName}</span>
                 </div>
-                <PreviewLastMessage message={lastMessage} currentUserId={currentUser.uid}/>
+                <PreviewLastMessage message={lastMessage} currentUserId={currentUser.uid} />
             </div>
             {/* <span className={styles.name}>{isSelected ? <ShowNameChat /> : updateChannel.displayName}</span> */}
             <div className={styles.chatInfo__noRead}>

@@ -1,4 +1,4 @@
-import { doc, DocumentReference } from "firebase/firestore"
+import { collection, CollectionReference, doc, DocumentReference } from "firebase/firestore"
 import { Chat, CheckMessageType, CurrentUser, ListMessagesType, Message1, NoReadMessagesType, OnlineStatusUserType, Reaction, TypeChannel } from "../types/types"
 import { format } from "@formkit/tempo"
 import { db } from "../firebase"
@@ -211,15 +211,6 @@ export function getQuantityNoReadMessages(messages: Message1[], currentId: strin
     return { targetIndex, quantity };
 }
 
-// export function searchMessagesInList(array: Message1[], substring: string): Set<number> {
-//     return array.reduce((indicesSet, str, index) => {
-//         if (str.message.includes(substring)) {
-//             indicesSet.add(index);
-//         }
-//         return indicesSet
-//     }, new Set<number>());
-// }
-
 export function searchMessagesInList(array: Message1[], substring: string): Set<number> {
     const lowerSubstring = substring.toLowerCase();
 
@@ -231,11 +222,18 @@ export function searchMessagesInList(array: Message1[], substring: string): Set<
     }, new Set<number>());
 }
 
-export function getChatType(isFavorites: boolean, selectedChat: Chat | null): DocumentReference {
+// export function getChatType(isFavorites: boolean, selectedChat: Chat | null): DocumentReference {
 
-    if (isFavorites) return doc(db, selectedChat.email, FAVOTITES)
-    if (selectedChat?.channel) return doc(db, CHANNELS, selectedChat.channel.channelID)
-    return doc(db, CHATS, selectedChat.chatID)
+//     if (isFavorites) return doc(db, selectedChat.email, FAVOTITES)
+//     if (selectedChat?.channel) return doc(db, CHANNELS, selectedChat.channel.channelID)
+//     return doc(db, CHATS, selectedChat.chatID)
+// }
+
+export function getChatType(isFavorites: boolean, selectedChat: Chat | null): CollectionReference {
+
+    if (isFavorites) return collection(db, selectedChat.email, FAVOTITES, 'message')
+    if (selectedChat?.channel) return collection(db, CHANNELS, selectedChat.channel.channelID, 'messages')
+    return collection(db, CHATS, selectedChat.chatID, 'messages')
 }
 
 export function getFakeChat(id: string): Chat {
@@ -382,5 +380,14 @@ export function truncateText(text: string, maxLength: number = 25): string {
     return text.length > maxLength
         ? text.slice(0, maxLength) + '...'
         : text;
+}
+
+export function createObjectUser(user: Chat) {
+    return ({
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        uid: user.uid,
+        email: user.email
+    })
 }
 

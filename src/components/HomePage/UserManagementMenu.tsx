@@ -19,7 +19,7 @@ type Props = {
     chatInfo: Chat
 }
 
-const RESERVED_CHANNEL = '3e84602c-4833-403b-a9b6-a3cec690a43b'
+const RESERVED_CHANNEL = '2c67b2bf-06bb-423b-a26d-041eda2d0ffc'
 
 const ListItem: FC<{ user: CurrentUser }> = ({ user }) => {
 

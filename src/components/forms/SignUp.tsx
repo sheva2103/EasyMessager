@@ -53,7 +53,7 @@ const SignUp: FC = () => {
             if (!data.rememberMe) {
                 await setPersistence(auth, browserSessionPersistence)
             }
-            const reservedСhannel = await channelAPI.getCurrentInfo('3e84602c-4833-403b-a9b6-a3cec690a43b')
+            const reservedСhannel = await channelAPI.getCurrentInfo('2c67b2bf-06bb-423b-a26d-041eda2d0ffc')
             await messagesAPI.addChat(userObj, createObjectChannel(reservedСhannel), reservedСhannel.channelID)
         } catch(error: any) {
             const errorCode = error.code;
