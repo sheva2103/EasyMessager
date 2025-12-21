@@ -311,7 +311,7 @@ type AggregatedReaction = {
 export function aggregateReactions(reactions: Reaction[], currentUser: CurrentUser): AggregatedReaction[] {
     const reactionMap = new Map<string, AggregatedReaction>();
 
-    if(!reactions) return []
+    if (!reactions) return []
 
     for (const { reaction, sender } of reactions) {
         const isMine = sender.uid === currentUser.uid;
@@ -389,5 +389,19 @@ export function createObjectUser(user: Chat) {
         uid: user.uid,
         email: user.email
     })
+}
+
+export function insertPipeBetweenLinks(str: string): string {
+    const urlPattern = '(https?:\\/\\/[^\\s]+)';
+
+
+    const gluedRegex = new RegExp(urlPattern + '(?=' + urlPattern + ')', 'g');
+    str = str.replace(gluedRegex, '$1 | ');
+
+
+    const spacedRegex = new RegExp(urlPattern + '(\\s+)(?=' + urlPattern + ')', 'g');
+    str = str.replace(spacedRegex, '$1 | ');
+
+    return str;
 }
 

@@ -491,21 +491,45 @@
                 flex-direction: column;
                 box-shadow: 12px 8px 20px -10px rgba(15, 15, 15, 0.87);
 
-                &__img {
+                // &__img {
+                //     display: block;
+                //     align-self: flex-end;
+                //     //width: 70%;
+
+                //     & img {
+                //         border-radius: 16px;
+                //         padding-top: 4px;
+                //         height: 150px;
+                //         float: right;
+                //         max-width: 400px;
+                //         height: auto;
+                //         @media (max-width: 992px) {
+                //             max-width: 100%;
+                //         }
+                //     }
+                // }
+
+                .messageData__list {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                    padding-top: 4px;
+                }
+
+                .messageItem {
                     display: block;
                     align-self: flex-end;
-                    //width: 70%;
+                }
 
-                    & img {
-                        border-radius: 16px;
-                        padding-top: 4px;
-                        height: 150px;
-                        float: right;
-                        max-width: 400px;
-                        height: auto;
-                        @media (max-width: 992px) {
-                            max-width: 100%;
-                        }
+                .messageItem__image {
+                    border-radius: 16px;
+                    cursor: pointer;
+                    padding-top: 4px;
+                    height: 150px;
+                    float: right;
+                    max-width: 400px;
+                    @media (max-width: 992px) {
+                        max-width: 100%;
                     }
                 }
 
@@ -632,6 +656,10 @@
 
             .hasLink {
                 max-width: 400px;
+                a:hover {
+                    transition: color 0.3s;
+                    color: #f06868;
+                }
             }
 
             .owner {
@@ -737,7 +765,7 @@
 
 .reactionItem {
     cursor: pointer;
-    font-size: 20px; 
+    font-size: 20px;
     line-height: 1;
     transition:
         transform 0.15s ease,
@@ -747,7 +775,6 @@
     &:first-child {
         padding-left: 0;
     }
-    
 
     &:hover {
         transform: scale(1.2);

@@ -10,6 +10,7 @@ import { channelAPI, messagesAPI } from "../../API/api";
 import { Chat } from "../../types/types";
 import EmojiIcon from '../../assets/emoji-smile-fill.svg'
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
+import { insertPipeBetweenLinks } from "../../utils/utils";
 
 type Props = {
     chatInfo: Chat
@@ -54,8 +55,9 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
 
     const sendMessage = () => {
         if (!newMessage.trim()) return
+        const checkLink = insertPipeBetweenLinks(newMessage)
         const send = () =>
-            messagesAPI.sendMessage(chatInfo, currentUser, newMessage, isFavorites, replyToMessage)
+            messagesAPI.sendMessage(chatInfo, currentUser, checkLink, isFavorites, replyToMessage)
                 .then(() => {
                     setNewMessage('');
                     if (replyToMessage) cancelEditing()
@@ -77,7 +79,8 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
 
     const sendEditMessage = () => {
         if (!editMessage.trim()) return
-        messagesAPI.sendEditMessage(chatInfo, { ...isEditMessage, message: editMessage }, isFavorites)
+        const checkLink = insertPipeBetweenLinks(editMessage)
+        messagesAPI.sendEditMessage(chatInfo, { ...isEditMessage, message: checkLink }, isFavorites)
             .then(() => dispatch(changeMessage(null)))
             .catch((error) => console.error("Ошибка отправки сообщения:", error))
     }

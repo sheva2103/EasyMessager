@@ -146,27 +146,14 @@ const ChatInfo: FC<Chat> = (user) => {
         let unsubscribe: () => void;
 
         if (updateUser.chatID) {
-            // Получаем ссылку на Коллекцию 'messages' (CollectionReference)
             const messagesCollectionRef = getChatType(false, { ...updateUser} as Chat)
-
-            // Используем onSnapshot для подписки на Коллекцию
             unsubscribe = onSnapshot(messagesCollectionRef, (querySnapshot: QuerySnapshot<Message1>) => {
-
-                // 1. Преобразуем QuerySnapshot.docs в массив объектов сообщений (включая messageID = doc.id)
                 const rawMessagesArray = querySnapshot.docs.map(doc => ({
-                    ...doc.data(),
-                    //messageID: doc.id
-                }));
-
-                // 2. Передаем массив объектов в вашу функцию сортировки/обработки
+                    ...doc.data()
+                }))
                 const list = createMessageList(rawMessagesArray);
-                console.log(list)
-
-                // 3. Расчет непрочитанных сообщений
                 const noRead = getQuantityNoReadMessages(list, currentUser.uid);
-
-                // 4. Обновляем состояние
-                //handleAudioPlay() // (Раскомментируйте, если нужно)
+                //handleAudioPlay()
                 setMessagesList({ messages: list, noRead });
             });
         }

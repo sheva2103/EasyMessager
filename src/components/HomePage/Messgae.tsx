@@ -15,6 +15,7 @@ import { useInView } from 'react-intersection-observer';
 import { setTempChat } from "../../store/slices/appSlice";
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 import { openModalCalls } from "../../store/slices/callsSlice";
+import ImageDialog from "../Settings/ShowFullImages";
 
 
 const HEIGHT_MENU_FOR_OWNER = 256
@@ -52,19 +53,30 @@ const ForwardedFrom: FC<ForwardedFromProps> = ({ user }) => {
     );
 }
 
-const ImageLoader: FC<{ src: string | null }> = ({ src }) => {
+const ImageLoader: FC<{ src: string | null, onClick: (e: React.MouseEvent) => void }> = ({ src, onClick }) => {
     const [loaded, setLoaded] = useState(false);
 
     if (!src) return null;
 
     return (
-        <div className={styles.messageData__img} >
+        // <div className={styles.messageData__img} >
+        //     <img
+        //         src={src}
+        //         alt="Загруженное изображение"
+        //         onLoad={() => setLoaded(true)}
+        //         onError={() => setLoaded(false)}
+        //         style={{ display: loaded ? 'block' : 'none' }} //для изображения выставить заданную высоту (200px) и групировать их в ряд
+        //     />
+        // </div>
+
+        <div className={styles.messageItem} onClick={onClick}>
             <img
                 src={src}
                 alt="Загруженное изображение"
                 onLoad={() => setLoaded(true)}
                 onError={() => setLoaded(false)}
-                style={{ display: loaded ? 'block' : 'none' }} //для изображения выставить заданную высоту (200px) и групировать их в ряд
+                style={{ display: loaded ? 'block' : 'none' }}
+                className={styles.messageItem__image}
             />
         </div>
     );
@@ -102,6 +114,8 @@ const ViewportContent: FC<IMessagesContent> = ({ onEnterViewport, message }) => 
     const checkMessageObj = checkMessage(message.message)
     const { t } = useTypedTranslation()
     const status: CallEndStatus = message.callStatus
+    const [showImage, setShowImage] = useState(false)
+    const [currentIndex, setCurrentIndex] = useState(0)
 
     useEffect(() => {
         if (inView) {
@@ -121,6 +135,17 @@ const ViewportContent: FC<IMessagesContent> = ({ onEnterViewport, message }) => 
         )
     }
 
+    const openFullImage = (e: React.MouseEvent ,index: number) => {
+        e.stopPropagation()
+        setCurrentIndex(index);
+        setShowImage(true);
+    }
+
+    const closeFullImages = (e: React.MouseEvent) => {
+        e.stopPropagation()
+        setShowImage(false)
+    }
+
     return (
         <>
             <span
@@ -129,12 +154,14 @@ const ViewportContent: FC<IMessagesContent> = ({ onEnterViewport, message }) => 
                 className={classNames({ [styles.mobileDevice]: isMobile, [styles.hasLink]: checkMessageObj.hasLink })}
             >
             </span>
-            {!!checkMessageObj.imgUrls.length &&
-                checkMessageObj.imgUrls.map((item, index) => <ImageLoader src={item} key={index} />)
-                // <div style={{display: 'flex', flexWrap: 'wrap', gap: '6px'}}>
-                //     {checkMessageObj.imgUrls.map((item, index) => <ImageLoader src={item} key={index} />)} !!!!!!!!!!!!! сделать чтоб несколько изображений были в ряд
-                // </div>
-            }
+            <div className={styles.messageData__list} >
+                {!!checkMessageObj.imgUrls.length &&
+                checkMessageObj.imgUrls.map((item, index) => <ImageLoader src={item} key={index} onClick={(e) => openFullImage(e, index)}/>)
+                }
+                <ImageDialog open={showImage} onClose={closeFullImages} images={checkMessageObj.imgUrls} startIndex={currentIndex}/>
+            </div>
+
+
             {!!checkMessageObj.YTUrls &&
                 checkMessageObj.YTUrls.map((item, index) => <YTPlayer src={item} key={index} />)
             }
@@ -144,7 +171,6 @@ const ViewportContent: FC<IMessagesContent> = ({ onEnterViewport, message }) => 
 
 type Props = {
     messageInfo: Message1,
-    //scrollerDomRef: MutableRefObject<HTMLDivElement>
 }
 
 const ReplyToMessage: FC<Message1> = (props) => {

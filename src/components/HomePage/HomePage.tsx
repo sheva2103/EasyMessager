@@ -7,14 +7,15 @@ import { openMenu, setBlacklist, setChatList, setContacts } from '../../store/sl
 import ChatContent from './ChatContent';
 import ChatList from './ChatList';
 import { useEffect, useState } from 'react';
-import { DocumentSnapshot, doc, onSnapshot } from 'firebase/firestore';
+import { DocumentSnapshot, QuerySnapshot, collection, doc, onSnapshot } from 'firebase/firestore';
 import { CurrentUser, Message1 } from '../../types/types';
-import { createChatList, createMessageList } from '../../utils/utils';
+import { createChatList, createMessageList, getChatType } from '../../utils/utils';
 import { db } from '../../firebase';
 import { setMessages } from '../../store/slices/messagesSlice';
 import useUserPresence from '../../hooks/useUserPresence';
 import CallsListenerComponent from '../CallRoom/CallsListenerComponent';
 import AudioUnlocker from '../CallRoom/AudioUnlocker';
+import { FAVOTITES } from '../../constants/constants';
 
 const HomaPage = () => {
 
@@ -56,20 +57,38 @@ const HomaPage = () => {
     }, [currentUserEmail]);
 
     useEffect(() => {
+        // let getFavorites: () => void
+        // if (isFavorites) {
+        //     getFavorites = onSnapshot(doc(db, currentUserEmail, 'favorites'), (doc: DocumentSnapshot<Message1[]>) => {
+        //         if (doc.data()) {
+        //             const list = createMessageList(doc.data())
+        //             dispatch(setMessages({ messages: list, noRead: { quantity: 0, targetIndex: list.length } }))
+        //         } else {
+        //             dispatch(setMessages({ messages: [], noRead: { quantity: 0, targetIndex: 0 } }))
+        //         }
+        //     });
+        // }
+        // return () => {
+        //     if (getFavorites) getFavorites()
+        // }
+
         let getFavorites: () => void
         if (isFavorites) {
-            getFavorites = onSnapshot(doc(db, currentUserEmail, 'favorites'), (doc: DocumentSnapshot<Message1[]>) => {
-                if (doc.data()) {
-                    const list = createMessageList(doc.data())
-                    dispatch(setMessages({ messages: list, noRead: { quantity: 0, targetIndex: list.length } }))
-                } else {
-                    dispatch(setMessages({ messages: [], noRead: { quantity: 0, targetIndex: 0 } }))
-                }
-            });
-        }
+            const refFavorites = collection(db, currentUserEmail, FAVOTITES, 'message')
+            getFavorites = onSnapshot(refFavorites, (querySnapshot: QuerySnapshot<Message1>) => {
+                const rawMessagesArray = querySnapshot.docs.map(doc => ({
+                    ...doc.data()
+                }))
+                const list = createMessageList(rawMessagesArray);
+                dispatch(setMessages({ messages: list, noRead: { quantity: 0, targetIndex: list.length } }))
+            })
         return () => {
             if (getFavorites) getFavorites()
+            }
         }
+
+
+
     }, [isFavorites]);
 
     return (
