@@ -9,7 +9,7 @@ import ChatList from './ChatList';
 import { useEffect, useState } from 'react';
 import { DocumentSnapshot, QuerySnapshot, collection, doc, onSnapshot } from 'firebase/firestore';
 import { CurrentUser, Message1 } from '../../types/types';
-import { createChatList, createMessageList, getChatType } from '../../utils/utils';
+import { createChatList, createMessageList } from '../../utils/utils';
 import { db } from '../../firebase';
 import { setMessages } from '../../store/slices/messagesSlice';
 import useUserPresence from '../../hooks/useUserPresence';
@@ -57,21 +57,6 @@ const HomaPage = () => {
     }, [currentUserEmail]);
 
     useEffect(() => {
-        // let getFavorites: () => void
-        // if (isFavorites) {
-        //     getFavorites = onSnapshot(doc(db, currentUserEmail, 'favorites'), (doc: DocumentSnapshot<Message1[]>) => {
-        //         if (doc.data()) {
-        //             const list = createMessageList(doc.data())
-        //             dispatch(setMessages({ messages: list, noRead: { quantity: 0, targetIndex: list.length } }))
-        //         } else {
-        //             dispatch(setMessages({ messages: [], noRead: { quantity: 0, targetIndex: 0 } }))
-        //         }
-        //     });
-        // }
-        // return () => {
-        //     if (getFavorites) getFavorites()
-        // }
-
         let getFavorites: () => void
         if (isFavorites) {
             const refFavorites = collection(db, currentUserEmail, FAVOTITES, 'message')
@@ -86,9 +71,6 @@ const HomaPage = () => {
             if (getFavorites) getFavorites()
             }
         }
-
-
-
     }, [isFavorites]);
 
     return (

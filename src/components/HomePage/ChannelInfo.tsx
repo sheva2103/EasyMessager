@@ -8,7 +8,7 @@ import classNames from "classnames";
 import { createMessageList, createObjectChannel, getChatType } from "../../utils/utils";
 import { doc, DocumentSnapshot, onSnapshot, QuerySnapshot } from "firebase/firestore";
 import { setMessages } from "../../store/slices/messagesSlice";
-import { Badge } from "@mui/material";
+import { Alert, Badge, Snackbar } from "@mui/material";
 import { setSelectedChannel, updateSelectedChannel } from "../../store/slices/appSlice";
 import { db } from "../../firebase";
 import { CHANNELS_INFO } from "../../constants/constants";
@@ -17,6 +17,7 @@ import DialogComponent, { ConfirmComponent, NotFoundChat } from "../Settings/Dia
 import { setChat } from "../../store/slices/setChatIDSlice";
 import { useChannelClickHandler } from "../../hooks/useHandleClickToChannel";
 import { PreviewLastMessage } from "./ChatInfo";
+import { postTask, subscribe } from "../../utils/workerSingleton";
 
 
 
@@ -42,6 +43,7 @@ const ChannelInfo: FC<Props> = (channel) => {
     const [notFoundChannel, setNotFoundChannel] = useState(false)
     const [fetchingCurrentInfo, setFetchingCurrentInfo] = useState(true)
     const [isNotAccess, setIsNotAccess] = useState(false)
+    const [errorConnection, setErrorConnection] = useState(false)
     const selectedChat = useAppSelector(state => state.app.selectedChat)
     const currentUser = useAppSelector(state => state.app.currentUser)
     const dispatch = useAppDispatch()
@@ -64,6 +66,10 @@ const ChannelInfo: FC<Props> = (channel) => {
         setIsNotAccess(false)
     }
 
+    const closeErrorConnection = () => {
+        setErrorConnection(false)
+    }
+
     useEffect(() => {
         const getInfo = async () => {
             try {
@@ -83,57 +89,82 @@ const ChannelInfo: FC<Props> = (channel) => {
 
     useEffect(() => {
         let listenerChannelInfo: () => void
-            listenerChannelInfo = onSnapshot(doc(db, CHANNELS_INFO, updateChannel.channelID), async (doc: DocumentSnapshot<TypeChannel>) => {
-                if (doc.data()) {
-                    const currentInfoChannel = doc.data()
-                    const isSubscriber = currentInfoChannel.listOfSubscribers.some(item => item.uid === currentUser.uid)
-                    if (isSubscriber && currentInfoChannel.dateOfChange !== channel.dateOfChange) {
-                        const toChat = createObjectChannel(currentInfoChannel)
-                        await channelAPI.updateChannelInMyChatList(currentUser.email, toChat)
-                    }
-                    dispatch(updateSelectedChannel({ ...currentInfoChannel, owner: updateChannel.owner }))
-                } else (
-                    setNotFoundChannel(true)
-                )
-            })
+        listenerChannelInfo = onSnapshot(doc(db, CHANNELS_INFO, updateChannel.channelID), async (doc: DocumentSnapshot<TypeChannel>) => {
+            if (doc.data()) {
+                const currentInfoChannel = doc.data()
+                const isSubscriber = currentInfoChannel.listOfSubscribers.some(item => item.uid === currentUser.uid)
+                if (isSubscriber && currentInfoChannel.dateOfChange !== channel.dateOfChange) {
+                    const toChat = createObjectChannel(currentInfoChannel)
+                    await channelAPI.updateChannelInMyChatList(currentUser.email, toChat)
+                }
+                dispatch(updateSelectedChannel({ ...currentInfoChannel, owner: updateChannel.owner }))
+            } else (
+                setNotFoundChannel(true)
+            )
+        })
         return () => {
             if (listenerChannelInfo) listenerChannelInfo()
         }
     }, [isSelected, channel, updateChannel]);
 
     // useEffect(() => {
-    //     const channelObj: Chat = createObjectChannel(updateChannel)
-    //     const reference = getChatType(false, channelObj);
-    //     const unsubscribe = onSnapshot(reference, (doc: DocumentSnapshot<Message1[]>) => {
-    //         const list = createMessageList(doc.data())
-    //         setMessagesList({ messages: list, noRead: { quantity: 0, targetIndex: list.length } })
-    //     });
+    //     const channelObj: Chat = createObjectChannel(updateChannel);
+    //     const messagesCollectionRef = getChatType(false, channelObj)
+    //     const unsubscribe = onSnapshot(messagesCollectionRef, (querySnapshot: QuerySnapshot<Message1>) => {
+    //         const tempList = querySnapshot.docs.map(doc => doc.data())
+    //         const list = createMessageList(tempList)
+    //         setMessagesList({
+    //             messages: list,
+    //             noRead: { quantity: 0, targetIndex: list.length }
+    //         });
+    //     },
+    //         (error) => {
+    //             console.log('error connection', error);
+    //             setErrorConnection(true)
+    //         }
+    //     );
+
     //     return () => unsubscribe();
-    // }, [updateChannel])
+
+    // }, [updateChannel]); вариант без воркера !!!!!!!!!!!!!!!!!!!!!
 
     useEffect(() => {
         const channelObj: Chat = createObjectChannel(updateChannel);
-        const messagesCollectionRef = getChatType(false, channelObj)
-        const unsubscribe = onSnapshot(messagesCollectionRef, (querySnapshot: QuerySnapshot<Message1>) => {
+        const messagesCollectionRef = getChatType(false, channelObj);
 
-            // 3. Итерируем по документам, чтобы собрать список сообщений
-            const tempList = querySnapshot.docs.map(doc => doc.data())
-                const list = createMessageList(tempList)
-            // Примечание: Если вам нужно сохранить старую логику createMessageList
-            // const list = createMessageList(querySnapshot.docs.map(doc => doc.data())); 
-            // Но это не рекомендуется, так как вы теряете ID документа.
-
-            // 4. Обновляем состояние
-            setMessagesList({
-                messages: list,
-                noRead: { quantity: 0, targetIndex: list.length }
-            });
+        const unsubscribeWorker = subscribe(channelObj.chatID, (data) => {
+            if ('error' in data) {
+                console.error('Ошибка воркера:', data.error);
+                setErrorConnection(true);
+            } else {
+                setMessagesList({
+                    messages: data.list as Message1[],
+                    //noRead: data.noRead,
+                    noRead: { quantity: 0, targetIndex: data.list.length }
+                });
+            }
         });
 
-        // 5. Функция очистки
-        return () => unsubscribe();
+        const unsubscribeFirestore = onSnapshot(
+            messagesCollectionRef,
+            (querySnapshot: QuerySnapshot<Message1>) => {
+                const tempList = querySnapshot.docs.map((doc) => doc.data())
+                postTask(channelObj.chatID, {
+                    rawMessagesArray: tempList,
+                    currentUserUid: updateChannel.channelID,
+                });
+            },
+            (error) => {
+                console.log('error connection', error);
+                setErrorConnection(true);
+            }
+        );
 
-    }, [updateChannel]);
+        return () => {
+            unsubscribeFirestore();
+            unsubscribeWorker();
+        };
+    }, [updateChannel, currentUser.uid]);
 
     useEffect(() => {
         if (isSelected) dispatch(setMessages(messages))
@@ -154,6 +185,19 @@ const ChannelInfo: FC<Props> = (channel) => {
         <DialogComponent isOpen={notFoundChannel} onClose={unsubscribe}>
             <NotFoundChat confirmFunc={unsubscribe} />
         </DialogComponent>
+    )
+
+    if (isSelected && errorConnection) return (
+        <Snackbar open={errorConnection} autoHideDuration={6000} onClose={closeErrorConnection}>
+            <Alert
+                onClose={closeErrorConnection}
+                severity='error'
+                variant="filled"
+                sx={{ width: '100%' }}
+            >
+                Ошибка подключения. Попробуйте позже.
+            </Alert>
+        </Snackbar>
     )
 
     return (

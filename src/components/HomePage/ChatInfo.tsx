@@ -7,15 +7,16 @@ import { setChat } from "../../store/slices/setChatIDSlice";
 import { messagesAPI, profileAPI } from "../../API/api";
 import classNames from "classnames";
 import { createMessageList, getChatType, getQuantityNoReadMessages } from "../../utils/utils";
-import { DocumentSnapshot, onSnapshot, QuerySnapshot } from "firebase/firestore";
+import { onSnapshot, QuerySnapshot } from "firebase/firestore";
 import { setMessages } from "../../store/slices/messagesSlice";
-import { Badge } from "@mui/material";
+import { Alert, Badge, Snackbar } from "@mui/material";
 import soundFile from '../../assets/sound.mp3';
 import usePresenceStatus from "../../hooks/useCheckOnlineStatus";
 import { setOnlineStatusSelectedUser } from "../../store/slices/appSlice";
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 import CallIcon from '../../assets/telephone-fill.svg'
 import DialogComponent, { NotFoundChat } from "../Settings/DialogComponent";
+import { postTask, subscribe } from "../../utils/workerSingleton";
 
 
 
@@ -70,6 +71,7 @@ const ChatInfo: FC<Chat> = (user) => {
     const [messages, setMessagesList] = useState<{ messages: Message1[], noRead: NoReadMessagesType }>({ messages: [], noRead: { quantity: 0, targetIndex: 0 } })
     const [fetchingCurrentInfo, setFetchingCurrentInfo] = useState(true)
     const [notFoundUser, setNotFoundUser] = useState(false)
+    const [errorConnection, setErrorConnection] = useState(false)
     const dispatch = useAppDispatch()
     const selectedChat = useAppSelector(state => state.app.selectedChat)
     const currentUser = useAppSelector(state => state.app.currentUser)
@@ -87,6 +89,10 @@ const ChatInfo: FC<Chat> = (user) => {
                 setNotFoundUser(false)
                 dispatch(setChat(null))
             })
+    }
+
+    const closeErrorConnection = () => {
+        setErrorConnection(false)
     }
 
     useEffect(() => {
@@ -123,49 +129,70 @@ const ChatInfo: FC<Chat> = (user) => {
     }, []);
 
     // useEffect(() => {
-    //     let unsubscribe: () => void
+    //     let unsubscribe: () => void;
+
     //     if (updateUser.chatID) {
-    //         const reference = getChatType(false, { ...updateUser });
-    //         unsubscribe = onSnapshot(reference, (doc: DocumentSnapshot<Message1[]>) => {
-    //             const list = createMessageList(doc.data())
-    //             const noRead = getQuantityNoReadMessages(list, currentUser.uid)
+    //         const messagesCollectionRef = getChatType(false, { ...updateUser } as Chat)
+    //         unsubscribe = onSnapshot(messagesCollectionRef, (querySnapshot: QuerySnapshot<Message1>) => {
+    //             const rawMessagesArray = querySnapshot.docs.map(doc => ({
+    //                 ...doc.data()
+    //             }))
+    //             const list = createMessageList(rawMessagesArray);
+    //             const noRead = getQuantityNoReadMessages(list, currentUser.uid);
     //             //handleAudioPlay()
-    //             setMessagesList({ messages: list, noRead })
-    //         });
+    //             setMessagesList({ messages: list, noRead });
+    //         },
+    //             (error) => {
+    //                 console.log('error connection', error)
+    //                 setErrorConnection(true)
+    //             }
+    //         )
     //     }
+
     //     return () => {
     //         if (unsubscribe) {
-    //             unsubscribe();
+    //             unsubscribe()
     //         }
     //     };
-    // }, [updateUser.chatID])
 
-    // Предполагаем, что все ваши функции и типы определены
+    // }, [updateUser.chatID]); // вариант без воркера !!!!!!!!!!!!!!!!!!!!!
 
     useEffect(() => {
-        let unsubscribe: () => void;
+        let unsubscribeFirestore: (() => void) | undefined;
+        let unsubscribeWorker: (() => void) | undefined;
 
         if (updateUser.chatID) {
-            const messagesCollectionRef = getChatType(false, { ...updateUser} as Chat)
-            unsubscribe = onSnapshot(messagesCollectionRef, (querySnapshot: QuerySnapshot<Message1>) => {
-                const rawMessagesArray = querySnapshot.docs.map(doc => ({
-                    ...doc.data()
-                }))
-                const list = createMessageList(rawMessagesArray);
-                const noRead = getQuantityNoReadMessages(list, currentUser.uid);
-                //handleAudioPlay()
-                setMessagesList({ messages: list, noRead });
+            unsubscribeWorker = subscribe(updateUser.chatID, (data) => {
+                if ('error' in data) {
+                    console.error('Ошибка воркера:', data.error);
+                    setErrorConnection(true);
+                } else {
+                    setMessagesList({ messages: data.list, noRead: data.noRead });
+                }
             });
+
+            const messagesCollectionRef = getChatType(false, { ...updateUser } as Chat);
+            unsubscribeFirestore = onSnapshot(
+                messagesCollectionRef,
+                (querySnapshot: QuerySnapshot<Message1>) => {
+                    const rawMessagesArray = querySnapshot.docs.map((doc) => ({ ...doc.data() }))
+                    postTask(updateUser.chatID!, {
+                        rawMessagesArray,
+                        currentUserUid: currentUser.uid,
+                    });
+                },
+                (error) => {
+                    console.log('error connection', error);
+                    setErrorConnection(true);
+                }
+            );
         }
 
-        // Функция очистки
         return () => {
-            if (unsubscribe) {
-                unsubscribe();
-            }
+            if (unsubscribeFirestore) unsubscribeFirestore();
+            if (unsubscribeWorker) unsubscribeWorker();
         };
-
-    }, [updateUser.chatID]);
+    }, [updateUser.chatID, currentUser.uid])
 
     useEffect(() => {
         if (isSelected) {
@@ -185,6 +212,19 @@ const ChatInfo: FC<Chat> = (user) => {
         <DialogComponent isOpen={notFoundUser} onClose={unsubscribe}>
             <NotFoundChat confirmFunc={unsubscribe} user />
         </DialogComponent>
+    )
+
+    if (isSelected && errorConnection) return (
+        <Snackbar open={errorConnection} autoHideDuration={6000} onClose={closeErrorConnection}>
+            <Alert
+                onClose={closeErrorConnection}
+                severity='error'
+                variant="filled"
+                sx={{ width: '100%' }}
+            >
+                Ошибка подключения. Попробуйте позже.
+            </Alert>
+        </Snackbar>
     )
 
     return (
@@ -211,5 +251,3 @@ function checkProps(prevProps: Chat, nextProps: Chat): boolean {
     return prevProps.displayName === nextProps.displayName
 }
 export default memo(ChatInfo, checkProps);
-
-//пофиксить отправку сообщения когда саисок пуст

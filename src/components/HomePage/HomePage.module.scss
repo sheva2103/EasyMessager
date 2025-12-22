@@ -9,10 +9,6 @@
         height: 100%;
         overflow: hidden;
 
-        // @media (max-width: 768px) {
-        //     display: block;
-        // }
-
         .chatListContainer {
             width: 364px;
             height: 100%;
@@ -54,10 +50,6 @@
                 display: flex;
             }
 
-            // @media (min-width: 577px) {
-            //     width: 220px;
-            // }
-
             @media (min-width: 769px) {
                 width: 364px;
             }
@@ -90,7 +82,6 @@
                 cursor: pointer;
 
                 &__noRead {
-                    //margin-right: 10px;
                     margin-left: auto;
                     padding-right: 10px;
                 }
@@ -142,13 +133,11 @@
                 flex-direction: column;
                 padding-left: 4px;
                 gap: 2px;
-                //width: 100%;
                 max-width: 70%;
 
                 .lastMessage {
                     font-size: 0.8rem;
                     font-weight: 500;
-                    //width: 180px;
                     white-space: nowrap;
                     text-overflow: ellipsis;
                     overflow: hidden;
@@ -166,8 +155,6 @@
 
             display: flex;
             flex-direction: column;
-            //padding: 16px;
-            //gap: 16px;
 
             @media (max-width: 576px) {
                 gap: 4px;
@@ -224,7 +211,6 @@
                 .closeIcon {
                     font-size: 1.5rem;
                     @media (max-width: 577px) {
-                        //display: none;
                         font-size: 2rem;
                     }
                     & svg:hover {
@@ -243,15 +229,8 @@
                     }
 
                     &__selectedChat {
-                        //width: 50%;
                         display: flex;
                         flex-direction: column;
-                        // @media (max-width: 672px) {
-                        //     //width: 35%;
-                        // }
-                        // @media (max-width: 314px) {
-                        //     //width: 25%;
-                        // }
 
                         & span {
                             white-space: nowrap;
@@ -279,7 +258,6 @@
                 flex-direction: column;
                 justify-content: end;
                 height: 100%;
-                //background-color: var(--background-color-chatlist);
                 background-image: var(--background-image);
                 background-position: 0 0;
                 background-repeat: no-repeat;
@@ -403,59 +381,18 @@
         max-width: 90%;
     }
 
-    // .searchMessages {
-    //     // position: absolute;
-    //     // top: 0px;
-    //     // left: 0px;
-    //     // z-index: 2;
-    //     width: 99%;
-    //     @media (max-width: 569px) {
-    //         width: 100%;
-    //     }
-
-    //     & .searchMessages_container {
-    //         display: flex;
-    //         justify-content: space-between;
-    //         gap: 4px;
-    //         padding: 0px 8px 8px 4px;
-    //         align-items: center;
-    //         background-color: var(--background-color-content-block);
-    //         border-radius: 0px 0px 10px 0;
-
-    //         & .searchMessages_input {
-    //             width: 10px;
-    //             transition: 0.5s;
-    //             display: flex;
-
-    //             & input {
-    //                 width: 100%;
-    //             }
-    //         }
-    //     }
-    // }
-
     & ul {
         list-style: none;
         padding: 0 6px 0 6px;
         margin: 0;
         height: 100%;
-        //max-width: 70%;
-        // @media (max-width: 568px) {
-        //     max-width: 100%;
-        // }
 
         li {
-            // position: relative;
-            // display: flex;
-            //align-items: end;
-            //gap: 8px;
             padding: 4px;
 
             &.selectedMessage {
                 background-color: #53525270;
                 border-radius: 16px;
-                // width: fit-content;
-                // position: relative;
 
                 &.guest {
                     @media (max-width: 568px) {
@@ -490,24 +427,6 @@
                 display: flex;
                 flex-direction: column;
                 box-shadow: 12px 8px 20px -10px rgba(15, 15, 15, 0.87);
-
-                // &__img {
-                //     display: block;
-                //     align-self: flex-end;
-                //     //width: 70%;
-
-                //     & img {
-                //         border-radius: 16px;
-                //         padding-top: 4px;
-                //         height: 150px;
-                //         float: right;
-                //         max-width: 400px;
-                //         height: auto;
-                //         @media (max-width: 992px) {
-                //             max-width: 100%;
-                //         }
-                //     }
-                // }
 
                 .messageData__list {
                     display: flex;
@@ -857,7 +776,6 @@
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
-    //margin-left: auto;
 
     @media (max-width: 275px) {
         margin-left: 0;
@@ -908,23 +826,16 @@
         display: none;
         backdrop-filter: blur(0px);
         background-color: var(--background-color-cover);
-        // transition: all .2;
-
-        // &.menu__cover_show {
-        //     display: block;
-        // }
     }
 
     .menu__list {
         position: absolute;
-        // bottom: 0;
         right: 10px;
         background-color: var(--background-color-content-block);
         border-radius: 8px;
         z-index: 4;
         display: none;
         opacity: 0.1;
-        // transition: all .1s;
 
         & ul {
             list-style: none;
@@ -964,12 +875,7 @@
     }
 
     span {
-        //color: #8774e1;
         cursor: pointer;
-
-        // &:hover {
-        //     color: #9d8cf5;
-        // }
     }
 }
 
@@ -984,13 +890,10 @@
     right: 0;
     bottom: 0;
     background-color: #d1141400;
-    //display: none;
     z-index: 100;
-    //backdrop-filter: blur(0px);
     transition: all 0.4s;
 
     &.showContextMenu {
-        //display: block;
         backdrop-filter: blur(1px);
         background-color: var(--background-color-cover);
         transition: all 0.4s;

@@ -1,5 +1,5 @@
-import { collection, CollectionReference, doc, DocumentReference } from "firebase/firestore"
-import { Chat, CheckMessageType, CurrentUser, ListMessagesType, Message1, NoReadMessagesType, OnlineStatusUserType, Reaction, TypeChannel } from "../types/types"
+import { collection, CollectionReference } from "firebase/firestore"
+import { Chat, CheckMessageType, CurrentUser, Message1, NoReadMessagesType, OnlineStatusUserType, Reaction, TypeChannel } from "../types/types"
 import { format } from "@formkit/tempo"
 import { db } from "../firebase"
 import { searchAPI } from "../API/api";
@@ -91,41 +91,6 @@ export function getDatefromDate(date: string): string {
     return date.split(' ')[0]
 }
 
-
-// export function checkMessage(str: string): CheckMessageType {
-//     const reg = /(https?:\/\/|ftps?:\/\/|www\.)((?![.,?!;:()]*(\s|$))[^\s]){2,}/im; 
-//     const imageExtReg = /\.(jpg|jpeg|png|gif|bmp|webp|svg)$/i;
-//     const youtubeRegex =
-//         /(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})(?:\S+)?/i;
-
-//     const imgUrls: string[] = []
-//     const YTUrls: string[] = []
-//     let hasLink = false
-
-//     const message = str.split(/\s+/)
-
-//     const newStr = message.map((item) => {
-//         if (reg.test(item)) {
-//             hasLink = true
-//             const isYTlink = item.match(youtubeRegex);
-//             if (isYTlink && isYTlink[1]) {
-//                 const videoId = isYTlink[1];
-//                 const YTUrl = `https://www.youtube.com/embed/${videoId}`;
-//                 YTUrls.push(YTUrl)
-//             }
-
-//             if (imageExtReg.test(item) && YTUrls.indexOf(`https://www.youtube.com/embed/${item.match(youtubeRegex)?.[1]}`) === -1) {
-//                 imgUrls.push(item)
-//             }
-
-//             const url = item.startsWith('www.') ? `http://${item}` : item;
-//             return `<a href="${url}" target="_blank" rel="noopener noreferrer">${item}</a>`;
-//         }
-//         return item
-//     });
-
-//     return ({ message: newStr.join(' '), imgUrls, YTUrls, hasLink });
-// }
 
 function escapeHtml(text: string): string {
     return text
@@ -221,13 +186,6 @@ export function searchMessagesInList(array: Message1[], substring: string): Set<
         return indicesSet;
     }, new Set<number>());
 }
-
-// export function getChatType(isFavorites: boolean, selectedChat: Chat | null): DocumentReference {
-
-//     if (isFavorites) return doc(db, selectedChat.email, FAVOTITES)
-//     if (selectedChat?.channel) return doc(db, CHANNELS, selectedChat.channel.channelID)
-//     return doc(db, CHATS, selectedChat.chatID)
-// }
 
 export function getChatType(isFavorites: boolean, selectedChat: Chat | null): CollectionReference {
 
