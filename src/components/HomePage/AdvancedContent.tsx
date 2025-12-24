@@ -129,7 +129,7 @@ const AdvancedContent: FC<Props> = ({ noRead, scrollElement }) => {
         return () => window.removeEventListener('resize', handleResize)
     }, []);
 
-    console.log('advanced content')
+    //console.log('advanced content')
 
     return (
         <>

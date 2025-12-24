@@ -85,7 +85,7 @@ const TempChat: FC<{ tempChat: Chat | null }> = ({ tempChat }) => {
             isChannel ?
                 handleClickToChannel()
                 :
-                dispatch(setChat({ currentUserEmail: currentUser.email, guestInfo: tempChat }))
+                dispatch(setChat({ currentUser: currentUser, guestInfo: tempChat }))
             if (isChatList) dispatch(setTempChat(null))
         }
     }, [tempChat, chatList]);

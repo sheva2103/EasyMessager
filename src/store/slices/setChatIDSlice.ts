@@ -1,14 +1,12 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { Chat } from "../../types/types";
+import { Chat, UsersData } from "../../types/types";
 import { messagesAPI } from "../../API/api";
-
-type UserData = {
-    currentUserEmail: string,
-    guestInfo: Chat
-}
+import { makeChatId } from "../../utils/utils";
 
 
-export const setChat = createAsyncThunk<Chat, UserData | null, {rejectValue: Chat}>(
+
+
+export const setChat = createAsyncThunk<Chat, UsersData | null, {rejectValue: UsersData}>(
     'app/getChatId',
     async (users, {rejectWithValue}) => {
 
@@ -16,12 +14,11 @@ export const setChat = createAsyncThunk<Chat, UserData | null, {rejectValue: Cha
         
         if(users.guestInfo?.chatID) return users.guestInfo
 
-        const id = await Promise.all([messagesAPI.getChatID(users.currentUserEmail, users.guestInfo.email), messagesAPI.getChatID(users.guestInfo.email, users.currentUserEmail)])
+        const getID = makeChatId(users)
+        const id = await messagesAPI.getChatID(getID) 
         console.log(id)
 
-        if( id[0] === undefined && id[1] === undefined) return rejectWithValue(users.guestInfo)
-        if(id[0]) return {...users.guestInfo, chatID: id[0]}
-        if(id[1]) return {...users.guestInfo, chatID: id[1]}
-
+        if(!getID) return rejectWithValue(users)
+        return ({...users.guestInfo, chatID: getID})
     }
 )

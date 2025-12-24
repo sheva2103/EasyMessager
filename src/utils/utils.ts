@@ -1,5 +1,5 @@
 import { collection, CollectionReference } from "firebase/firestore"
-import { Chat, CheckMessageType, CurrentUser, Message1, NoReadMessagesType, OnlineStatusUserType, Reaction, TypeChannel } from "../types/types"
+import { Chat, CheckMessageType, CurrentUser, Message1, NoReadMessagesType, OnlineStatusUserType, Reaction, TypeChannel, UsersData } from "../types/types"
 import { format } from "@formkit/tempo"
 import { db } from "../firebase"
 import { searchAPI } from "../API/api";
@@ -192,6 +192,10 @@ export function getChatType(isFavorites: boolean, selectedChat: Chat | null): Co
     if (isFavorites) return collection(db, selectedChat.email, FAVOTITES, 'message')
     if (selectedChat?.channel) return collection(db, CHANNELS, selectedChat.channel.channelID, 'messages')
     return collection(db, CHATS, selectedChat.chatID, 'messages')
+}
+
+export function makeChatId(users: UsersData) {
+    return [users.currentUser.uid, users.guestInfo.uid].sort().join('_');
 }
 
 export function getFakeChat(id: string): Chat {

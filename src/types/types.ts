@@ -40,6 +40,11 @@ export interface CurrentUser extends CurrentUserData {
     onlineStatus?: number
 }
 
+export type UsersData = {
+    currentUser: CurrentUser,
+    guestInfo: Chat
+}
+
 export interface Chat extends CurrentUser  {
     chatID?: string,
     dateOfChange?: string,

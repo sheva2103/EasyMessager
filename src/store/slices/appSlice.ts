@@ -3,6 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { Chat, CurrentUser, CurrentUserData, Message1, OnlineStatusUserType, TypeChannel, UsePresenceReturn } from "../../types/types";
 import { setChat } from "./setChatIDSlice";
 import { v4 as uuidv4 } from 'uuid';
+import { makeChatId } from "../../utils/utils";
 
 
 type Menu = {
@@ -211,7 +212,8 @@ export const appSlice = createSlice({
                 //if (state.emojiIsOpen) state.emojiIsOpen = false
             })
             .addCase(setChat.rejected, (state, action) => {
-                state.selectedChat = { ...action.payload, chatID: uuidv4() }
+                const id = makeChatId({currentUser: {...action.payload.currentUser}, guestInfo: {...action.payload.guestInfo}})
+                state.selectedChat = { ...action.payload.guestInfo, chatID: id }
             })
             .addCase(setChat.fulfilled, (state, action) => {
                 resetChatState(state)

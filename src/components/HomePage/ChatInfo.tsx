@@ -6,7 +6,7 @@ import { Chat, Message1, NoReadMessagesType } from "../../types/types";
 import { setChat } from "../../store/slices/setChatIDSlice";
 import { messagesAPI, profileAPI } from "../../API/api";
 import classNames from "classnames";
-import { createMessageList, getChatType, getQuantityNoReadMessages } from "../../utils/utils";
+import { createMessageList, getChatType, getQuantityNoReadMessages, makeChatId } from "../../utils/utils";
 import { onSnapshot, QuerySnapshot } from "firebase/firestore";
 import { setMessages } from "../../store/slices/messagesSlice";
 import { Alert, Badge, Snackbar } from "@mui/material";
@@ -77,7 +77,7 @@ const ChatInfo: FC<Chat> = (user) => {
     const currentUser = useAppSelector(state => state.app.currentUser)
     const handleClick = () => {
         if (selectedChat?.uid === updateUser.uid) return
-        dispatch(setChat({ currentUserEmail: currentUser.email, guestInfo: updateUser }))
+        dispatch(setChat({ currentUser: currentUser, guestInfo: updateUser }))
     }
     const isSelected = selectedChat?.uid === user.uid
     const lastMessage = messages.messages[messages.messages.length - 1]
@@ -104,19 +104,14 @@ const ChatInfo: FC<Chat> = (user) => {
     useEffect(() => {
         const getInfo = async () => {
             try {
-
                 const currentInfo = await profileAPI.getCurrentInfo(user.uid);
                 if (!currentInfo) throw currentInfo
-                const chatID = await Promise.all([messagesAPI.getChatID(currentUser.email, currentInfo.email), messagesAPI.getChatID(currentInfo.email, currentUser.email)])
+                const chatID = makeChatId({currentUser, guestInfo: updateUser})
                 if (currentInfo) {
-                    if (chatID[0] && (user.displayName !== currentInfo.displayName || user.photoURL !== currentInfo.photoURL)) {
+                    if (chatID && (user.displayName !== currentInfo.displayName || user.photoURL !== currentInfo.photoURL)) {
                         await profileAPI.updateUserInMyChatList(currentUser.email, currentInfo)
                     }
-                    setUpdateUser((prev) => {
-                        const info: Chat = { ...currentInfo }
-                        if (chatID[0] || chatID[1]) info.chatID = chatID[0] || chatID[1]
-                        return { ...prev, ...info }
-                    })
+                    setUpdateUser({...currentInfo, chatID})
                 }
             } catch (error) {
                 console.error('Error fetching current info:', error);
@@ -160,7 +155,7 @@ const ChatInfo: FC<Chat> = (user) => {
     useEffect(() => {
         let unsubscribeFirestore: (() => void) | undefined;
         let unsubscribeWorker: (() => void) | undefined;
-
+        //console.log(user ,'>>>>>' ,updateUser.chatID, '>>>', updateUser.displayName)
         if (updateUser.chatID) {
             unsubscribeWorker = subscribe(updateUser.chatID, (data) => {
                 if ('error' in data) {
@@ -172,10 +167,11 @@ const ChatInfo: FC<Chat> = (user) => {
             });
 
             const messagesCollectionRef = getChatType(false, { ...updateUser } as Chat);
+            
             unsubscribeFirestore = onSnapshot(
                 messagesCollectionRef,
                 (querySnapshot: QuerySnapshot<Message1>) => {
-                    const rawMessagesArray = querySnapshot.docs.map((doc) => ({ ...doc.data() }))
+                    const rawMessagesArray = querySnapshot.docs.map((doc) => doc.data() )
                     postTask(updateUser.chatID!, {
                         rawMessagesArray,
                         currentUserUid: currentUser.uid,
@@ -205,6 +201,8 @@ const ChatInfo: FC<Chat> = (user) => {
             setUpdateUser((prev) => ({ ...prev, chatID: selectedChat.chatID }))
         }
     }, [selectedChat?.chatID]);
+
+    //console.log('user>>>>' ,user)
 
     if (fetchingCurrentInfo) return <Skeleton />
 

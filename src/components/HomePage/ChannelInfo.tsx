@@ -131,6 +131,7 @@ const ChannelInfo: FC<Props> = (channel) => {
     useEffect(() => {
         const channelObj: Chat = createObjectChannel(updateChannel);
         const messagesCollectionRef = getChatType(false, channelObj);
+        //console.log(updateChannel.channelID, '>>>', updateChannel.displayName)
 
         const unsubscribeWorker = subscribe(channelObj.chatID, (data) => {
             if ('error' in data) {
@@ -169,6 +170,8 @@ const ChannelInfo: FC<Props> = (channel) => {
     useEffect(() => {
         if (isSelected) dispatch(setMessages(messages))
     }, [isSelected, messages]);
+
+    //console.log('chanel>>>>' ,channel)
 
     if (fetchingCurrentInfo) return <Skeleton />
 

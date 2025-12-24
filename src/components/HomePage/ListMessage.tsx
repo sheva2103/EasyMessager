@@ -103,7 +103,7 @@ const ListMessages: FC = () => {
         scrollElementRef.current = element 
     }
 
-    console.log('render list messages')
+    //console.log('render list messages')
 
     return (
         <div className={styles.contentWrapper}>
