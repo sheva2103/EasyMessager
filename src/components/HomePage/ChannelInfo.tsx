@@ -3,13 +3,13 @@ import styles from './HomePage.module.scss'
 import Avatar from "../Avatar/Avatar";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { Chat, Message1, NoReadMessagesType, TypeChannel } from "../../types/types";
-import { channelAPI, messagesAPI, profileAPI } from "../../API/api";
+import { channelAPI, messagesAPI } from "../../API/api";
 import classNames from "classnames";
-import { createMessageList, createObjectChannel, getChatType } from "../../utils/utils";
+import { createObjectChannel, getChatType } from "../../utils/utils";
 import { doc, DocumentSnapshot, onSnapshot, QuerySnapshot } from "firebase/firestore";
 import { setMessages } from "../../store/slices/messagesSlice";
 import { Alert, Badge, Snackbar } from "@mui/material";
-import { setSelectedChannel, updateSelectedChannel } from "../../store/slices/appSlice";
+import { updateSelectedChannel } from "../../store/slices/appSlice";
 import { db } from "../../firebase";
 import { CHANNELS_INFO } from "../../constants/constants";
 import ShowNameChat from "./ShowNameChat";
@@ -49,7 +49,7 @@ const ChannelInfo: FC<Props> = (channel) => {
     const dispatch = useAppDispatch()
     const isSelected = selectedChat?.channel?.channelID === updateChannel.channelID
     const lastMessage = messages.messages[messages.messages.length - 1]
-    const { handleClickToChannel } = useChannelClickHandler({ isSelected, channel: channel.channel, currentUserID: currentUser.uid, setIsNotAccess, setNotFoundChannel });
+    const { handleClickToChannel } = useChannelClickHandler({ isSelected, channel: updateChannel, currentUserID: currentUser.uid, setIsNotAccess, setNotFoundChannel });
 
     const unsubscribe = () => {
         messagesAPI.deleteChat(currentUser, createObjectChannel(channel.channel))
@@ -85,11 +85,12 @@ const ChannelInfo: FC<Props> = (channel) => {
         }
         getInfo()
 
-    }, [isSelected]);
+    }, []);
 
     useEffect(() => {
         let listenerChannelInfo: () => void
-        listenerChannelInfo = onSnapshot(doc(db, CHANNELS_INFO, updateChannel.channelID), async (doc: DocumentSnapshot<TypeChannel>) => {
+        if(isSelected) {
+            listenerChannelInfo = onSnapshot(doc(db, CHANNELS_INFO, updateChannel.channelID), async (doc: DocumentSnapshot<TypeChannel>) => {
             if (doc.data()) {
                 const currentInfoChannel = doc.data()
                 const isSubscriber = currentInfoChannel.listOfSubscribers.some(item => item.uid === currentUser.uid)
@@ -102,6 +103,7 @@ const ChannelInfo: FC<Props> = (channel) => {
                 setNotFoundChannel(true)
             )
         })
+        }
         return () => {
             if (listenerChannelInfo) listenerChannelInfo()
         }
@@ -131,8 +133,6 @@ const ChannelInfo: FC<Props> = (channel) => {
     useEffect(() => {
         const channelObj: Chat = createObjectChannel(updateChannel);
         const messagesCollectionRef = getChatType(false, channelObj);
-        //console.log(updateChannel.channelID, '>>>', updateChannel.displayName)
-
         const unsubscribeWorker = subscribe(channelObj.chatID, (data) => {
             if ('error' in data) {
                 console.error('Ошибка воркера:', data.error);

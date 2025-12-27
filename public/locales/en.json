@@ -55,12 +55,26 @@
     "notificationClosedCommunity": "This is a closed community. Would you like to apply ?",
     "registration": "Registration",
     "signIn": "Sign in",
+    "signUp": "Sign up",
     "errorRegName": "This name already exists",
+    "deleteAccount": "Delete account",
+    "save": "Save",
     "form": {
         "chars": "Numbers, letters and symbols (_*-@)",
         "max": "Maximum 20 characters",
         "min": "Minimum 4 characters",
-        "required": "Required field"
+        "required": "Required field",
+        "errorPaswordMessage": "Must contain upper and lower case letters, numbers, symbols and be at least 8 characters long",
+        "errorEmailInput": "Incorrect format",
+        "errorSignIn": "Login or password error",
+        "errorServer": "Please try your request again later",
+        "userAlreadyExists": "This user already exists",
+        "errorConfirmPassword": "The values ​​entered do not match",
+        "confirmPassword": "Confirm password",
+        "password": "Password",
+        "rememberMe": "Remember me",
+        "incorrectPassword": "Incorrect password",
+        "userName": "Username"
     },
     "time": {
         "justNow": "just now",

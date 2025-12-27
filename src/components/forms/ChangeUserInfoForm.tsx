@@ -6,6 +6,7 @@ import { getAuth, updateProfile } from "firebase/auth";
 import Preloader from '../../assets/preloader.svg'
 import { Chat, CurrentUser, CurrentUserData } from "../../types/types";
 import { channelAPI, profileAPI } from "../../API/api";
+import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 
 type Props = {
     changeInfo: boolean,
@@ -20,6 +21,7 @@ const URL_REGEXP = /^((ftp|http|https):\/\/)?(www\.)?([A-Za-zА-Яа-я0-9]{1}[A
 
 const ChangeUserInfoForm: FC<Props> = ({ changeInfo, setChangeInfo, currentUserInfo }) => {
 
+    const {t} = useTypedTranslation()
     const isChannel = !!currentUserInfo?.channel
     const displayName = isChannel ? currentUserInfo.channel.displayName : currentUserInfo.displayName
     const photoURL = isChannel ? currentUserInfo.channel?.photoURL : currentUserInfo.photoURL
@@ -57,8 +59,13 @@ const ChangeUserInfoForm: FC<Props> = ({ changeInfo, setChangeInfo, currentUserI
                     <div className={styles.changeUserInfo__item}>
                         <input type="text"
                             className={classNames({ [styles.error]: errors.displayName })}
-                            placeholder="Имя пользователя"
-                            {...register('displayName', { maxLength: 20, minLength: 4, pattern: isChannel ? NAME_CHANNEL_REGEXP : LOGIN_REGEXP })}
+                            placeholder={t('form.userName') + '. ' + t('form.min')}
+                            {...register('displayName', { 
+                                maxLength: 20,
+                                minLength: 4,
+                                pattern: isChannel ? NAME_CHANNEL_REGEXP : LOGIN_REGEXP,
+                                required: {value: true, message: t('form.required')}
+                            })}
                         />
                     </div>
                     <div className={styles.changeUserInfo__item}>
@@ -70,7 +77,7 @@ const ChangeUserInfoForm: FC<Props> = ({ changeInfo, setChangeInfo, currentUserI
                     </div>
                     <div className={styles.changeUserInfo__item}>
                         <button disabled={isSubmitting}>
-                            {isSubmitting ? <Preloader /> : 'Сохранить'}
+                            {isSubmitting ? <Preloader /> : t('save')}
                         </button>
                     </div>
                 </form>

@@ -21,7 +21,7 @@ const LoginInput: FC<Props> = ({ register, isSubmitting, errors, signUp }) => {
                 {...register('login', { required: { value: true, message: 'обязательное поле' }, pattern: signUp ? LOGIN_REGEXP : undefined })}
             />
             <div className={styles.error}>
-                {errors.login && <span>{errors.login.message || 'латинские символы цыфры и длина от 6-ти до 16 символов'}</span>}
+                {errors.login && <span>{errors.login.message || 'Латинские символы, цифры и иметь длину 6-16 символов'}</span>}
             </div>
         </div>
     );

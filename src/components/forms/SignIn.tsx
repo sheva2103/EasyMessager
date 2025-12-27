@@ -11,6 +11,7 @@ import EmailInput from './EmailInput';
 import styles from './Styles.module.scss'
 import { useAppDispatch } from '../../hooks/hook';
 import { setUser } from '../../store/slices/appSlice';
+import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 
 const ERROR_DATA = 'auth/invalid-credential'
 const TOO_MANY_REQUESTS = 'too-many-requests'
@@ -24,6 +25,7 @@ const SignIn: FC = () => {
     })
 
     const dispatch = useAppDispatch()
+    const {t} = useTypedTranslation()
 
     const submit: SubmitHandler<SignInSignUpForm> = async (data) => {
 
@@ -40,8 +42,8 @@ const SignIn: FC = () => {
             .catch((error: any) => {
                 const errorCode = error.code;
                 //const errorMessage = error.message;
-                if(errorCode === ERROR_DATA) setError('dataError', { message: 'ошибка логина или пароля' })
-                if(errorCode === TOO_MANY_REQUESTS || errorCode === AUTH_TOO_MANY_REQUESTS) setError('dataError', { message: 'повторите запрос позже' })
+                if(errorCode === ERROR_DATA) setError('dataError', { message: t('form.errorSignIn') })
+                if(errorCode === TOO_MANY_REQUESTS || errorCode === AUTH_TOO_MANY_REQUESTS) setError('dataError', { message: t('form.errorServer') })
                 console.log(errorCode)
             })
     }

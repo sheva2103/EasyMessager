@@ -55,11 +55,26 @@ export type TranslationKeys =
     | "notificationClosedCommunity"
     | "registration"
     | "signIn"
+    | 'signUp'
     | "errorRegName"
+    | "deleteAccount"
+    | "save"
     | 'form.chars' 
+    | 'form.userName'
     | 'form.max' 
     | 'form.min' 
     | 'form.required'
+    | 'form.errorPaswordMessage'
+    | 'form.errorLoginInput'
+    | 'form.errorEmailInput'
+    | 'form.errorSignIn'
+    | 'form.errorConfirmPassword'
+    | 'form.errorServer'
+    | 'form.userAlreadyExists'
+    | 'form.password'
+    | 'form.confirmPassword'
+    | 'form.rememberMe'
+    | 'form.incorrectPassword'
     | "time.justNow"
     | "time.minutesAgo"
     | "time.minutesAgo_plural"

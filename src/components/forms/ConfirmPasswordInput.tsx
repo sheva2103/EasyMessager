@@ -5,6 +5,7 @@ import ShowPassword from '../../assets/eye-fill.svg'
 import HidePassword from '../../assets/eye-slash-fill.svg'
 import { checkConfirmPassword } from "../../utils/validators";
 import { SignInSignUpForm } from "../../types/types";
+import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 
 type Props = {
     register: UseFormRegister<SignInSignUpForm>,
@@ -19,6 +20,7 @@ const PASSWORD = 'password'
 const ConfirmPasswordInput: FC<Props> = ({ register, errors, password, isSubmitting }) => {
 
     const [typeInput, setTypeInput] = useState<string>(PASSWORD)
+    const {t} = useTypedTranslation()
 
     const handleClick = () => {
         typeInput === PASSWORD ? setTypeInput(TEXT) : setTypeInput(PASSWORD)
@@ -28,12 +30,12 @@ const ConfirmPasswordInput: FC<Props> = ({ register, errors, password, isSubmitt
         <div>
             <div className={styles.passwordInput}>
                 <input type={typeInput}
-                    placeholder='Подтвердите пароль'
+                    placeholder={t('form.confirmPassword')}
                     disabled={isSubmitting}
                     maxLength={20}
                     {...register('confirmPassword', {
                         required:
-                            { value: true, message: 'обязательное поле' },
+                            { value: true, message: t('form.required') },
                         validate: { comparePasswords: value => checkConfirmPassword(password, value) }
                     })}
                 />
@@ -41,7 +43,7 @@ const ConfirmPasswordInput: FC<Props> = ({ register, errors, password, isSubmitt
                 {typeInput === TEXT && <HidePassword onClick={handleClick} />}
             </div>
             <div className={styles.error}>
-                {errors.confirmPassword && <span>{errors.confirmPassword.message || 'Введённые значения не совпадают'}</span>}
+                {errors.confirmPassword && <span>{errors.confirmPassword.message || t('form.errorConfirmPassword')}</span>}
             </div>
         </div>
     );

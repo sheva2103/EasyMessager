@@ -155,7 +155,6 @@ const ChatInfo: FC<Chat> = (user) => {
     useEffect(() => {
         let unsubscribeFirestore: (() => void) | undefined;
         let unsubscribeWorker: (() => void) | undefined;
-        //console.log(user ,'>>>>>' ,updateUser.chatID, '>>>', updateUser.displayName)
         if (updateUser.chatID) {
             unsubscribeWorker = subscribe(updateUser.chatID, (data) => {
                 if ('error' in data) {
@@ -167,7 +166,6 @@ const ChatInfo: FC<Chat> = (user) => {
             });
 
             const messagesCollectionRef = getChatType(false, { ...updateUser } as Chat);
-            
             unsubscribeFirestore = onSnapshot(
                 messagesCollectionRef,
                 (querySnapshot: QuerySnapshot<Message1>) => {

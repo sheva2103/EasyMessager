@@ -27,7 +27,7 @@ const DeleteUserForm: FC = ({ }) => {
         profileAPI.deleteUserAndData(data.password)
             .catch(err => {
                 console.log(err)
-                setError('password', { message: 'Неправильный пароль' })
+                setError('password', { message: t('form.incorrectPassword') })
             })
     }
 
@@ -36,9 +36,10 @@ const DeleteUserForm: FC = ({ }) => {
             <form onSubmit={handleSubmit(submit)}>
                 <div className={styles.passwordInput}>
                     <input type={typeInput}
-                        placeholder='Пароль'
+                        placeholder={t('form.password')}
                         maxLength={20}
-                        {...register('password', { required: { value: true, message: 'обязательное поле' } })}
+                        autoFocus
+                        {...register('password', { required: { value: true, message: t('form.required') } })}
                     />
                     {typeInput === PASSWORD && <ShowPassword onClick={handleClick} />}
                     {typeInput === TEXT && <HidePassword onClick={handleClick} />}
@@ -47,7 +48,7 @@ const DeleteUserForm: FC = ({ }) => {
                     {errors.password && <span>{errors.password.message}</span>}
                 </div>
                 <button disabled={isSubmitting}>
-                    {!isSubmitting ? 'Удалить аккаунт' : <Preloader />}
+                    {!isSubmitting ? t('deleteAccount') : <Preloader />}
                 </button>
             </form>
         </div>

@@ -55,12 +55,26 @@
     "notificationClosedCommunity": "Это закрытое сообщество. Хотите подать заявку ?",
     "registration": "Registration",
     "signIn": "Войти",
+    "signUp": "Регистрация",
     "errorRegName": "Такое имя уже существует",
+    "deleteAccount": "Удалить аккаунт",
+    "save": "Сохранить",
     "form": {
         "chars": "Цифры, буквы и символы (_*-@)",
         "max": "Максимум 20 символов",
         "min": "Минимум 4 символа",
-        "required": "Обязательное поле"
+        "required": "Обязательное поле",
+        "errorPaswordMessage": "Должен содержать буквы в верхнем и нижнем регистре, цифры, символы и иметь длину не менее 8-ми символов",
+        "errorEmailInput": "Неправильний формат",
+        "errorSignIn" : "Ошибка логина или пароля",
+        "errorServer": "Повторите запрос позже",
+        "userAlreadyExists": "Такой пользователь уже существует",
+        "errorConfirmPassword": "Введённые значения не совпадают",
+        "password": "Пароль",
+        "confirmPassword": "Подтвердите пароль",
+        "rememberMe": "Запомнить меня",
+        "incorrectPassword": "Неправильный пароль",
+        "userName": "Имя пользователя"
     },
     "time": {
         "justNow": "только что",

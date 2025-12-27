@@ -16,7 +16,7 @@ const DeleteUserButton: FC = () => {
 
             <div className={styles.button__content} onClick={() => setIsOpen(true)}>
                 <BlackListIcon color="red" />
-                <span>Удалить аккаунт</span>
+                <span>{t('deleteAccount')}</span>
             </div>
             <DialogComponent isOpen={isOpen} onClose={() => setIsOpen(false)}>
                 <DeleteUserForm />

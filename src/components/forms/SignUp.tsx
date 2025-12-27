@@ -11,6 +11,7 @@ import { getAuth, createUserWithEmailAndPassword, setPersistence, browserSession
 import EmailInput from './EmailInput';
 import { channelAPI, messagesAPI, profileAPI } from '../../API/api';
 import { createObjectChannel } from '../../utils/utils';
+import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 
 const ERROR_NEW_EMAIL = 'auth/email-already-in-use'
 
@@ -21,6 +22,7 @@ const SignUp: FC = () => {
     const { register, watch, handleSubmit, formState: { errors, isValid, isSubmitting }, reset, setError } = useForm<SignInSignUpForm>({
         mode: 'onChange'
     })
+    const {t} = useTypedTranslation()
 
     const submit: SubmitHandler<SignInSignUpForm> = async (data) => {
         // await sleep(5000).then(data => {
@@ -60,7 +62,7 @@ const SignUp: FC = () => {
             const errorMessage = error.message;
             console.error('Ошибка при регистрации:', error);
             console.log(errorCode, '>>>>', errorMessage)
-            if (errorCode === ERROR_NEW_EMAIL) setError('email', { message: 'Такой пользователь уже существует' })
+            if (errorCode === ERROR_NEW_EMAIL) setError('email', { message: t('form.userAlreadyExists') })
         }
 
     }
