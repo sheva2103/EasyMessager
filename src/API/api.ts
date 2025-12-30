@@ -48,7 +48,8 @@ type ContactsAPI = {
     addToContacts: (currentUser: string, newContact: Chat) => Promise<void>,
     removeFromContacts: (currentUser: string, contact: CurrentUser) => Promise<void>,
     addToBlacklist: (currentUser: string, contact: Chat) => Promise<void>,
-    removeFromBlacklist: (currentUser: string, contact: CurrentUser) => Promise<void>
+    removeFromBlacklist: (currentUser: string, contact: CurrentUser) => Promise<void>,
+    changeContact: (options: {myEmail: string, contact: Chat}) => Promise<void>
 }
 
 type ChannelAPI = {
@@ -401,6 +402,14 @@ export const contactsAPI: ContactsAPI = {
         await updateDoc(contactsRef, {
             [contact.uid]: deleteField()
         });
+    },
+
+    async changeContact(options) {
+        const {myEmail, contact} = options
+        const ref = doc(db, myEmail, CONTACTS)
+            await updateDoc(ref, {
+                [contact.uid]: contact
+            });
     }
 }
 

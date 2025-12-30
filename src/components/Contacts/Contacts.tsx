@@ -1,6 +1,7 @@
 import { FC, useState } from "react";
 import styles from './Contacts.module.scss'
 import RemoveFromContacts from '../../assets/person-dash.svg'
+import ChangeContactIcon from '../../assets/change.svg'
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { clearSelectedMessage, closeMenu, setIsFavorites, setTempChat } from "../../store/slices/appSlice";
 import { Chat, CurrentUser } from "../../types/types";
@@ -9,6 +10,8 @@ import InputComponent from "../../InputComponent/InputComponent";
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 import Preloader from '../../assets/preloader.svg'
 import pLimit from 'p-limit'
+import DialogComponent from "../Settings/DialogComponent";
+import AddContactForm from "../forms/AddContactForm";
 
 const test: CurrentUser[] = [
     { displayName: 'alexdb', photoURL: '', email: 'test1rt@test.com', uid: 'uhrtugjfghdhc' },
@@ -36,10 +39,12 @@ const Contacts: FC = () => {
 
     const [name, setName] = useState('')
     const [sending, setSending] = useState(false)
+    const [isOpenDialog, setIsOpenDialog] = useState({isOpen: false, contact: null})
     const dispatch = useAppDispatch()
     const contactsList = useAppSelector(state => state.app.contacts)
     const isSend = useAppSelector(state => state.app.isSendMessage)
     const selectedMessageList = useAppSelector(state => state.app.selectedMessages)
+    const selectedChat = useAppSelector(state => state.app.selectedChat)
     const currentUser = useAppSelector(state => state.app.currentUser)
     const { t } = useTypedTranslation()
 
@@ -63,6 +68,10 @@ const Contacts: FC = () => {
                     dispatch(closeMenu())
                     dispatch(clearSelectedMessage())
                 })
+            return
+        }
+        if(selectedChat?.uid === user.uid) {
+            dispatch(closeMenu())
             return
         }
         dispatch(setTempChat(user))
@@ -89,6 +98,19 @@ const Contacts: FC = () => {
             })
     }
 
+    const changeContact = async(contact: Chat) => {
+        contactsAPI.changeContact({myEmail: currentUser.email, contact})
+            .then(() => setIsOpenDialog({isOpen: false, contact: null}))
+            .catch(err => console.log('error change contact', err))
+    }
+
+    const changeDialogState = (action: boolean ,contact: Chat = null) => {
+        setIsOpenDialog((prev) => ({
+            contact,
+            isOpen: action
+        }))
+    }
+
     const filter = contactsList.filter(item => item.displayName.includes(name))
 
     return (
@@ -103,16 +125,29 @@ const Contacts: FC = () => {
                     <li onClick={sendToFavorites}><span>{t('favorites')}</span></li>
                     {filter.map((item) => (
                         <li key={String(item.uid)} onClick={() => handleClickName(item)}>
-                            <span >{item.displayName}</span>
-                            {!isSend && <div title={t('removeFromContacts')}
-                                onClick={(e) => removeFromContacts(e, item)}
-                            >
-                                <RemoveFromContacts />
-                            </div>}
+                            <span >{item?.nameWasGiven || item.displayName}</span>
+                            <div className={styles.buttonBlock}>
+                                {!isSend &&
+                                    <div title={t('change')} onClick={(e) => {
+                                        e.stopPropagation()
+                                        changeDialogState(true ,item)
+                                    }}>
+                                        <ChangeContactIcon />
+                                    </div>
+                                }
+                                {!isSend && <div title={t('removeFromContacts')}
+                                    onClick={(e) => removeFromContacts(e, item)}
+                                >
+                                    <RemoveFromContacts />
+                                </div>}
+                            </div>
                         </li>
                     ))}
                 </ul>
             </div>
+            <DialogComponent onClose={changeDialogState} isOpen={isOpenDialog.isOpen}>
+                <AddContactForm functionPerformed={changeContact} user={isOpenDialog.contact} change/>
+            </DialogComponent>
         </div>
     );
 }

@@ -14,6 +14,7 @@ import { RootState } from "../../store/store";
 import DialogComponent from "../Settings/DialogComponent";
 import { createObjectChannel } from "../../utils/utils";
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
+import AddContactForm from "../forms/AddContactForm";
 
 type Props = {
     chatInfo: Chat
@@ -79,6 +80,7 @@ const selectApplyForMembership = createSelector(
 const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
 
     const [isOpen, setOpen] = useState(false)
+    const [isOpenDialog, setIsOpenDialog] = useState(false)
     const currentUser = useAppSelector(state => state.app.currentUser)
     const contactsList = useAppSelector(state => state.app.contacts)
     const blackList = useAppSelector(state => state.app.blackList)
@@ -93,9 +95,15 @@ const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
     const [animationOpen, setAnimationOpen] = useState(false)
     const isOwner = currentUser.uid === chatInfo?.channel?.owner.uid
 
-    const addToContacts = () => {
-        contactsAPI.addToContacts(currentUser.email, chatInfo)
+    const addToContacts = async(user: Chat) => {
+        contactsAPI.addToContacts(currentUser.email, user)
+            .then(() => setIsOpenDialog(false))
             .then(() => setOpen(false))
+    }
+
+    const changeDialogState = () => {
+        setIsOpenDialog((prev) => !prev)
+        setOpen(false)
     }
 
     const deleteContact = () => {
@@ -201,7 +209,7 @@ const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
                 {isContact ?
                     <li onClick={deleteContact}>{t('removeFromContacts')}</li>
                     :
-                    <li onClick={addToContacts}>{t('addToContacts')}</li>
+                    <li onClick={changeDialogState}>{t('addToContacts')}</li>
                 }
                 {isBlackList ?
                     <li onClick={removeFromBlacklist}>{t('removeFromBlackList')}</li>
@@ -235,6 +243,9 @@ const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
                     {targetNode()}
                 </div>
             </div>
+            <DialogComponent onClose={changeDialogState} isOpen={isOpenDialog}>
+                <AddContactForm functionPerformed={addToContacts} user={chatInfo} add/>
+            </DialogComponent>
         </>
     );
 }

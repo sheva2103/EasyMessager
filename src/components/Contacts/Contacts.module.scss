@@ -46,7 +46,6 @@
     //background-color: #5a5a5a15;
     //border-radius: 8px;
     max-height: 50svh;
-    font-size: 1.2rem;
     overflow: auto;
     text-align: center;
 
@@ -77,6 +76,10 @@
             text-overflow: ellipsis;
             overflow: hidden;
         }
+
+        & svg {
+            font-size: 1.1rem;
+        }
     }
 
     & li:hover {
@@ -86,4 +89,9 @@
         border-bottom: none !important;
         background-color: #5a5a5a54;
     }
+}
+
+.buttonBlock {
+    display: flex;
+    gap: 12px;
 }

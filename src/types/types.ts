@@ -49,7 +49,8 @@ export interface Chat extends CurrentUser  {
     chatID?: string,
     dateOfChange?: string,
     channel?: TypeChannel,
-    ref?: DocumentReference
+    ref?: DocumentReference,
+    nameWasGiven?: string
 }
 
 export type Reaction = {
