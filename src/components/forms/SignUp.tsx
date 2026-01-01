@@ -5,7 +5,6 @@ import EazyMessagerTitleIcon from '../EazyMessagerTitleIcon/EasyMessagerTitleIco
 import ConfirmPasswordInput from './ConfirmPasswordInput';
 import { SignInSignUpForm } from '../../types/types';
 import RememberMeInput from './RememberMeInput';
-import LoginInput from './LoginInput';
 import ButtonSubmit from './ButtonSubmit';
 import { getAuth, createUserWithEmailAndPassword, setPersistence, browserSessionPersistence } from "firebase/auth";
 import EmailInput from './EmailInput';
@@ -25,29 +24,9 @@ const SignUp: FC = () => {
     const {t} = useTypedTranslation()
 
     const submit: SubmitHandler<SignInSignUpForm> = async (data) => {
-        // await sleep(5000).then(data => {
-        //     console.log('всё')
-        //     setError('email', { message: 'такой уже есть' })
-        // })
-        // console.log(data)
-        //reset()
-        //setError('email', {message: 'такой уже есть'})
 
         const auth = getAuth();
-        // await createUserWithEmailAndPassword(auth, data.email, data.password)
-        //     .then((userCredential) => {
-        //         const user = userCredential.user;
-        //         profileAPI.createNewUserInDB(user)
-        //         if (!data.rememberMe) {
-        //             setPersistence(auth, browserSessionPersistence)
-        //         }
-        //     })
-        //     .catch((error: any) => {
-        //         const errorCode = error.code;
-        //         //const errorMessage = error.message;
-        //         console.log(errorCode)
-        //         if (errorCode === ERROR_NEW_EMAIL) setError('email', { message: 'Такой пользователь уже существует' })
-        //     });
+
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password)
             const user = userCredential.user
@@ -72,7 +51,6 @@ const SignUp: FC = () => {
             <EazyMessagerTitleIcon />
             <form onSubmit={handleSubmit(submit)}>
                 <EmailInput register={register} errors={errors} isSubmitting={isSubmitting} />
-                {/* <LoginInput register={register} errors={errors} isSubmitting={isSubmitting} signUp /> */}
                 <PasswordInput register={register} errors={errors} isSubmitting={isSubmitting} />
                 <ConfirmPasswordInput register={register} errors={errors} password={watch('password')} isSubmitting={isSubmitting} />
                 <RememberMeInput register={register} />

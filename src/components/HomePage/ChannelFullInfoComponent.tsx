@@ -15,6 +15,7 @@ import DescriptionComponent from "../Settings/DescriptionComponent";
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 import { Virtuoso } from "react-virtuoso";
 import Preloader from '../../assets/preloader.svg'
+import ShareChatButton from "./ShareChatButton";
 
 // const test: CurrentUser[] = [
 //     { displayName: 'alexdb', photoURL: '', email: 'test1rt@test.com', uid: 'uhrtugjfghdhc' },
@@ -225,6 +226,9 @@ const ChannelFullInfoComponent: FC = () => {
                 </div>
                 <div className={stylesContacts.item}>
                     <DescriptionComponent items={description} />
+                </div>
+                <div className={stylesContacts.item}>
+                    <ShareChatButton chat={createObjectChannel(channel)}/>
                 </div>
                 <hr className={stylesSettings.hr} />
                 {isOwner &&

@@ -45,6 +45,11 @@ export const PreviewLastMessage: FC<{ message: Message1, currentUserId: string }
     const isErrorColor = (message?.callStatus === 'rejected' || message?.callStatus === 'unanswered') && message.sender.uid !== currentUserId
 
     const targetEl = () => {
+        if(message?.shareChat) return (
+            <div className={styles.lastMessage} style={{color: "#8774e1"}}>
+                <span>{t('contacts')}</span>
+            </div>
+        )
         if (!message?.callStatus) return (
             <div className={styles.lastMessage}>
                 <span>{message.message}</span>

@@ -59,6 +59,7 @@ export type TranslationKeys =
     | "errorRegName"
     | "deleteAccount"
     | "save"
+    | "reactions"
     | 'form.chars' 
     | 'form.userName'
     | 'form.max' 

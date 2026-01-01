@@ -69,7 +69,8 @@ export type Message1 = {
     forwardedFrom?: Chat,
     replyToMessage?: Message1,
     callStatus?: CallEndStatus,
-    reactions?: Array<Reaction>
+    reactions?: Array<Reaction>,
+    shareChat?: Chat
 }
 
 export type SenderMessageType = CurrentUser & {

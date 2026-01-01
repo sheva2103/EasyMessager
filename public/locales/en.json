@@ -59,6 +59,7 @@
     "errorRegName": "This name already exists",
     "deleteAccount": "Delete account",
     "save": "Save",
+    "reactions": "Reactions",
     "form": {
         "chars": "Numbers, letters and symbols (_*-@)",
         "max": "Maximum 20 characters",

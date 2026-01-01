@@ -6,6 +6,7 @@ import { searchAPI } from "../API/api";
 import { CHANNELS, CHATS, FAVOTITES } from "../constants/constants";
 import { TranslationKeys } from "../types/locales";
 import { i18n } from "i18next";
+import { v4 as uuidv4 } from 'uuid';
 
 
 export function createChatList(data: Chat[]) {
@@ -365,5 +366,25 @@ export function insertPipeBetweenLinks(str: string): string {
     str = str.replace(spacedRegex, '$1 | ');
 
     return str;
+}
+
+export function createShareChatObj (options : {sender: CurrentUser, shareChat: Chat}): Message1 {
+    const messageID = uuidv4()
+    const date = JSON.stringify(new Date())
+    const {sender, shareChat} = options
+    const message: Message1 = {
+        shareChat: {
+            displayName: shareChat.displayName,
+            email: shareChat.email,
+            uid: shareChat.uid,
+            photoURL: shareChat.photoURL || ""
+        },
+        message: 'Контакт',
+        messageID, 
+        date, 
+        sender
+    }
+    if(shareChat?.channel) message.shareChat.channel = shareChat?.channel
+    return message
 }
 

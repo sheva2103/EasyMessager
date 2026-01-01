@@ -6,7 +6,7 @@ import CloseIcon from '../../assets/closeDesktop.svg'
 import { TextareaAutosize } from '@mui/base/TextareaAutosize';
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { changeMessage, setEmojiState, setSelectedEmoji } from "../../store/slices/appSlice";
-import { channelAPI, messagesAPI } from "../../API/api";
+import { messagesAPI } from "../../API/api";
 import { Chat } from "../../types/types";
 import EmojiIcon from '../../assets/emoji-smile-fill.svg'
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
@@ -71,9 +71,6 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
             ]).then(send);
         } else {
             send()
-            // .then(() => {
-            //     if(isChannel) channelAPI.changeCannelInfo(chatInfo.channel, true)
-            // })
         }
     }
 
@@ -91,14 +88,6 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
 
     const onKeyDown = (e: KeyboardEvent) => {
         if (e.key === 'Escape' && (isEditMessage || replyToMessage)) dispatch(changeMessage(null))
-        // if (document.activeElement === refTextarea.current && e.key === 'Enter' && !isEditMessage) {
-        //     sendMessage()
-        //     refTextarea.current.blur()
-        // }
-        // if (document.activeElement === refTextarea.current && e.key === 'Enter' && isEditMessage) {
-        //     sendEditMessage()
-        //     refTextarea.current.blur()
-        // }
     }
 
     useEffect(() => {
@@ -157,6 +146,7 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
                         value={newMessage}
                         onChange={handleChange}
                         ref={refTextarea}
+                        className={styles.textarea}
                     />
                     :
                     <TextareaAutosize

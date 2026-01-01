@@ -7,6 +7,7 @@ import DialogComponent from "../Settings/DialogComponent";
 import { profileAPI } from "../../API/api";
 import DescriptionComponent from "../Settings/DescriptionComponent";
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
+import ShareChatButton from "./ShareChatButton";
 
 const UserFullInfoComponent: FC = () => {
 
@@ -19,7 +20,7 @@ const UserFullInfoComponent: FC = () => {
         {title: t('name'), description: userInfo.displayName},
         {title: 'email', description: userInfo.email},
         {title: t("dateOfRegistration"), description: userInfo?.registrationDate?.toString()}
-    ]
+    ] 
 
     useLayoutEffect(() => {
         profileAPI.getCurrentInfo(user.uid)
@@ -35,6 +36,9 @@ const UserFullInfoComponent: FC = () => {
             </div>
             <div className={stylesContacts.item}>
                 <DescriptionComponent items={description}/>
+            </div>
+            <div className={stylesContacts.item}>
+                <ShareChatButton chat={user}/>
             </div>
             {zoomAvatar && 
                 <DialogComponent isOpen={zoomAvatar} onClose={setZoomAvatar}>

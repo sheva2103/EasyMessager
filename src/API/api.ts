@@ -247,6 +247,7 @@ export const messagesAPI: MessagesAPI = {
                 message.sender
         const messageObj: Message1 = { message: message.message, messageID: id, date, read: false, sender, forwardedFrom }
         if (message?.callStatus) messageObj.callStatus = message?.callStatus
+        if(message?.shareChat) messageObj.shareChat = message.shareChat
         const getID = makeChatId({currentUser: sender, guestInfo: recipient})
         const currentID = await messagesAPI.getChatID(getID)
         if (currentID) {
@@ -258,6 +259,7 @@ export const messagesAPI: MessagesAPI = {
         else {
             const reference = getChatType(false, getFakeChat(getID))
             const newDocRef = doc(reference, id)
+            console.log(newDocRef.path)
             await Promise.all([messagesAPI.addChat(sender, recipient, getID), messagesAPI.addChat(recipient, sender, getID)])
             await setDoc(newDocRef, messageObj, { merge: true })
         }

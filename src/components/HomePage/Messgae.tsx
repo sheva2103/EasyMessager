@@ -26,7 +26,8 @@ const HEIGHT_ROW = 42
 
 interface IMessagesContent {
     onEnterViewport: () => void,
-    message: Message1
+    message: Message1,
+    currentUser: CurrentUser
 }
 
 interface ForwardedFromProps {
@@ -105,17 +106,22 @@ const YTPlayer: FC<{ src: string }> = ({ src }) => {
     )
 }
 
-const ViewportContent: FC<IMessagesContent> = ({ onEnterViewport, message }) => {
+const ViewportContent: FC<IMessagesContent> = ({ onEnterViewport, message, currentUser }) => {
 
     const { ref, inView } = useInView({
         threshold: 0.1,
     })
+    const dispatch = useAppDispatch()
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
     const checkMessageObj = checkMessage(message.message)
     const { t } = useTypedTranslation()
     const status: CallEndStatus = message.callStatus
     const [showImage, setShowImage] = useState(false)
     const [currentIndex, setCurrentIndex] = useState(0)
+
+    const clickShareChat = () => {
+        if(currentUser.uid !== message.shareChat.uid) dispatch(setTempChat(message.shareChat))
+    }
 
     useEffect(() => {
         if (inView) {
@@ -135,7 +141,18 @@ const ViewportContent: FC<IMessagesContent> = ({ onEnterViewport, message }) => 
         )
     }
 
-    const openFullImage = (e: React.MouseEvent ,index: number) => {
+    if (message?.shareChat) {
+        return (
+            <div className={styles.messageData__replyToMessage} onClick={clickShareChat} ref={ref}>
+                <div className={classNames(styles.messageData__replyToMessage_name, styles.messageData__shareChat)}>
+                    <Avatar url={message.shareChat?.channel ? message.shareChat?.channel.photoURL : message.shareChat.photoURL} name={message.shareChat.displayName}/>
+                    <span>{message.shareChat.displayName}</span>
+                </div>
+            </div>
+        )
+    }
+
+    const openFullImage = (e: React.MouseEvent, index: number) => {
         e.stopPropagation()
         setCurrentIndex(index);
         setShowImage(true);
@@ -156,9 +173,9 @@ const ViewportContent: FC<IMessagesContent> = ({ onEnterViewport, message }) => 
             </span>
             <div className={styles.messageData__list} >
                 {!!checkMessageObj.imgUrls.length &&
-                checkMessageObj.imgUrls.map((item, index) => <ImageLoader src={item} key={index} onClick={(e) => openFullImage(e, index)}/>)
+                    checkMessageObj.imgUrls.map((item, index) => <ImageLoader src={item} key={index} onClick={(e) => openFullImage(e, index)} />)
                 }
-                <ImageDialog open={showImage} onClose={closeFullImages} images={checkMessageObj.imgUrls} startIndex={currentIndex}/>
+                <ImageDialog open={showImage} onClose={closeFullImages} images={checkMessageObj.imgUrls} startIndex={currentIndex} />
             </div>
 
 
@@ -205,11 +222,11 @@ const ReplyToMessage: FC<Message1> = (props) => {
     )
 }
 
-const Reactions: FC<{reactions: Array<Reaction>, currentUser: CurrentUser, chat: Chat, messageID: string}> = ({reactions, currentUser, chat, messageID}) => {
+const Reactions: FC<{ reactions: Array<Reaction>, currentUser: CurrentUser, chat: Chat, messageID: string }> = ({ reactions, currentUser, chat, messageID }) => {
 
     const isFavorites = useAppSelector(state => state.app.isFavorites)
     const res = aggregateReactions(reactions, currentUser)
-    
+
     const setReaction = (reaction: Reaction, e: React.MouseEvent) => {
         e.stopPropagation()
         messagesAPI.setReaction({
@@ -221,13 +238,13 @@ const Reactions: FC<{reactions: Array<Reaction>, currentUser: CurrentUser, chat:
         })
     }
 
-    if(!reactions || reactions.length === 0) return null
+    if (!reactions || reactions.length === 0) return null
 
     return (
         <div className={styles.messageData__reactions}>
             {res.map((r, i) => (
-                <div className={classNames(styles.reaction, {[styles.reaction__owner]: r.isMine})} key={i}>
-                    <span onClick={(e) => setReaction({reaction: r.reaction, sender: currentUser, isMine: r.isMine}, e)}>{r.reaction}</span>
+                <div className={classNames(styles.reaction, { [styles.reaction__owner]: r.isMine })} key={i}>
+                    <span onClick={(e) => setReaction({ reaction: r.reaction, sender: currentUser, isMine: r.isMine }, e)}>{r.reaction}</span>
                     {r.count > 1 && <span className={styles.reaction__count}>{r.count}</span>}
                 </div>
             ))}
@@ -347,9 +364,9 @@ const Message: FC<Props> = ({ messageInfo }) => {
                 >
                     {messageInfo.forwardedFrom && <ForwardedFrom user={messageInfo.forwardedFrom} />}
                     {messageInfo.replyToMessage && <ReplyToMessage {...messageInfo} />}
-                    <ViewportContent onEnterViewport={readMessage} message={messageInfo} />
+                    <ViewportContent onEnterViewport={readMessage} message={messageInfo} currentUser={owner}/>
                     <div className={styles.messageData__info}>
-                        <Reactions reactions={messageInfo?.reactions} currentUser={owner} chat={chat} messageID={messageInfo.messageID}/>
+                        <Reactions reactions={messageInfo?.reactions} currentUser={owner} chat={chat} messageID={messageInfo.messageID} />
                         <div className={styles.infoWrapper}>
                             <div className={styles.messageData__date}>
                                 <span >{messageInfo.changed ? `ред.${getTimeFromDate(createNewDate(messageInfo.changed))}` : getTimeFromDate(createNewDate(messageInfo.date))}</span>
@@ -379,10 +396,10 @@ const Message: FC<Props> = ({ messageInfo }) => {
 
 function checkProps(prevProps: Props, nextProps: Props): boolean {
     return prevProps.messageInfo.message === nextProps.messageInfo.message
-            &&
-            prevProps.messageInfo.read === nextProps.messageInfo.read
-            &&
-            prevProps.messageInfo?.reactions === nextProps.messageInfo?.reactions
+        &&
+        prevProps.messageInfo.read === nextProps.messageInfo.read
+        &&
+        prevProps.messageInfo?.reactions === nextProps.messageInfo?.reactions
 }
 
 export default memo(Message, checkProps);

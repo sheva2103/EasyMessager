@@ -200,7 +200,7 @@ const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, isForwarde
                 <div className={classNames(styles.contextMenu, { [styles.contextMenu_open]: menuState.open })}>
                     <ul>
                         {isChannel && message?.reactions?.length > 0 &&
-                            <li onClick={showReactions}><HeartIcon /><span>Reactions</span></li>
+                            <li onClick={showReactions}><HeartIcon /><span>{t('reactions')}</span></li>
                         }
                         {message?.callStatus &&
                             <li onClick={callBack}><CallIcon /><span>{t('call.callback')}</span></li>
