@@ -119,7 +119,8 @@ const ViewportContent: FC<IMessagesContent> = ({ onEnterViewport, message, curre
     const [showImage, setShowImage] = useState(false)
     const [currentIndex, setCurrentIndex] = useState(0)
 
-    const clickShareChat = () => {
+    const clickShareChat = (e: React.MouseEvent) => {
+        e.stopPropagation()
         if(currentUser.uid !== message.shareChat.uid) dispatch(setTempChat(message.shareChat))
     }
 
@@ -351,8 +352,8 @@ const Message: FC<Props> = ({ messageInfo }) => {
                 <div
                     className={classNames(styles.messageData,
                         {
-                            [styles.owner]: !isGuestMessage,
-                            [styles.guest]: isGuestMessage,
+                            [styles.owner]: isGuestMessage,
+                            [styles.guest]: !isGuestMessage,
                             [styles.noSelect]: contextMenuIsOpen,
                             [statusCallMessage()]: isCallMessage,
                             [styles.call]: isCallMessage

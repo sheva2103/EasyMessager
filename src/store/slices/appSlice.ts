@@ -50,6 +50,9 @@ const resetChatState = (state: AppState) => {
     if (state.selectedChannel) state.selectedChannel = null
     if(state.isSearchMessage) state.isSearchMessage = false 
     state.onlineStatusSelectedUser = null
+    // state.menu.menuChild = ''
+    // state.menu.bar = false
+    // state.menu.cover = false
 };
 
 const initialState: AppState = {
