@@ -18,6 +18,7 @@ import { setChat } from "../../store/slices/setChatIDSlice";
 import { useChannelClickHandler } from "../../hooks/useHandleClickToChannel";
 import { PreviewLastMessage } from "./ChatInfo";
 import { postTask, subscribe } from "../../utils/workerSingleton";
+import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 
 
 
@@ -46,6 +47,7 @@ const ChannelInfo: FC<Props> = (channel) => {
     const [errorConnection, setErrorConnection] = useState(false)
     const selectedChat = useAppSelector(state => state.app.selectedChat)
     const currentUser = useAppSelector(state => state.app.currentUser)
+    const {t} = useTypedTranslation()
     const dispatch = useAppDispatch()
     const isSelected = selectedChat?.channel?.channelID === updateChannel.channelID
     const lastMessage = messages.messages[messages.messages.length - 1]
@@ -171,8 +173,6 @@ const ChannelInfo: FC<Props> = (channel) => {
         if (isSelected) dispatch(setMessages(messages))
     }, [isSelected, messages]);
 
-    //console.log('chanel>>>>' ,channel)
-
     if (fetchingCurrentInfo) return <Skeleton />
 
     if (isNotAccess) return (
@@ -180,7 +180,7 @@ const ChannelInfo: FC<Props> = (channel) => {
             <ConfirmComponent
                 confirmFunc={sendRequest}
                 handleClose={() => setIsNotAccess(false)}
-                text="Это закрытое сообщество. Хотите подать заявку ?" />
+                text={t('closedCommunityMessage')} />
         </DialogComponent>
     )
 
@@ -215,7 +215,6 @@ const ChannelInfo: FC<Props> = (channel) => {
                 </div>
                 <PreviewLastMessage message={lastMessage} currentUserId={currentUser.uid} />
             </div>
-            {/* <span className={styles.name}>{isSelected ? <ShowNameChat /> : updateChannel.displayName}</span> */}
             <div className={styles.chatInfo__noRead}>
                 <Badge badgeContent={messages.noRead.quantity} color="primary" />
             </div>

@@ -21,13 +21,6 @@ export type SignInSignUpForm = {
 }
 
 
-
-// export interface StyleContextMenu {
-//     position: 'relative';
-//     top: string;
-//     left: string;
-// }
-
 export type CurrentUserData = {
     displayName: string,
     photoURL?: string,

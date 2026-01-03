@@ -4,9 +4,9 @@ import Avatar from "../Avatar/Avatar";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { Chat, Message1, NoReadMessagesType } from "../../types/types";
 import { setChat } from "../../store/slices/setChatIDSlice";
-import { messagesAPI, profileAPI } from "../../API/api";
+import { profileAPI } from "../../API/api";
 import classNames from "classnames";
-import { createMessageList, getChatType, getQuantityNoReadMessages, makeChatId } from "../../utils/utils";
+import { getChatType, makeChatId } from "../../utils/utils";
 import { onSnapshot, QuerySnapshot } from "firebase/firestore";
 import { setMessages } from "../../store/slices/messagesSlice";
 import { Alert, Badge, Snackbar } from "@mui/material";
@@ -204,8 +204,6 @@ const ChatInfo: FC<Chat> = (user) => {
             setUpdateUser((prev) => ({ ...prev, chatID: selectedChat.chatID }))
         }
     }, [selectedChat?.chatID]);
-
-    //console.log('user>>>>' ,user)
 
     if (fetchingCurrentInfo) return <Skeleton />
 

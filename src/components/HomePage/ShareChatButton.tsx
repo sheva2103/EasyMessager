@@ -6,12 +6,14 @@ import { addSelectedMessage, closeBar, isSendMessage } from "../../store/slices/
 import { createShareChatObj } from "../../utils/utils";
 import { Chat } from "../../types/types";
 import { CONTACTS } from "../../constants/constants";
+import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 
 const ShareChatButton: FC<{chat: Chat}> = ({chat}) => {
 
     const currentUser = useAppSelector(state => state.app.currentUser)
     const dispatch = useAppDispatch()
     const message = createShareChatObj({sender: currentUser, shareChat: chat})
+    const { t } = useTypedTranslation()
     const clickHandler = () => {
         console.log(message)
         dispatch(addSelectedMessage(message))
@@ -24,7 +26,7 @@ const ShareChatButton: FC<{chat: Chat}> = ({chat}) => {
             <button onClick={clickHandler}>
                 <div className={styles.shareChatButton__container}>
                     <div className={styles.shareChatButton__icon}><ShareIcon /></div>
-                    <div>Поделиться</div>
+                    <div>{t('share')}</div>
                 </div>
             </button>
         </div>

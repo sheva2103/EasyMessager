@@ -9,7 +9,7 @@ import Reply from '../../assets/reply-fill.svg'
 import CallIcon from '../../assets/telephone-fill.svg'
 import HeartIcon from '../../assets/heart.svg'
 
-import { CSSProperties, FC, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { CSSProperties, FC, useLayoutEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from '../../hooks/hook';
 import { CurrentUser, Message1, Reaction } from '../../types/types';
 import { addSelectedMessage, changeMessage, closeBar, closeMenu, isSendMessage, setReplyToMessage, setShowCheckbox, setTempChat } from '../../store/slices/appSlice';
@@ -21,7 +21,6 @@ import { openModalCalls } from '../../store/slices/callsSlice';
 import { getContextMenuPosition } from '../../utils/utils';
 import DialogComponent, { LayoutDialogList } from '../Settings/DialogComponent';
 import { Virtuoso } from 'react-virtuoso';
-import stylesContacts from '../Contacts/Contacts.module.scss'
 
 const ANIMATION_DURATION = 190
 

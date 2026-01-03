@@ -1,4 +1,4 @@
-import { FC, memo, useCallback, useEffect, useMemo, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import MenuIcon from '../../assets/menu.svg'
 import styles from './HomePage.module.scss'
 import classNames from "classnames";
@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { channelAPI, contactsAPI, messagesAPI } from "../../API/api";
 import { closeBar, setLoadChat, setSearchMessages } from "../../store/slices/appSlice";
 import { setChat } from "../../store/slices/setChatIDSlice";
-import { ADD_TO_LIST_SUBSCRIBERS, SETTINGS, SHOW_CHANNEL_INFO } from "../../constants/constants";
+import { SHOW_CHANNEL_INFO } from "../../constants/constants";
 import { Badge } from "@mui/material";
 import { createSelector } from "@reduxjs/toolkit";
 import { RootState } from "../../store/store";
@@ -141,7 +141,7 @@ const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
     const subscribe = () => {
         messagesAPI.addChat(currentUser, selectedChat)
             .then(() => setOpen(false))
-            .catch((err) => console.log('Произошла ошибка', err))
+            .catch((err) => console.log('Произошла ошибка подписки', err))
     }
 
     const unsubscribe = () => {
@@ -150,7 +150,7 @@ const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
                 setOpen(false)
                 dispatch(setChat(null))
             })
-            .catch((err) => console.log('Произошла ошибка', err))
+            .catch((err) => console.log('Произошла ошибка отписки', err))
     }
 
     const showSearchMessages = () => {

@@ -851,10 +851,17 @@ export const useWebRTCCall = (
                         console.log(`Локальный кандидат: ${local.candidateType} (${local.ip || 'localhost'})`);
                         console.log(`Удаленный кандидат: ${remote.candidateType} (${remote.ip || 'localhost'})`);
 
-                        if (remote.candidateType === 'relay') {
-                            console.warn("🌐 Трафик идет через TURN сервер");
+                        // if (remote.candidateType === 'relay') {
+                        //     console.warn("🌐 Трафик идет через TURN сервер");
+                        // } else {
+                        //     console.info("🚀 Прямое соединение (Host/STUN)");
+                        // }
+                        if (local.candidateType === 'relay' || remote.candidateType === 'relay') {
+                            console.warn("🌐 Соединение через TURN-реле (Успех!)");
+                        } else if (local.candidateType === 'srflx' && remote.candidateType === 'srflx') {
+                            console.info("⚡ Чистое P2P соединение (STUN)");
                         } else {
-                            console.info("🚀 Прямое соединение (Host/STUN)");
+                            console.info("🏠 Локальное соединение (Host)");
                         }
                         console.log("-----------------------------------------");
                     }

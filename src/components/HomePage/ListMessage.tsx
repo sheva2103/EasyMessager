@@ -1,11 +1,10 @@
 import styles from './HomePage.module.scss'
-import { FC, memo, MutableRefObject, useEffect, useLayoutEffect, useRef } from 'react';
+import { FC, memo, useEffect, useLayoutEffect, useRef } from 'react';
 import Message from './Messgae';
 import { Message1, NoReadMessagesType } from '../../types/types';
 import { createNewDate, getDatefromDate } from '../../utils/utils';
 import GetDateMessage from './GetDateMessage';
 import { useAppDispatch, useAppSelector } from '../../hooks/hook';
-import Worker from 'web-worker';
 import AdvancedContent from './AdvancedContent';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { setIsAtBottomScroll } from '../../store/slices/appSlice';
@@ -16,15 +15,12 @@ interface VariableHeightListProps {
     items: Message1[],
     noRead: NoReadMessagesType,
     assignElementToScroll: (handle: VirtuosoHandle | null) => void,
-    //searchIndexes: Set<number>,
-    //scrollerDomRef: MutableRefObject<any>
 }
 
 const VariableHeightList: FC<VariableHeightListProps> = ({ 
     items, 
     noRead, 
     assignElementToScroll, 
-    //scrollerDomRef
 }) => {
 
     const virtuosoRef = useRef<VirtuosoHandle>(null);
@@ -51,10 +47,6 @@ const VariableHeightList: FC<VariableHeightListProps> = ({
         return () => assignElementToScroll(null)
     }, [assignElementToScroll]);
 
-    // const setScrollerRef = (ref: HTMLElement | Window | null) => {
-    //     scrollerDomRef.current = (ref as HTMLDivElement) ?? null;
-    // }
-
     const renderRow = (index: number, item: Message1) => {
         const isHighlighted = new Set(searchIndexes).has(index);
         const rowStyle: React.CSSProperties = {
@@ -73,7 +65,6 @@ const VariableHeightList: FC<VariableHeightListProps> = ({
                 {showDate && <GetDateMessage date={item.date} />}
                 <Message 
                     messageInfo={item}
-                    //scrollerDomRef={scrollerDomRef} 
                     key={item.messageID}    
                 />
             </div>
@@ -87,7 +78,6 @@ const VariableHeightList: FC<VariableHeightListProps> = ({
             itemContent={renderRow}
             overscan={800}
             increaseViewportBy={300}
-            //initialTopMostItemIndex={items.length - 1}
             atBottomStateChange={setAtBottomScroll} 
         />
     );
@@ -97,13 +87,11 @@ const ListMessages: FC = () => {
 
     const list = useAppSelector(state => state.messages)
     const scrollElementRef = useRef<VirtuosoHandle | null>(null) 
-
-    //const scrollerDomRef = useRef<MutableRefObject<HTMLDivElement>>(null)
     const assignElementToScroll = (element: VirtuosoHandle | null) => {
         scrollElementRef.current = element 
     }
 
-    //console.log('render list messages')
+    console.log('render list messages')
 
     return (
         <div className={styles.contentWrapper}>
@@ -113,8 +101,6 @@ const ListMessages: FC = () => {
                         items={list.messages}
                         noRead={list.noRead} 
                         assignElementToScroll={assignElementToScroll} 
-                        
-                        //scrollerDomRef={scrollerDomRef}    
                     />
                 </ul>
             </div>

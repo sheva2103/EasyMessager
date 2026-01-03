@@ -16,35 +16,8 @@ import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 import { Virtuoso } from "react-virtuoso";
 import Preloader from '../../assets/preloader.svg'
 import ShareChatButton from "./ShareChatButton";
+import { REMOVE_FROM_LIST_SUBSCRIBERS } from "../../constants/constants";
 
-// const test: CurrentUser[] = [
-//     { displayName: 'alexdb', photoURL: '', email: 'test1rt@test.com', uid: 'uhrtugjfghdhc' },
-//     { displayName: 'alexcbc55555555555555', photoURL: '', email: 'test1fg@test.com', uid: 'uhugjfgfghdhc' },
-//     { displayName: 'alexvbcx', photoURL: '', email: 'test1cv@test.com', uid: 'uhugjfgcvhdhc' },
-//     { displayName: 'alexfgdh', photoURL: '', email: 'test1nb@test.com', uid: 'uhugjfgbnhdhc' },
-//     { displayName: 'alexzzzzc', photoURL: '', email: 'test1sd@test.com', uid: 'usdhugjfghdhc' },
-//     { displayName: 'alexds', photoURL: '', email: 'test1io@test.com', uid: 'uhugjfghiodhc' },
-//     { displayName: 'alexvxv', photoURL: '', email: 'test1ti@test.com', uid: 'uhugjfghdtihc' },
-//     { displayName: 'alexbbbb', photoURL: '', email: 'test1hh@test.com', uid: 'uhugjfghdhhhc' },
-//     { displayName: 'alexcvxv', photoURL: '', email: 'test1ddg@test.com', uid: 'uhudgdgjfghdhc' },
-//     { displayName: 'alexxv', photoURL: '', email: 'test1jr@test.com', uid: 'uhugjfghdgdhjdhc' },
-//     { displayName: 'alexzzzzs', photoURL: '', email: 'test1rw@test.com', uid: 'uhugjwqqfghdhc' },
-//     { displayName: 'alexvvcvbbb', photoURL: '', email: 'test1dhhj@test.com', uid: 'uhugjddghfghdhc' },
-//     { displayName: 'alexdgsd', photoURL: '', email: 'test1qqq@test.com', uid: 'uhuqqqgjfghdhc' },
-//     { displayName: 'alexbbb', photoURL: '', email: 'test1fhfr@test.com', uid: 'uhugjfgjfghdhc' },
-//     { displayName: 'test1', photoURL: '', email: 'test1dete@test.com', uid: 'uhuhjhggjfghdhc' },
-//     { displayName: 'alexzzzzc', photoURL: '', email: 'test1sd@test.com', uid: 'usdhugjfghdhc' },
-//     { displayName: 'alexds', photoURL: '', email: 'test1io@test.com', uid: 'uhugjfghiodhc' },
-//     { displayName: 'alexvxv', photoURL: '', email: 'test1ti@test.com', uid: 'uhugjfghdtihc' },
-//     { displayName: 'alexbbbb', photoURL: '', email: 'test1hh@test.com', uid: 'uhugjfghdhhhc' },
-//     { displayName: 'alexcvxv', photoURL: '', email: 'test1ddg@test.com', uid: 'uhudgdgjfghdhc' },
-//     { displayName: 'alexxv', photoURL: '', email: 'test1jr@test.com', uid: 'uhugjfghdgdhjdhc' },
-//     { displayName: 'alexzzzzs', photoURL: '', email: 'test1rw@test.com', uid: 'uhugjwqqfghdhc' },
-//     { displayName: 'alexvvcvbbb', photoURL: '', email: 'test1dhhj@test.com', uid: 'uhugjddghfghdhc' },
-//     { displayName: 'alexdgsd', photoURL: '', email: 'test1qqq@test.com', uid: 'uhuqqqgjfghdhc' },
-//     { displayName: 'alexbbb', photoURL: '', email: 'test1fhfr@test.com', uid: 'uhugjfgjfghdhc' },
-//     { displayName: 'test1', photoURL: '', email: 'test1dete@test.com', uid: 'uhuhjhggjfghdhc' },
-// ]
 
 enum ModalAction {
     DELETE_CHANNEL = 'DELETE_CHANNEL',
@@ -123,9 +96,9 @@ const ListSubscribers: FC<{ channel: TypeChannel, currentUser: CurrentUser, isOw
         dispatch(setTempChat(user))
     }
 
-    const removeFromChannel = (e: React.MouseEvent, contact: CurrentUser) => {
+    const removeFromChannel = (e: React.MouseEvent, subscriber: CurrentUser) => {
         e.stopPropagation()
-        messagesAPI.deleteChat(contact, createObjectChannel(channel))
+        channelAPI.changeListSubscribers(REMOVE_FROM_LIST_SUBSCRIBERS, channel.channelID, subscriber)
     }
 
     return (
@@ -206,7 +179,7 @@ const ChannelFullInfoComponent: FC = () => {
         if (modalState.value === ModalAction.DELETE_CHANNEL) return <ConfirmComponent confirmFunc={deleteChannel} text={t('areYouSure?')} />
         if (modalState.value === ModalAction.AVAILABILITY_CHANNEL) return <ConfirmComponent confirmFunc={changeAccessChannel} text={textAccessButoon} />
         if (modalState.value === ModalAction.SHOW_SUBSCRIBERS_LIST) return <ListSubscribers channel={channel} currentUser={currentUser} isOwner={isOwner} />
-        if (modalState.value === ModalAction.CLEAR_MESSAGES) return <ConfirmComponent confirmFunc={clearAllMessages} text={'Удалить все сообщения ?'} />
+        if (modalState.value === ModalAction.CLEAR_MESSAGES) return <ConfirmComponent confirmFunc={clearAllMessages} text={`${t('clearMessages')} ?`} />
         return null
     }
 
@@ -241,7 +214,7 @@ const ChannelFullInfoComponent: FC = () => {
                                     onClick={() => setModalState({ isOpen: true, value: ModalAction.CLEAR_MESSAGES })}
                                     style={{ minWidth: 100 }}
                                 >
-                                    {deletingMessages ? <Preloader /> : 'Очистить сообщения'}
+                                    {deletingMessages ? <Preloader /> : t('clearMessages')}
                                 </button>
                             </div>
                         </div>

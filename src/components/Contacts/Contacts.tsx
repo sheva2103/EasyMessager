@@ -39,7 +39,7 @@ const Contacts: FC = () => {
 
     const [name, setName] = useState('')
     const [sending, setSending] = useState(false)
-    const [isOpenDialog, setIsOpenDialog] = useState({isOpen: false, contact: null})
+    const [isOpenDialog, setIsOpenDialog] = useState({ isOpen: false, contact: null })
     const dispatch = useAppDispatch()
     const contactsList = useAppSelector(state => state.app.contacts)
     const isSend = useAppSelector(state => state.app.isSendMessage)
@@ -70,7 +70,7 @@ const Contacts: FC = () => {
                 })
             return
         }
-        if(selectedChat?.uid === user.uid) {
+        if (selectedChat?.uid === user.uid) {
             dispatch(closeMenu())
             return
         }
@@ -98,20 +98,26 @@ const Contacts: FC = () => {
             })
     }
 
-    const changeContact = async(contact: Chat) => {
-        contactsAPI.changeContact({myEmail: currentUser.email, contact})
-            .then(() => setIsOpenDialog({isOpen: false, contact: null}))
+    const changeContact = async (contact: Chat) => {
+        contactsAPI.changeContact({ myEmail: currentUser.email, contact })
+            .then(() => setIsOpenDialog({ isOpen: false, contact: null }))
             .catch(err => console.log('error change contact', err))
     }
 
-    const changeDialogState = (action: boolean ,contact: Chat = null) => {
-        setIsOpenDialog((prev) => ({
+    const changeDialogState = (action: boolean, contact: Chat = null) => {
+        setIsOpenDialog({
             contact,
             isOpen: action
-        }))
+        })
     }
 
-    const filter = contactsList.filter(item => item.displayName.includes(name))
+    const filter = contactsList.filter(item => {
+        const search = name.toLowerCase();
+        return (
+            item.displayName.toLowerCase().includes(search) ||
+            item.nameWasGiven?.toLowerCase().includes(search)
+        )
+    })
 
     return (
         <div className={styles.container}>
@@ -130,7 +136,7 @@ const Contacts: FC = () => {
                                 {!isSend &&
                                     <div title={t('change')} onClick={(e) => {
                                         e.stopPropagation()
-                                        changeDialogState(true ,item)
+                                        changeDialogState(true, item)
                                     }}>
                                         <ChangeContactIcon />
                                     </div>
@@ -146,7 +152,7 @@ const Contacts: FC = () => {
                 </ul>
             </div>
             <DialogComponent onClose={changeDialogState} isOpen={isOpenDialog.isOpen}>
-                <AddContactForm functionPerformed={changeContact} user={isOpenDialog.contact} change/>
+                <AddContactForm functionPerformed={changeContact} user={isOpenDialog.contact} change />
             </DialogComponent>
         </div>
     );

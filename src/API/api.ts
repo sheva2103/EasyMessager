@@ -463,10 +463,10 @@ export const channelAPI: ChannelAPI = {
                 listOfSubscribers: arrayUnion(user)
             });
         }
-        const toCurrentUser = createObjectUser(user)
+        //const toCurrentUser = createObjectUser(user)
         if (typeChange === REMOVE_FROM_LIST_SUBSCRIBERS) {
             await updateDoc(ref, {
-                listOfSubscribers: arrayRemove(toCurrentUser)
+                listOfSubscribers: arrayRemove(user)
             });
         }
     },

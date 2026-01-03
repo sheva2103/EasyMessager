@@ -1,8 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { Chat, CurrentUser, CurrentUserData, Message1, OnlineStatusUserType, TypeChannel, UsePresenceReturn } from "../../types/types";
+import { Chat, CurrentUser, CurrentUserData, Message1, TypeChannel, UsePresenceReturn } from "../../types/types";
 import { setChat } from "./setChatIDSlice";
-import { v4 as uuidv4 } from 'uuid';
 import { makeChatId } from "../../utils/utils";
 
 
@@ -105,10 +104,6 @@ export const appSlice = createSlice({
             state.menu.menuChild = action.payload
             if (!state.menu.cover) state.menu.cover = true
         },
-        // selectChat(state, action: PayloadAction<Chat>) {
-        //     state.selectedChat = action.payload
-        //     state.selectedMessages = []
-        // },
         addSelectedMessage(state, action: PayloadAction<Message1>) {
             if (state.selectedMessages.some(item => item.messageID === action.payload.messageID)) return //изменил
             state.selectedMessages.push(action.payload)
@@ -184,7 +179,6 @@ export const appSlice = createSlice({
             state.menu.cover = false
         },
         setSelectedChannel(state, action: PayloadAction<Chat | null>) {
-            //state.selectedChannel = action.payload
             resetChatState(state)
             state.selectedChat = action.payload
         },
@@ -221,8 +215,6 @@ export const appSlice = createSlice({
             .addCase(setChat.fulfilled, (state, action) => {
                 resetChatState(state)
                 state.selectedChat = action.payload
-                // if (state.selectedMessages) state.selectedMessages = []
-                // if (state.showCheckbox) state.showCheckbox = false
             })
     }
 })
@@ -230,7 +222,6 @@ export const appSlice = createSlice({
 export const { openMenu,
     closeMenu,
     closeBar,
-    //selectChat, 
     addSelectedMessage,
     deleteSelectedMessage,
     changeMessage,
