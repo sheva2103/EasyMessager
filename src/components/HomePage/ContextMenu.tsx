@@ -11,7 +11,7 @@ import HeartIcon from '../../assets/heart.svg'
 
 import { CSSProperties, FC, useLayoutEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from '../../hooks/hook';
-import { CurrentUser, Message1, Reaction } from '../../types/types';
+import { CurrentUser, MessageType, Reaction } from '../../types/types';
 import { addSelectedMessage, changeMessage, closeBar, closeMenu, isSendMessage, setReplyToMessage, setShowCheckbox, setTempChat } from '../../store/slices/appSlice';
 import { messagesAPI } from '../../API/api';
 import { CONTACTS } from '../../constants/constants';
@@ -27,7 +27,7 @@ const ANIMATION_DURATION = 190
 type Props = {
     isOpen: boolean,
     isOwner: boolean,
-    message: Message1
+    message: MessageType
     closeContextMenu: (e: React.MouseEvent) => void,
     isForwarder: boolean,
     currentUser: CurrentUser,

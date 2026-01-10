@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { Chat, CurrentUser, CurrentUserData, Message1, TypeChannel, UsePresenceReturn } from "../../types/types";
+import { Chat, CurrentUser, CurrentUserData, MessageType, TypeChannel, UsePresenceReturn } from "../../types/types";
 import { setChat } from "./setChatIDSlice";
 import { makeChatId } from "../../utils/utils";
 
@@ -16,8 +16,8 @@ type Menu = {
 type AppState = {
     menu: Menu,
     selectedChat: Chat | null,
-    selectedMessages: Message1[],
-    changeMessage: Message1 | null,
+    selectedMessages: MessageType[],
+    changeMessage: MessageType | null,
     isSendMessage: boolean,
     showCheckbox: boolean,
     currentUser: null | CurrentUser,
@@ -29,7 +29,7 @@ type AppState = {
     emojiIsOpen: boolean,
     selectedEmoji: string,
     isSearchMessage: boolean,
-    replyToMessage: Message1 | null,
+    replyToMessage: MessageType | null,
     isFavorites: boolean,
     selectedChannel: TypeChannel | null,
     clearGlobalSearchUser: boolean,
@@ -104,7 +104,7 @@ export const appSlice = createSlice({
             state.menu.menuChild = action.payload
             if (!state.menu.cover) state.menu.cover = true
         },
-        addSelectedMessage(state, action: PayloadAction<Message1>) {
+        addSelectedMessage(state, action: PayloadAction<MessageType>) {
             if (state.selectedMessages.some(item => item.messageID === action.payload.messageID)) return //изменил
             state.selectedMessages.push(action.payload)
         },
@@ -113,15 +113,15 @@ export const appSlice = createSlice({
             state.isSendMessage = false,
                 state.showCheckbox = false
         },
-        deleteSelectedMessage(state, action: PayloadAction<Message1>) {
+        deleteSelectedMessage(state, action: PayloadAction<MessageType>) {
             state.selectedMessages = state.selectedMessages.filter(message => message.messageID !== action.payload.messageID)
         },
-        changeMessage(state, action: PayloadAction<Message1 | null>) {
+        changeMessage(state, action: PayloadAction<MessageType | null>) {
             state.changeMessage = action.payload
             if (!action.payload) state.replyToMessage = null
             if(state.replyToMessage) state.replyToMessage = null
         },
-        setReplyToMessage(state, action: PayloadAction<Message1 | null>) {
+        setReplyToMessage(state, action: PayloadAction<MessageType | null>) {
             state.replyToMessage = action.payload
             if(state.changeMessage) state.changeMessage = null
         },

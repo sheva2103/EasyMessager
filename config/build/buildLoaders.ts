@@ -21,11 +21,8 @@ export function buildLoaders(options: BuildOPtions): ModuleOptions['rules'] {
     const scssLoader = {
         test: /\.s[ac]ss$/i,
         use: [
-            // Creates `style` nodes from JS strings
             isDev ? 'style-loader' : MiniCssExtractPlugin.loader,
-            // Translates CSS into CommonJS
             cssLoaderWithModules,
-            // Compiles Sass to CSS
             "sass-loader",
         ],
     }

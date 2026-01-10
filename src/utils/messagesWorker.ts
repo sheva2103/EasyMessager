@@ -1,4 +1,4 @@
-import { Message1 } from '../types/types';
+import { MessageType } from '../types/types';
 import { createMessageList, getQuantityNoReadMessages } from './utils';
 
 type InMsg = {
@@ -8,7 +8,7 @@ type InMsg = {
 };
 
 type OutMsg =
-    | { taskId: string; list:  Message1[]; noRead: { quantity: number; targetIndex: number } }
+    | { taskId: string; list:  MessageType[]; noRead: { quantity: number; targetIndex: number } }
     | { taskId: string; error: string };
 
 addEventListener('message', (e: MessageEvent<InMsg>) => {

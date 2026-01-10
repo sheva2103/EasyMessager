@@ -1,9 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Message1, NoReadMessagesType } from "../../types/types";
+import { MessageType, NoReadMessagesType } from "../../types/types";
 
 
 interface IInitialState {
-    messages: Message1[],
+    messages: MessageType[],
     noRead: NoReadMessagesType
 }
 
@@ -16,7 +16,7 @@ const messagesSlice = createSlice({
     name: 'messages',
     initialState,
     reducers: {
-        setMessages(state, action: PayloadAction<{messages: Message1[], noRead: NoReadMessagesType}>) {
+        setMessages(state, action: PayloadAction<{messages: MessageType[], noRead: NoReadMessagesType}>) {
             state.messages = action.payload.messages
             state.noRead = action.payload.noRead
         }

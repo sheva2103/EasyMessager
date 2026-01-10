@@ -1,3 +1,11 @@
+/**
+ * @author sheva2103
+ * @project EasyMessager
+ * @license MIT
+ * @GitHub https://github.com/sheva2103/EasyMessager
+ * @email 2103sheva@gmail.com
+ * @copyright (c) 2025 Aleksandr (GitHub: sheva2103)
+ */
 import { useState, useRef, useEffect, useCallback } from 'react';
 import {
     doc,
@@ -89,32 +97,32 @@ export const useWebRTCCall = (
     const incomingRef = useRef<HTMLAudioElement | null>(null);
 
     useEffect(() => {
-    const fetchConfig = async () => {
-        try {
-            const configDoc = await getDoc(doc(db, 'settings', 'webrtc'));
-            if (configDoc.exists()) {
-                const data = configDoc.data();
-                const newConfig: RTCConfiguration = {
-                    iceServers: [
-                        ...DEFAULT_STUN_CONFIG.iceServers!,
-                        {
-                            urls: data.turnUrls,
-                            username: data.turnUsername,
-                            credential: data.turnCredential,
-                        },
-                    ],
-                    iceCandidatePoolSize: 10,
-                };
-                
-                setDynamicRtcConfig(newConfig);
-                console.log("Полная конфигурация WebRTC загружена из Firestore");
+        const fetchConfig = async () => {
+            try {
+                const configDoc = await getDoc(doc(db, 'settings', 'webrtc'));
+                if (configDoc.exists()) {
+                    const data = configDoc.data();
+                    const newConfig: RTCConfiguration = {
+                        iceServers: [
+                            ...DEFAULT_STUN_CONFIG.iceServers!,
+                            {
+                                urls: data.turnUrls,
+                                username: data.turnUsername,
+                                credential: data.turnCredential,
+                            },
+                        ],
+                        iceCandidatePoolSize: 10,
+                    };
+
+                    setDynamicRtcConfig(newConfig);
+                    console.log("Полная конфигурация WebRTC загружена из Firestore");
+                }
+            } catch (e) {
+                console.warn("Ошибка загрузки из Firestore, работаем на дефолтном STUN", e);
             }
-        } catch (e) {
-            console.warn("Ошибка загрузки из Firestore, работаем на дефолтном STUN", e);
-        }
-    };
-    fetchConfig();
-}, []);
+        };
+        fetchConfig();
+    }, []);
 
     useEffect(() => { callDurationRef.current = callDuration; }, [callDuration]);
 
@@ -195,8 +203,11 @@ export const useWebRTCCall = (
                 await deleteDoc(roomRef);
             } catch (e) { console.warn("Firebase cleanup suppressed:", e); }
         }
+
         await deleteDoc(doc(db, 'calls', myUid)).catch(() => { });
-    }, [roomId, incomingRoomId, myUid]);
+        await deleteDoc(doc(db, 'calls', calleeUid)).catch(() => { });
+
+    }, [roomId, incomingRoomId, myUid, calleeUid]);
 
     const endCall = useCallback(async () => {
         if (hasEndedRef.current) return;
@@ -388,6 +399,17 @@ export const useWebRTCCall = (
 
     useEffect(() => {
         const unsubscribe = onSnapshot(doc(db, 'calls', myUid), snap => {
+
+            if (!snap.exists()) { 
+                if (callState === 'incoming') {
+                    stopAudios();
+                    setCallState('idle');
+                    setIncomingRoomId(null);
+                    rejectCall()
+                }
+                return;
+            }
+
             const data = snap.data();
             if (data?.status === 'incoming' && callState === 'idle') {
                 setIncomingRoomId(data.roomId);

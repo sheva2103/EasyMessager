@@ -1,7 +1,7 @@
 import styles from './HomePage.module.scss'
 import { FC, memo, useEffect, useLayoutEffect, useRef } from 'react';
 import Message from './Messgae';
-import { Message1, NoReadMessagesType } from '../../types/types';
+import { MessageType, NoReadMessagesType } from '../../types/types';
 import { createNewDate, getDatefromDate } from '../../utils/utils';
 import GetDateMessage from './GetDateMessage';
 import { useAppDispatch, useAppSelector } from '../../hooks/hook';
@@ -12,7 +12,7 @@ import { setIsAtBottomScroll } from '../../store/slices/appSlice';
 
 
 interface VariableHeightListProps {
-    items: Message1[],
+    items: MessageType[],
     noRead: NoReadMessagesType,
     assignElementToScroll: (handle: VirtuosoHandle | null) => void,
 }
@@ -47,7 +47,7 @@ const VariableHeightList: FC<VariableHeightListProps> = ({
         return () => assignElementToScroll(null)
     }, [assignElementToScroll]);
 
-    const renderRow = (index: number, item: Message1) => {
+    const renderRow = (index: number, item: MessageType) => {
         const isHighlighted = new Set(searchIndexes).has(index);
         const rowStyle: React.CSSProperties = {
             borderRadius: '16px',

@@ -8,8 +8,17 @@ import BlackList from "./BlackList";
 import SignOutButton from "./SignOutButton";
 import { useAppSelector } from "../../hooks/hook";
 import { useTranslation } from "react-i18next";
-import { profileAPI } from "../../API/api";
 import DeleteUserButton from "./DeleteUserButton";
+
+import React from "react";
+
+const AuthorSignature: React.FC = () => {
+    return (
+        <div style={{ fontSize: "12px", color: "#666", textAlign: "center", marginTop: "10px" }}>
+            © 2025 sheva2103 (EMAIL: 2103sheva@gmail.com)
+        </div>
+    );
+};
 
 
 const Settings: FC = () => {
@@ -46,10 +55,11 @@ const Settings: FC = () => {
             </div>
             <hr className={styles.hr} />
 
-            <div className={styles.group} style={{flexDirection: 'row'}}>
+            <div className={styles.group} style={{ flexDirection: 'row' }}>
                 <SignOutButton />
                 <DeleteUserButton />
             </div>
+            <AuthorSignature />
         </div>
     );
 }

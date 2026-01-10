@@ -1,18 +1,18 @@
 import { FC, memo, useCallback } from "react";
-import { Message1 } from "../../types/types";
+import { MessageType } from "../../types/types";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { addSelectedMessage, deleteSelectedMessage } from "../../store/slices/appSlice";
 import { Checkbox } from "@mui/material";
 import { createSelector } from "@reduxjs/toolkit";
 
 type Props = {
-    messageInfo: Message1
+    messageInfo: MessageType
 }
 
 const selectIsMessageSelected = createSelector(
     (state: any) => state.app.selectedMessages,
     (_: any, messageID: string) => messageID,
-    (selectedMessages: Message1[], messageID) => selectedMessages.some(msg => msg.messageID === messageID)
+    (selectedMessages: MessageType[], messageID) => selectedMessages.some(msg => msg.messageID === messageID)
 );
 
 

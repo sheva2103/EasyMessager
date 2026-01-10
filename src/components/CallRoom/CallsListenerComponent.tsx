@@ -37,6 +37,12 @@ const CallsListenerComponent: FC = () => {
     useEffect(() => {
         const callRef = doc(db, 'calls', myUid);
         return onSnapshot(callRef, snapshot => {
+
+            if (!snapshot.exists()) { 
+                close()
+                return;
+            }
+
             const data = snapshot.data();
             if (data?.status === 'incoming') {
                 console.log(data)

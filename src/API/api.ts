@@ -1,10 +1,10 @@
 import { QueryDocumentSnapshot, deleteDoc, deleteField, doc, getDoc, setDoc, updateDoc, arrayRemove, arrayUnion, CollectionReference, runTransaction } from "firebase/firestore";
 import { db } from "../firebase";
 import { deleteUser, EmailAuthProvider, getAuth, reauthenticateWithCredential, UserInfo } from "firebase/auth";
-import { CallMessageOptionsType, Chat, CurrentUser, Message1, Reaction, SetReactionOptions, TypeChannel, TypeCreateChannel } from "../types/types";
+import { CallMessageOptionsType, Chat, CurrentUser, MessageType, Reaction, SetReactionOptions, TypeChannel, TypeCreateChannel } from "../types/types";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
-import { createChatList, createObjectChannel, createObjectUser, getChatType, getFakeChat, makeChatId } from "../utils/utils";
+import { createChatList, createObjectChannel, getChatType, getFakeChat, makeChatId } from "../utils/utils";
 import { ADD_TO_LIST_SUBSCRIBERS, BLACKLIST, CHANNELS, CHANNELS_INFO, CHATLIST, CHATS, CONTACTS, REMOVE_FROM_LIST_SUBSCRIBERS, USERS } from "../constants/constants";
 import pLimit from "p-limit";
 import { FirebaseError } from "firebase/app";
@@ -31,15 +31,15 @@ type SearchAPI = {
 
 type MessagesAPI = {
     addChat: (user: CurrentUser, recipient: Chat, chatID?: string) => Promise<void>,
-    sendMessage: (chat: Chat, sender: CurrentUser, message: string, isFavorites: boolean, replyToMessage?: Message1) => Promise<void>,
+    sendMessage: (chat: Chat, sender: CurrentUser, message: string, isFavorites: boolean, replyToMessage?: MessageType) => Promise<void>,
     getChatID: (id: string) => Promise<string | null>,
-    sendEditMessage: (chat: Chat, message: Message1, isFavorites: boolean) => Promise<void>,
-    deleteMessage: (chat: Chat, message: Message1, isFavorites: boolean) => Promise<void>,
-    forwardedMessageFrom: (sender: CurrentUser, recipient: Chat, message: Message1) => Promise<void>,
-    readMessage: (chat: Chat, message: Message1) => Promise<void>,
+    sendEditMessage: (chat: Chat, message: MessageType, isFavorites: boolean) => Promise<void>,
+    deleteMessage: (chat: Chat, message: MessageType, isFavorites: boolean) => Promise<void>,
+    forwardedMessageFrom: (sender: CurrentUser, recipient: Chat, message: MessageType) => Promise<void>,
+    readMessage: (chat: Chat, message: MessageType) => Promise<void>,
     clearChat: (chat: Chat, isFavorites: boolean) => Promise<void[]>,
     deleteChat: (currentUser: CurrentUser, selectedChat: Chat) => Promise<void>,
-    addToFavorites: (currentUser: Chat, message: Message1) => Promise<void>,
+    addToFavorites: (currentUser: Chat, message: MessageType) => Promise<void>,
     sendCallInfoMessage: (options: CallMessageOptionsType) => Promise<void>,
     setReaction: (options: SetReactionOptions) => Promise<void>
 }
@@ -149,7 +149,14 @@ export const profileAPI: ProfileApi = {
 }
 
 
-
+/**
+ * @author sheva2103
+ * @project EasyMessager
+ * @license MIT
+ * @link https://github.com/sheva2103/EasyMessager
+ * @email 2103sheva@gmail.com
+ * @copyright (c) 2025 Aleksandr (GitHub: sheva2103)
+ */
 
 export const searchAPI: SearchAPI = {
     async searchUser(name) {
@@ -198,7 +205,7 @@ export const messagesAPI: MessagesAPI = {
         const reference = getChatType(isFavorites, chat)
 
         const id = uuidv4()
-        const messageObj: Message1 = { message: message, messageID: id, date: date, sender: { ...sender } }
+        const messageObj: MessageType = { message: message, messageID: id, date: date, sender: { ...sender } }
         if (!isFavorites && !chat?.channel) messageObj.read = false
         if (chat?.channel) messageObj.sender.channel = chat.channel
         if (replyToMessage) messageObj.replyToMessage = replyToMessage
@@ -245,7 +252,7 @@ export const messagesAPI: MessagesAPI = {
                 createObjectChannel(message.sender.channel)
                 :
                 message.sender
-        const messageObj: Message1 = { message: message.message, messageID: id, date, read: false, sender, forwardedFrom }
+        const messageObj: MessageType = { message: message.message, messageID: id, date, read: false, sender, forwardedFrom }
         if (message?.callStatus) messageObj.callStatus = message?.callStatus
         if(message?.shareChat) messageObj.shareChat = message.shareChat
         const getID = makeChatId({currentUser: sender, guestInfo: recipient})
@@ -276,7 +283,7 @@ export const messagesAPI: MessagesAPI = {
     async clearChat(chat, isFavorites) {
         const collectionRef = getChatType(isFavorites, chat)
         const querySnapshot = await getDocs(collectionRef);
-        const messagesToDelete = querySnapshot.docs.map(doc => ({...doc.data()})) as Message1[]
+        const messagesToDelete = querySnapshot.docs.map(doc => ({...doc.data()})) as MessageType[]
         const limitedPromises = messagesToDelete.map(message =>
             limit(() => messagesAPI.deleteMessage(chat, message, isFavorites))
         )
@@ -319,7 +326,7 @@ export const messagesAPI: MessagesAPI = {
         const messagesCollectionRef = getChatType(false, options.callee);
         const messageID = uuidv4();
         const isRead = options?.callDuration !== '0:00';
-        const messageObj: Message1 = {
+        const messageObj: MessageType = {
             message: options.callDuration,
             messageID,
             date,
@@ -352,7 +359,7 @@ export const messagesAPI: MessagesAPI = {
                     throw new Error("Сообщение не найдено для установки реакции.");
                 }
 
-                const currentMessage = messageSnap.data() as Message1;
+                const currentMessage = messageSnap.data() as MessageType;
                 let currentReactions: Reaction[] = currentMessage.reactions || [];
                 const senderUid = reaction.sender.uid;
                 const reactionsWithoutCurrentSender = currentReactions.filter(

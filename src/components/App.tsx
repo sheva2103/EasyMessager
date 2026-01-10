@@ -10,6 +10,7 @@ import { useTheme } from '../hooks/useTheme';
 import { useEffect, useLayoutEffect, useState } from 'react';
 import { DocumentSnapshot, doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
+console.log("%cEasyMessager by sheva2103, GitHub: https://github.com/sheva2103/EasyMessager, email: 2103sheva@gmail.com","color: #8774e1; font-size: 16px;");
 import { profileAPI } from '../API/api';
 
 export const App = () => {
@@ -25,7 +26,6 @@ export const App = () => {
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const currentInfo = await profileAPI.getCurrentInfo(user.uid)
-                //const userData: CurrentUser = { email: user.email, photoURL: user.photoURL, displayName: user.displayName, uid: user.uid }
                 const userData: CurrentUser = { email: currentInfo.email, photoURL: currentInfo.photoURL, displayName: currentInfo.displayName, uid: currentInfo.uid }
                 dispatch(setUser(userData))
                 setLoad(false)

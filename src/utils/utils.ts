@@ -1,5 +1,5 @@
 import { collection, CollectionReference } from "firebase/firestore"
-import { Chat, CheckMessageType, CurrentUser, Message1, NoReadMessagesType, OnlineStatusUserType, Reaction, TypeChannel, UsersData } from "../types/types"
+import { Chat, CheckMessageType, CurrentUser, MessageType, NoReadMessagesType, OnlineStatusUserType, Reaction, TypeChannel, UsersData } from "../types/types"
 import { format } from "@formkit/tempo"
 import { db } from "../firebase"
 import { searchAPI } from "../API/api";
@@ -34,8 +34,8 @@ export function createChatList(data: Chat[]) {
 
 
 
-export function createMessageList(list: Message1[]) {
-    const messagesArray: Message1[] = []
+export function createMessageList(list: MessageType[]) {
+    const messagesArray: MessageType[] = []
     let key: keyof typeof list
     for (key in list) {
         messagesArray.push(list[key])
@@ -51,7 +51,7 @@ export function createMessageList(list: Message1[]) {
     return sort
 }
 
-export function scrollToElement(element: HTMLDivElement, list: Message1[], currentUserID: string, firstRender: boolean) {
+export function scrollToElement(element: HTMLDivElement, list: MessageType[], currentUserID: string, firstRender: boolean) {
 
     let targetID = list[list.length - 1].messageID
     if (firstRender) {
@@ -153,7 +153,7 @@ export function checkMessage(str: string): CheckMessageType {
 
 
 
-export function getQuantityNoReadMessages(messages: Message1[], currentId: string): NoReadMessagesType {
+export function getQuantityNoReadMessages(messages: MessageType[], currentId: string): NoReadMessagesType {
     let quantity = 0;
     let targetIndex = -1;
 
@@ -177,7 +177,7 @@ export function getQuantityNoReadMessages(messages: Message1[], currentId: strin
     return { targetIndex, quantity };
 }
 
-export function searchMessagesInList(array: Message1[], substring: string): Set<number> {
+export function searchMessagesInList(array: MessageType[], substring: string): Set<number> {
     const lowerSubstring = substring.toLowerCase();
 
     return array.reduce((indicesSet, item, index) => {
@@ -368,11 +368,11 @@ export function insertPipeBetweenLinks(str: string): string {
     return str;
 }
 
-export function createShareChatObj (options : {sender: CurrentUser, shareChat: Chat}): Message1 {
+export function createShareChatObj (options : {sender: CurrentUser, shareChat: Chat}): MessageType {
     const messageID = uuidv4()
     const date = JSON.stringify(new Date())
     const {sender, shareChat} = options
-    const message: Message1 = {
+    const message: MessageType = {
         shareChat: {
             displayName: shareChat.displayName,
             email: shareChat.email,

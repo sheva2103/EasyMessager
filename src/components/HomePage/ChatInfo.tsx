@@ -2,7 +2,7 @@ import { FC, memo, useEffect, useState } from "react";
 import styles from './HomePage.module.scss'
 import Avatar from "../Avatar/Avatar";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
-import { Chat, Message1, NoReadMessagesType } from "../../types/types";
+import { Chat, MessageType, NoReadMessagesType } from "../../types/types";
 import { setChat } from "../../store/slices/setChatIDSlice";
 import { profileAPI } from "../../API/api";
 import classNames from "classnames";
@@ -39,7 +39,7 @@ const Skeleton: FC = () => {
     )
 }
 
-export const PreviewLastMessage: FC<{ message: Message1, currentUserId: string }> = ({ message, currentUserId }) => {
+export const PreviewLastMessage: FC<{ message: MessageType, currentUserId: string }> = ({ message, currentUserId }) => {
 
     const { t } = useTypedTranslation()
     const isErrorColor = (message?.callStatus === 'rejected' || message?.callStatus === 'unanswered') && message.sender.uid !== currentUserId
@@ -73,7 +73,7 @@ export const PreviewLastMessage: FC<{ message: Message1, currentUserId: string }
 const ChatInfo: FC<Chat> = (user) => {
 
     const [updateUser, setUpdateUser] = useState<Chat>({ ...user })
-    const [messages, setMessagesList] = useState<{ messages: Message1[], noRead: NoReadMessagesType }>({ messages: [], noRead: { quantity: 0, targetIndex: 0 } })
+    const [messages, setMessagesList] = useState<{ messages: MessageType[], noRead: NoReadMessagesType }>({ messages: [], noRead: { quantity: 0, targetIndex: 0 } })
     const [fetchingCurrentInfo, setFetchingCurrentInfo] = useState(true)
     const [notFoundUser, setNotFoundUser] = useState(false)
     const [errorConnection, setErrorConnection] = useState(false)
@@ -173,7 +173,7 @@ const ChatInfo: FC<Chat> = (user) => {
             const messagesCollectionRef = getChatType(false, { ...updateUser } as Chat);
             unsubscribeFirestore = onSnapshot(
                 messagesCollectionRef,
-                (querySnapshot: QuerySnapshot<Message1>) => {
+                (querySnapshot: QuerySnapshot<MessageType>) => {
                     const rawMessagesArray = querySnapshot.docs.map((doc) => doc.data() )
                     postTask(updateUser.chatID!, {
                         rawMessagesArray,

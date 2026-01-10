@@ -52,7 +52,7 @@ export type Reaction = {
     isMine?: boolean
 }
 
-export type Message1 = {
+export type MessageType = {
     message: string,
     messageID: string,
     date: string,
@@ -60,7 +60,7 @@ export type Message1 = {
     sender: SenderMessageType,
     changed?: string,
     forwardedFrom?: Chat,
-    replyToMessage?: Message1,
+    replyToMessage?: MessageType,
     callStatus?: CallEndStatus,
     reactions?: Array<Reaction>,
     shareChat?: Chat
@@ -71,8 +71,8 @@ export type SenderMessageType = CurrentUser & {
 }
 
 export type ListMessagesType = {
-    all: Message1[],
-    limit: Message1[]
+    all: MessageType[],
+    limit: MessageType[]
 }
 
 export type size = {

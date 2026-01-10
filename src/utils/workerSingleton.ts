@@ -1,8 +1,16 @@
+/**
+ * @author sheva2103
+ * @project EasyMessager
+ * @license MIT
+ * @link https://github.com/sheva2103/EasyMessager
+ * @email 2103sheva@gmail.com
+ * @copyright (c) 2025 Aleksandr (GitHub: sheva2103)
+ */
 import Worker from 'web-worker';
-import { Message1 } from '../types/types';
+import { MessageType } from '../types/types';
 
 type OutMsg =
-    | { taskId: string; list: Message1[]; noRead: { quantity: number; targetIndex: number } }
+    | { taskId: string; list: MessageType[]; noRead: { quantity: number; targetIndex: number } }
     | { taskId: string; error: string };
 
 type Handler = (data: OutMsg) => void;

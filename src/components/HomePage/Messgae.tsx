@@ -1,10 +1,18 @@
-import { CSSProperties, FC, HTMLAttributes, memo, MutableRefObject, RefObject, useCallback, useEffect, useRef, useState } from "react";
+/**
+ * @author sheva2103
+ * @project EasyMessager
+ * @license MIT
+ * @link https://github.com/sheva2103/EasyMessager
+ * @email 2103sheva@gmail.com
+ * @copyright (c) 2025 Aleksandr (GitHub: sheva2103)
+ */
+import { FC, memo, useCallback, useEffect, useRef, useState } from "react";
 import Avatar from "../Avatar/Avatar";
 import classNames from "classnames";
 import styles from './HomePage.module.scss'
 import ContextMenu from "./ContextMenu";
 import SelectMessageInput from "./SelectMessageInput";
-import { CallEndStatus, Chat, CurrentUser, Message1, Reaction } from "../../types/types";
+import { CallEndStatus, Chat, CurrentUser, MessageType, Reaction } from "../../types/types";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { aggregateReactions, checkMessage, createNewDate, getTimeFromDate } from "../../utils/utils";
 import UnreadIcon from '../../assets/check2.svg'
@@ -26,7 +34,7 @@ const HEIGHT_ROW = 42
 
 interface IMessagesContent {
     onEnterViewport: () => void,
-    message: Message1,
+    message: MessageType,
     currentUser: CurrentUser
 }
 
@@ -188,10 +196,10 @@ const ViewportContent: FC<IMessagesContent> = ({ onEnterViewport, message, curre
 }
 
 type Props = {
-    messageInfo: Message1,
+    messageInfo: MessageType,
 }
 
-const ReplyToMessage: FC<Message1> = (props) => {
+const ReplyToMessage: FC<MessageType> = (props) => {
     const { replyToMessage, sender } = props
     const isMessageCall = replyToMessage?.callStatus
     const { t } = useTypedTranslation()

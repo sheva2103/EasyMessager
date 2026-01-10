@@ -2,7 +2,7 @@ import { FC, memo, useEffect, useState } from "react";
 import styles from './HomePage.module.scss'
 import Avatar from "../Avatar/Avatar";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
-import { Chat, Message1, NoReadMessagesType, TypeChannel } from "../../types/types";
+import { Chat, MessageType, NoReadMessagesType, TypeChannel } from "../../types/types";
 import { channelAPI, messagesAPI } from "../../API/api";
 import classNames from "classnames";
 import { createObjectChannel, getChatType } from "../../utils/utils";
@@ -40,7 +40,7 @@ const Skeleton: FC = () => {
 const ChannelInfo: FC<Props> = (channel) => {
 
     const [updateChannel, setUpdateChannel] = useState<TypeChannel>({ ...channel.channel })
-    const [messages, setMessagesList] = useState<{ messages: Message1[], noRead: NoReadMessagesType }>({ messages: [], noRead: { quantity: 0, targetIndex: 0 } })
+    const [messages, setMessagesList] = useState<{ messages: MessageType[], noRead: NoReadMessagesType }>({ messages: [], noRead: { quantity: 0, targetIndex: 0 } })
     const [notFoundChannel, setNotFoundChannel] = useState(false)
     const [fetchingCurrentInfo, setFetchingCurrentInfo] = useState(true)
     const [isNotAccess, setIsNotAccess] = useState(false)
@@ -141,7 +141,7 @@ const ChannelInfo: FC<Props> = (channel) => {
                 setErrorConnection(true);
             } else {
                 setMessagesList({
-                    messages: data.list as Message1[],
+                    messages: data.list as MessageType[],
                     //noRead: data.noRead,
                     noRead: { quantity: 0, targetIndex: data.list.length }
                 });
@@ -150,7 +150,7 @@ const ChannelInfo: FC<Props> = (channel) => {
 
         const unsubscribeFirestore = onSnapshot(
             messagesCollectionRef,
-            (querySnapshot: QuerySnapshot<Message1>) => {
+            (querySnapshot: QuerySnapshot<MessageType>) => {
                 const tempList = querySnapshot.docs.map((doc) => doc.data())
                 postTask(channelObj.chatID, {
                     rawMessagesArray: tempList,
