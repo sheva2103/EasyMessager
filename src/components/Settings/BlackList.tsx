@@ -9,9 +9,22 @@ import { CurrentUser } from "../../types/types";
 import DialogComponent, { LayoutDialogList } from "./DialogComponent";
 import { useTranslation } from "react-i18next";
 import { Virtuoso } from "react-virtuoso";
+import { useTypedTranslation } from "../../hooks/useTypedTranslation";
+
+export function EmptyList(): JSX.Element {
+    const {t} = useTypedTranslation()
+    return (
+        <div className={styles['empty-container']}>
+            <div className={styles['empty-icon']}>📂</div>
+            <p className={styles['empty-text']}>{t('emptyList')}</p>
+        </div>
+    )
+}
 
 function List(props: { list: CurrentUser[], currentUserEmail: string }) {
     const { list, currentUserEmail } = props;
+
+    if (list.length === 0) return <EmptyList />
 
     return (
         <LayoutDialogList>

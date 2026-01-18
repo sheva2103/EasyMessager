@@ -105,7 +105,7 @@ export const appSlice = createSlice({
             if (!state.menu.cover) state.menu.cover = true
         },
         addSelectedMessage(state, action: PayloadAction<MessageType>) {
-            if (state.selectedMessages.some(item => item.messageID === action.payload.messageID)) return //изменил
+            if (state.selectedMessages?.some(item => item.messageID === action.payload.messageID)) return //изменил
             state.selectedMessages.push(action.payload)
         },
         clearSelectedMessage(state) {

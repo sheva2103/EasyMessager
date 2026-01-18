@@ -9,7 +9,7 @@ import { Chat, CurrentUser, TypeChannel } from "../../types/types";
 import RemoveFromChannelIcon from '../../assets/person-dash.svg'
 import UserInfo from "../MenuComponent/UserInfo";
 import { channelAPI, messagesAPI, profileAPI } from "../../API/api";
-import { createObjectChannel } from "../../utils/utils";
+import { createObjectChannel, createObjectUser } from "../../utils/utils";
 import DialogComponent, { ConfirmComponent } from "../Settings/DialogComponent";
 import DescriptionComponent from "../Settings/DescriptionComponent";
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";

@@ -6,6 +6,7 @@ import ShowPassword from '../../assets/eye-fill.svg'
 import HidePassword from '../../assets/eye-slash-fill.svg'
 import { SignInSignUpForm } from "../../types/types";
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
+import ResetPassword from "./ResetPassword";
 
 type Props = {
     register: UseFormRegister<SignInSignUpForm>,
@@ -41,6 +42,7 @@ const PasswordInput: FC<Props> = ({register, errors, isSubmitting, signIn}) => {
                 {typeInput === PASSWORD && <ShowPassword onClick={handleClick}/>}
                 {typeInput === TEXT && <HidePassword onClick={handleClick}/>}
             </div>
+            <ResetPassword />
             <div className={styles.error}>
                 {errors.password && <span>{errors.password.message || t('form.errorPaswordMessage')}</span>}
             </div>

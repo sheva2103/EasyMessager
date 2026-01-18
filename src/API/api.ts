@@ -1,10 +1,10 @@
 import { QueryDocumentSnapshot, deleteDoc, deleteField, doc, getDoc, setDoc, updateDoc, arrayRemove, arrayUnion, CollectionReference, runTransaction } from "firebase/firestore";
 import { db } from "../firebase";
-import { deleteUser, EmailAuthProvider, getAuth, reauthenticateWithCredential, UserInfo } from "firebase/auth";
+import { deleteUser, EmailAuthProvider, getAuth, reauthenticateWithCredential, sendPasswordResetEmail, UserInfo } from "firebase/auth";
 import { CallMessageOptionsType, Chat, CurrentUser, MessageType, Reaction, SetReactionOptions, TypeChannel, TypeCreateChannel } from "../types/types";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
-import { createChatList, createObjectChannel, getChatType, getFakeChat, makeChatId } from "../utils/utils";
+import { createChatList, createObjectChannel, createObjectUser, getChatType, getFakeChat, makeChatId } from "../utils/utils";
 import { ADD_TO_LIST_SUBSCRIBERS, BLACKLIST, CHANNELS, CHANNELS_INFO, CHATLIST, CHATS, CONTACTS, REMOVE_FROM_LIST_SUBSCRIBERS, USERS } from "../constants/constants";
 import pLimit from "p-limit";
 import { FirebaseError } from "firebase/app";
@@ -19,7 +19,8 @@ type ProfileApi = {
     getCurrentInfo: (uid: string) => Promise<CurrentUser | null>,
     updateUserInMyChatList: (email: string, user: CurrentUser) => Promise<void>,
     deleteUserAndData: (password: string) => Promise<void>,
-    deletUserInMyChatlist: (id: { myEmail: string, deleteId: string }) => Promise<void>
+    deletUserInMyChatlist: (id: { myEmail: string, deleteId: string }) => Promise<void>,
+    resetPassword: (email: string) => Promise<void>
 }
 
 type SearchAPI = {
@@ -49,7 +50,7 @@ type ContactsAPI = {
     removeFromContacts: (currentUser: string, contact: CurrentUser) => Promise<void>,
     addToBlacklist: (currentUser: string, contact: Chat) => Promise<void>,
     removeFromBlacklist: (currentUser: string, contact: CurrentUser) => Promise<void>,
-    changeContact: (options: {myEmail: string, contact: Chat}) => Promise<void>
+    changeContact: (options: { myEmail: string, contact: Chat }) => Promise<void>
 }
 
 type ChannelAPI = {
@@ -145,6 +146,15 @@ export const profileAPI: ProfileApi = {
         await updateDoc(chatCurrentRef, {
             [options.deleteId]: deleteField()
         });
+    },
+    async resetPassword(email) {
+        const auth = getAuth();
+        try {
+            await sendPasswordResetEmail(auth, email);
+        } catch (error: any) {
+            console.error(error);
+            throw error
+        }
     }
 }
 
@@ -254,8 +264,8 @@ export const messagesAPI: MessagesAPI = {
                 message.sender
         const messageObj: MessageType = { message: message.message, messageID: id, date, read: false, sender, forwardedFrom }
         if (message?.callStatus) messageObj.callStatus = message?.callStatus
-        if(message?.shareChat) messageObj.shareChat = message.shareChat
-        const getID = makeChatId({currentUser: sender, guestInfo: recipient})
+        if (message?.shareChat) messageObj.shareChat = message.shareChat
+        const getID = makeChatId({ currentUser: sender, guestInfo: recipient })
         const currentID = await messagesAPI.getChatID(getID)
         if (currentID) {
             const reference = getChatType(false, getFakeChat(currentID))
@@ -283,7 +293,7 @@ export const messagesAPI: MessagesAPI = {
     async clearChat(chat, isFavorites) {
         const collectionRef = getChatType(isFavorites, chat)
         const querySnapshot = await getDocs(collectionRef);
-        const messagesToDelete = querySnapshot.docs.map(doc => ({...doc.data()})) as MessageType[]
+        const messagesToDelete = querySnapshot.docs.map(doc => ({ ...doc.data() })) as MessageType[]
         const limitedPromises = messagesToDelete.map(message =>
             limit(() => messagesAPI.deleteMessage(chat, message, isFavorites))
         )
@@ -414,11 +424,11 @@ export const contactsAPI: ContactsAPI = {
     },
 
     async changeContact(options) {
-        const {myEmail, contact} = options
+        const { myEmail, contact } = options
         const ref = doc(db, myEmail, CONTACTS)
-            await updateDoc(ref, {
-                [contact.uid]: contact
-            });
+        await updateDoc(ref, {
+            [contact.uid]: contact
+        });
     }
 }
 
@@ -465,16 +475,22 @@ export const channelAPI: ChannelAPI = {
     async changeListSubscribers(typeChange, channelID, user) {
         const ref = doc(db, CHANNELS_INFO, channelID)
 
+        const toObjSubscriber = createObjectUser(user)
+
         if (typeChange === ADD_TO_LIST_SUBSCRIBERS) {
             await updateDoc(ref, {
-                listOfSubscribers: arrayUnion(user)
+                listOfSubscribers: arrayUnion(toObjSubscriber)
             });
         }
-        //const toCurrentUser = createObjectUser(user)
+
         if (typeChange === REMOVE_FROM_LIST_SUBSCRIBERS) {
+            const channelRef = doc(db, toObjSubscriber.email, CHATLIST);
             await updateDoc(ref, {
-                listOfSubscribers: arrayRemove(user)
+                listOfSubscribers: arrayRemove(toObjSubscriber)
             });
+            await updateDoc(channelRef, {
+                [channelID]: deleteField()
+            })
         }
     },
 

@@ -348,7 +348,7 @@ export function truncateText(text: string, maxLength: number = 25): string {
 export function createObjectUser(user: Chat) {
     return ({
         displayName: user.displayName,
-        photoURL: user.photoURL,
+        //photoURL: user.photoURL,
         uid: user.uid,
         email: user.email
     })

@@ -63,6 +63,8 @@
     "share": "Share",
     "clearMessages": "Clear messages",
     "closedCommunityMessage": "This is a closed community. Would you like to apply ?",
+    "send": "Send",
+    "emptyList": "The list is empty",
     "form": {
         "chars": "Numbers, letters and symbols (_*-@)",
         "max": "Maximum 20 characters",
@@ -78,7 +80,9 @@
         "password": "Password",
         "rememberMe": "Remember me",
         "incorrectPassword": "Incorrect password",
-        "userName": "Username"
+        "userName": "Username",
+        "messageSuccessResetPass": "If your email is registered, we have sent you a password recovery email.",
+        "messageErrResetPass": "Error when sending the letter: "
     },
     "time": {
         "justNow": "just now",

@@ -53,7 +53,7 @@
     "leaveTheChannel": "Покинуть канал",
     "subscribe": "Подписаться",
     "notificationClosedCommunity": "Это закрытое сообщество. Хотите подать заявку ?",
-    "registration": "Registration",
+    "registration": "Регистрация",
     "signIn": "Войти",
     "signUp": "Регистрация",
     "errorRegName": "Такое имя уже существует",
@@ -63,6 +63,8 @@
     "share": "Поделиться",
     "clearMessages": "Очистить сообщения",
     "closedCommunityMessage": "Это закрытое сообщество. Хотите подать заявку ?",
+    "send": "Отправить",
+    "emptyList": "Список пуст",
     "form": {
         "chars": "Цифры, буквы и символы (_*-@)",
         "max": "Максимум 20 символов",
@@ -78,7 +80,9 @@
         "confirmPassword": "Подтвердите пароль",
         "rememberMe": "Запомнить меня",
         "incorrectPassword": "Неправильный пароль",
-        "userName": "Имя пользователя"
+        "userName": "Имя пользователя",
+        "messageSuccessResetPass": "Если email зарегистрирован, мы отправили письмо для восстановления пароля.",
+        "messageErrResetPass": "Ошибка при отправке письма: "
     },
     "time": {
         "justNow": "только что",

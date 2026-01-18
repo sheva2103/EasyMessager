@@ -250,9 +250,7 @@ export const useWebRTCCall = (
             console.log("[WebRTC] ICE State:", state);
 
             if (state === 'connected') {
-                // Попробуем вывести сразу
                 logConnectionStats();
-                // И еще раз через 3 секунды для надежности
                 setTimeout(logConnectionStats, 3000);
             }
 
@@ -446,5 +444,3 @@ export const useWebRTCCall = (
         isSpeakerMuted, toggleMic, toggleSpeaker
     };
 };
-
-//console.log(rtcConfig, '>>>>>>>>>><<<<<<<<<<<<')

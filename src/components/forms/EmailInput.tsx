@@ -15,7 +15,7 @@ const EMAIL_REGEXP = /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@((
 const EmailInput: FC<Props> = ({register, isSubmitting, errors}) => {
     const {t} = useTypedTranslation()
     return (
-        <div>
+        <div style={{display: 'flex', flexDirection: 'column'}}>
             <input type="text"
                 placeholder='Email'
                 disabled={isSubmitting}

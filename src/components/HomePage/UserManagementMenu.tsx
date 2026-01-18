@@ -15,6 +15,7 @@ import DialogComponent from "../Settings/DialogComponent";
 import { createObjectChannel } from "../../utils/utils";
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 import AddContactForm from "../forms/AddContactForm";
+import { EmptyList } from "../Settings/BlackList";
 
 type Props = {
     chatInfo: Chat
@@ -64,7 +65,7 @@ const MembershipApplications: FC<{ quantity: CurrentUser[] }> = ({ quantity }) =
             <div><Badge badgeContent={quantity.length} color="error" /></div>
             {isOpen &&
                 <DialogComponent isOpen={isOpen} onClose={setOpen}>
-                    <ListRequests quantity={quantity}/>
+                    {quantity.length > 0 ? <ListRequests quantity={quantity}/> : <EmptyList />}
                 </DialogComponent>
             }
         </li>

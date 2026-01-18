@@ -47,8 +47,17 @@
     }
 }
 
+.resetPassword {
+    padding: 12px;
+    color: #8774e1;
+
+    & span {
+        cursor: pointer;
+    }
+}
+
 .group {
-    padding: 4px 0;
+    padding: 4px 8px;
     display: flex;
     flex-direction: column;
 
@@ -60,9 +69,9 @@
     .item {
         padding: 8px 16px;
     }
-    input[type='text'] {
-            width: calc(100% - 20px);
-        }
+    // input[type='text'] {
+    //         width: calc(100% - 20px);
+    //     }
 
     &>:first-child {
         padding-bottom: 0;

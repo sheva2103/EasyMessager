@@ -63,6 +63,8 @@ export type TranslationKeys =
     | "reactions"
     | 'clearMessages'
     | "closedCommunityMessage"
+    | 'send'
+    | 'emptyList'
     | 'form.chars' 
     | 'form.userName'
     | 'form.max' 
@@ -79,6 +81,8 @@ export type TranslationKeys =
     | 'form.confirmPassword'
     | 'form.rememberMe'
     | 'form.incorrectPassword'
+    | 'form.messageSuccessResetPass'
+    | 'form.messageErrResetPass'
     | "time.justNow"
     | "time.minutesAgo"
     | "time.minutesAgo_plural"
