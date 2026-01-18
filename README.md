@@ -101,8 +101,10 @@ The project follows a clear separation of concerns:
 1. Clone the repository:
    git clone https://github.com/sheva2103/EasyMessager.git
 
-2. Install dependencies:
-   Run the command "npm install" to download all necessary packages listed in the package.json file.
+2. **Install dependencies:**
+   Run the following command to download all necessary packages:
+   ```bash
+   npm install
 
 3. Setup Environment Variables:
    Create a .env file in the root directory of the project. Copy the content from .env.example and insert your own Firebase configuration keys (API Key, Auth Domain, Project ID, etc.).
