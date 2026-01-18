@@ -98,7 +98,9 @@ The project follows a clear separation of concerns:
 
 ## 🔧 Installation & Setup
 
-1. Clone the repository:
+1. **Clone the repository:**
+   Clone the repository
+   ```bash
    git clone https://github.com/sheva2103/EasyMessager.git
 
 2. **Install dependencies:**
@@ -106,8 +108,17 @@ The project follows a clear separation of concerns:
    ```bash
    npm install
 
-3. Setup Environment Variables:
+3. **Setup Environment Variables:**
    Create a .env file in the root directory of the project. Copy the content from .env.example and insert your own Firebase configuration keys (API Key, Auth Domain, Project ID, etc.).
+   
 
-4. Run the application:
-   Use the command "npm run start" to launch the development server. The application will be available at http://localhost:3000. To create a production-ready bundle, use the command "npm run build:prod".
+4. **Run the application::**
+   To start the development server
+   ```bash
+   npm run start
+
+
+5. **Install dependencies:**
+   To create an optimized production bundle:
+   ```bash
+   npm run build:prod
