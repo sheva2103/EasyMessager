@@ -1,4 +1,4 @@
-# 💬 EasyMessager
+<!-- # 💬 EasyMessager
 
 **EasyMessager** — это современное веб-приложение для звонков и обмена сообщениями в реальном времени. Проект создан с фокусом на производительность, типизацию и кастомную конфигурацию сборки.
 
@@ -47,4 +47,65 @@
 
 1. **Клонируйте репозиторий:** Приложение использует Firebase. Для запуска создайте файл .env на основе .env.example и добавьте свои API ключи.
    ```bash
-   git clone [https://github.com/sheva2103/EasyMessager.git](https://github.com/sheva2103/EasyMessager.git)
+   git clone [https://github.com/sheva2103/EasyMessager.git](https://github.com/sheva2103/EasyMessager.git) -->
+
+
+
+# 💬 EasyMessager
+
+**EasyMessager** is a modern web application for real-time messaging and voice calls. The project is built with a focus on performance, strict typing, and custom build configurations.
+
+## 🔗 Links
+* **[Live Demo](https://eazymessager.web.app)** — *Try the app in action!*
+> **Test Account Credentials:**
+> * **Email:** `t@test.com`
+> * **Password:** `qwerty12`
+
+## 🚀 Key Features
+
+### 📞 Communications
+* **WebRTC Voice Calls:** P2P calling system with media stream processing.
+* **Real-time Messaging:** Instant exchange of messages between users.
+* **User Presence System:** Real-time online/offline status indicators.
+
+### 💬 Messaging & Interactivity
+* **Message Statuses:** Read and delivery indicators.
+* **Reactions:** Ability to leave emoji reactions on messages.
+* **Forward & Reply:** Functionality to forward messages to other chats and reply to specific messages.
+* **Blacklist:** User blocking system (ignores incoming events from blocked contacts).
+
+### 👥 Group System
+* **Group Types:** Support for both public (open) and private (closed) communities.
+* **Member Management:** System for adding users and moderating access.
+
+### 🛠 Engineering Solutions
+* **Custom Webpack:** Manual build configuration with `ts-loader` and TypeScript for full control over the bundle.
+* **State Management:** Complex state logic to synchronize chats and calls seamlessly.
+
+## 🛠 Tech Stack
+* **Frontend:** React 18, TypeScript.
+* **State Management:** Redux Toolkit.
+* **Styling:** SCSS.
+* **Backend/DB:** Firebase (Firestore & Auth).
+* **Build Tools:** Webpack, ts-loader, ESLint.
+* **Security:** Use of `.env` files to protect API keys.
+
+## 🏗 Project Architecture
+The project follows a clear separation of concerns:
+* `src/components` — Reusable UI components.
+* `src/hooks` — Custom hooks for API interaction and business logic.
+* `config/build` — Build configurations for different environments (Dev/Prod).
+
+## 🔧 Installation & Setup
+
+1. Clone the repository:
+   git clone https://github.com/sheva2103/EasyMessager.git
+
+2. Install dependencies:
+   Run the command "npm install" to download all necessary packages listed in the package.json file.
+
+3. Setup Environment Variables:
+   Create a .env file in the root directory of the project. Copy the content from .env.example and insert your own Firebase configuration keys (API Key, Auth Domain, Project ID, etc.).
+
+4. Run the application:
+   Use the command "npm run start" to launch the development server. The application will be available at http://localhost:3000. To create a production-ready bundle, use the command "npm run build:prod".
