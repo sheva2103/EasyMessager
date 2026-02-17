@@ -59,7 +59,7 @@ export const CallRoom = ({ myUid, calleeUid, endCallFunc, startCallFunc }: {
                 }
             </h4>
 
-            {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+            {errorMessage && <p style={{ color: 'hsl(0, 98%, 64%)', textAlign: 'center' }}>{errorMessage}</p>}
 
             <ShowCallerName id={callerUid ? callerUid : calleeUid} />
 

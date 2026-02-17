@@ -351,6 +351,8 @@ export const useWebRTCCall = (
             });
             startCallFunc('outgoing');
         } catch (e) {
+            ringtoneRef.current?.pause();
+            ringtoneRef.current!.currentTime = 0;
             setErrorMessage('Микрофон недоступен');
             setCallState('error');
         }

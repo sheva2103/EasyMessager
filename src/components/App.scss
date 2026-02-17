@@ -17,6 +17,8 @@ input {
     font-size: 1.1rem;
     transition: all 0.5s;
     padding-right: 12px;
+    width: 100%;
+    box-sizing: border-box;
 
     &:focus-visible {
         outline: 1px solid #8774e1;
