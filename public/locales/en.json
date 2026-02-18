@@ -110,6 +110,14 @@
         "connected": "Connected",
         "accept": "Accept",
         "reject": "Reject",
-        "call": "Call"
+        "call": "Call",
+        "errorMicro": "The microphone is unavailable"
+    },
+    "pwa": {
+        "install": "Install",
+        "message": "Install the app for quick access",
+        "iosMessage1": "To install on iPhone: click",
+        "iosMessage2": "and select",
+        "iosMessage3": "'On the Home Screen'"
     }
 }

@@ -38,6 +38,8 @@ export function buildPlagins({ mode, paths, analyzer, platform }: BuildOPtions):
         plugins.push(new CopyPlugin({
                 patterns: [
                     { from: path.resolve(paths.public, 'locales'), to: path.resolve(paths.output, 'locales') },
+                    { from: path.resolve(paths.public, 'manifest.json'), to: path.resolve(paths.output) },
+                    { from: path.resolve(paths.public, 'icons'), to: path.resolve(paths.output, 'icons') },
                 ],
             }))
     }

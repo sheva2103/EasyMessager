@@ -12,6 +12,7 @@ import { DocumentSnapshot, doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 console.log("%cEasyMessager by sheva2103, GitHub: https://github.com/sheva2103/EasyMessager, email: 2103sheva@gmail.com","color: #8774e1; font-size: 16px;");
 import { profileAPI } from '../API/api';
+import { PWAInstallPrompt } from './PWA/PWAInstall';
 
 export const App = () => {
 
@@ -57,6 +58,7 @@ export const App = () => {
             {/* <LoadingApp /> */}
             {/* <HomaPage /> */}
             {currentUser ? <HomaPage /> : load ? <LoadingApp /> : <StartPage />}
+            <PWAInstallPrompt />
         </div>
     );
 }

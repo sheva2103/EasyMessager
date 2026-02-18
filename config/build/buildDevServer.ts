@@ -10,7 +10,8 @@ export function buildDevServer(options: BuildOPtions): DevServerConfiguration {
         historyApiFallback: true, //для роутинка,
         hot: true,
         static: {
-            directory: path.join(__dirname, 'build'),
+            directory: options.paths.public,
+            publicPath: '/',
         },
         https: {
             key: fs.readFileSync(path.resolve(__dirname, '..', '..','ssl', 'key.pem')),
