@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from '../../hooks/hook';
 import { openMenu, setBlacklist, setChatList, setContacts } from '../../store/slices/appSlice';
 import ChatContent from './ChatContent';
 import ChatList from './ChatList';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { DocumentSnapshot, QuerySnapshot, collection, doc, onSnapshot } from 'firebase/firestore';
 import { CurrentUser, MessageType } from '../../types/types';
 import { createChatList, createMessageList } from '../../utils/utils';
@@ -34,27 +34,19 @@ const HomaPage = () => {
     }
 
     useEffect(() => {
-        const getContacts = onSnapshot(doc(db, currentUserEmail, "contacts"), (doc: DocumentSnapshot<CurrentUser[]>) => {
-            if (doc.data()) dispatch(setContacts(createChatList(doc.data())))
-        });
-        return () => getContacts()
-    }, [currentUserEmail]);
-
-    useEffect(() => {
-        if (currentUserEmail) {
-            const getChatList = onSnapshot(doc(db, currentUserEmail, "chatList"), (doc: DocumentSnapshot<CurrentUser[]>) => {
+        const unsubscribers = [
+            onSnapshot(doc(db, currentUserEmail, "contacts"), (doc: DocumentSnapshot<CurrentUser[]>) => {
+                if (doc.data()) dispatch(setContacts(createChatList(doc.data())))
+            }),
+            onSnapshot(doc(db, currentUserEmail, "chatList"), (doc: DocumentSnapshot<CurrentUser[]>) => {
                 if (doc.data()) dispatch(setChatList(createChatList(doc.data())))
-            });
-            return () => getChatList()
-        }
-    }, [currentUserEmail]);
-
-    useEffect(() => {
-        const getBlackList = onSnapshot(doc(db, currentUserEmail, "blacklist"), (doc: DocumentSnapshot<CurrentUser[]>) => {
-            if (doc.data()) dispatch(setBlacklist(createChatList(doc.data())))
-        });
-        return () => getBlackList()
-    }, [currentUserEmail]);
+            }),
+            onSnapshot(doc(db, currentUserEmail, "blacklist"), (doc: DocumentSnapshot<CurrentUser[]>) => {
+                if (doc.data()) dispatch(setBlacklist(createChatList(doc.data())))
+            })
+        ]
+        return () => unsubscribers.forEach(unsub => unsub())
+    }, [currentUserEmail, dispatch]);
 
     useEffect(() => {
         let getFavorites: () => void
@@ -67,10 +59,8 @@ const HomaPage = () => {
                 const list = createMessageList(rawMessagesArray);
                 dispatch(setMessages({ messages: list, noRead: { quantity: 0, targetIndex: list.length } }))
             })
-        return () => {
-            if (getFavorites) getFavorites()
-            }
         }
+        return () =>  getFavorites?.()
     }, [isFavorites]);
 
     return (
@@ -84,6 +74,7 @@ const HomaPage = () => {
                             cursor={'pointer'}
                             onClick={handleClickMenu}
                             onKeyDown={onKeyDown}
+                            role="button"
                             tabIndex={2}
                         />
                         <div className={styles.title}>

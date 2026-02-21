@@ -16,17 +16,6 @@ import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 import CallIcon from '../../assets/telephone-fill.svg'
 import { openModalCalls } from "../../store/slices/callsSlice";
 
-export const LoadChatComponent: FC<{ isLoad: boolean }> = ({ isLoad }) => {
-
-    return (
-        <div className={styles.contentContainer} style={{ position: 'absolute', display: isLoad ? 'block' : 'none' }}>
-            <div className={styles.preloaderBlock}>
-                <Preloader fontSize={'2.4rem'} />
-            </div>
-        </div>
-    )
-}
-
 const SubscribersComponent: FC = () => {
 
     const subscribers = useAppSelector(state => state.app.selectedChannel?.listOfSubscribers)

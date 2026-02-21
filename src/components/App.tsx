@@ -10,7 +10,7 @@ import { useTheme } from '../hooks/useTheme';
 import { useEffect, useLayoutEffect, useState } from 'react';
 import { DocumentSnapshot, doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
-console.log("%cEasyMessager by sheva2103, GitHub: https://github.com/sheva2103/EasyMessager, email: 2103sheva@gmail.com","color: #8774e1; font-size: 16px;");
+console.log("%cEasyMessager by sheva2103, GitHub: https://github.com/sheva2103/EasyMessager, email: 2103sheva@gmail.com", "color: #8774e1; font-size: 16px;");
 import { profileAPI } from '../API/api';
 import { PWAInstallPrompt } from './PWA/PWAInstall';
 
@@ -22,9 +22,8 @@ export const App = () => {
     const currentUser = useAppSelector(state => state.app.currentUser)
     const dispatch = useAppDispatch()
     useLayoutEffect(() => {
-        //setLoad(true)
         const auth = getAuth();
-        onAuthStateChanged(auth, async (user) => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const currentInfo = await profileAPI.getCurrentInfo(user.uid)
                 const userData: CurrentUser = { email: currentInfo.email, photoURL: currentInfo.photoURL, displayName: currentInfo.displayName, uid: currentInfo.uid }
@@ -36,13 +35,14 @@ export const App = () => {
                 setLoad(false)
             }
         });
+        return () => unsubscribe()
     }, []);
 
     useEffect(() => {
-        if(currentUser?.email) {
+        if (currentUser?.email) {
             const userData = onSnapshot(doc(db, "users", currentUser.uid), (doc: DocumentSnapshot<CurrentUserData>) => {
                 const data: CurrentUserData = doc.data()
-                if(!data) {
+                if (!data) {
                     dispatch(setUser(null))
                     return
                 }
