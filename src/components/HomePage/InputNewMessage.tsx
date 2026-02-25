@@ -11,6 +11,7 @@ import { Chat } from "../../types/types";
 import EmojiIcon from '../../assets/emoji-smile-fill.svg'
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 import { insertPipeBetweenLinks } from "../../utils/utils";
+import classNames from "classnames";
 
 type Props = {
     chatInfo: Chat
@@ -41,6 +42,10 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
     const isFavorites = useAppSelector(state => state.app.isFavorites)
     const {t} = useTypedTranslation()
     const isChannel = chatInfo.channel ? true : false
+    const isStandalone =
+            window.matchMedia("(display-mode: standalone)").matches ||
+            (window.navigator as any).standalone === true;
+
 
     const [newMessage, setNewMessage] = useState('')
     const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -126,7 +131,7 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
     if(chatInfo?.channel && chatInfo?.channel.owner.uid !== currentUser.uid) return null
 
     return (
-        <div className={styles.inputNewMessage}>
+        <div className={classNames(styles.inputNewMessage, {[styles.inputNewMessage_pwa]: isStandalone})}>
             <div className={styles.inputNewMessage__textarea}>
                 {isEditMessage &&
                     <div className={styles.textarea__isEdit}>

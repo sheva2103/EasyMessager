@@ -114,10 +114,12 @@ const HeaderChat: FC<{ selectedChat: Chat }> = ({ selectedChat }) => {
             </div>
             <div className={styles.contentHeader}>
                 <div className={styles.contentHeader__selectedChat}>
-                    <span onClick={handleClick} style={{ cursor: 'pointer' }}>{!isFavorites ?
-                        isChannel ? <ShowNameChat /> : selectedChat.displayName
+                    <span onClick={handleClick} style={{ cursor: 'pointer' }}>
+                        {!isFavorites ?
+                            <ShowNameChat /> 
                         :
-                        t('favorites')}</span>
+                            t('favorites')}
+                    </span>
                     {selectedChat?.channel ?
                         <SubscribersComponent />
                         :

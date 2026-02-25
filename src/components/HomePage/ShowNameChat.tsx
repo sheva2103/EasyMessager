@@ -5,8 +5,10 @@ const ShowNameChat: FC = () => {
     
     const name = useAppSelector(state => {
         if(state.app.selectedChannel) return state.app.selectedChannel.displayName
-        return state.app.selectedChat.displayName
+        return state.app.selectedChat?.nameWasGiven || state.app.selectedChat.displayName
     })
+
+    console.log(name)
 
     return ( 
         <span>{name}</span>

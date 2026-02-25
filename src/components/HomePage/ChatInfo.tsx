@@ -80,6 +80,7 @@ const ChatInfo: FC<Chat> = (user) => {
     const dispatch = useAppDispatch()
     const selectedChat = useAppSelector(state => state.app.selectedChat)
     const currentUser = useAppSelector(state => state.app.currentUser)
+    const isContact = useAppSelector(state => state.app.contacts.find(c => c.uid === user.uid))
     const handleClick = () => {
         if (selectedChat?.uid === updateUser.uid) return
         dispatch(setChat({ currentUser: currentUser, guestInfo: updateUser }))
@@ -116,7 +117,11 @@ const ChatInfo: FC<Chat> = (user) => {
                     if (chatID && (user.displayName !== currentInfo.displayName || user.photoURL !== currentInfo.photoURL)) {
                         await profileAPI.updateUserInMyChatList(currentUser.email, currentInfo)
                     }
-                    setUpdateUser({...currentInfo, chatID})
+                    setUpdateUser(() => {
+                        const user: Chat = {...currentInfo, chatID}
+                        if(isContact && isContact?.nameWasGiven) user.nameWasGiven = isContact.nameWasGiven
+                        return user
+                    })
                 }
             } catch (error) {
                 console.error('Error fetching current info:', error);
@@ -234,7 +239,7 @@ const ChatInfo: FC<Chat> = (user) => {
             <Avatar url={updateUser?.photoURL} name={updateUser.displayName[0]} isOnline={presence.isOnline} />
             <div className={styles.nameBlock}>
                 <div className={styles.name}>
-                    <span className={styles.name}>{updateUser.displayName}</span>
+                    <span className={styles.name}>{updateUser?.nameWasGiven || updateUser.displayName}</span>
                 </div>
                 <PreviewLastMessage message={lastMessage} currentUserId={currentUser.uid} />
             </div>

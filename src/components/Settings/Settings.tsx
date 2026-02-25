@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import UserInfo from "../MenuComponent/UserInfo";
 import styles from './Settings.module.scss'
 import ToggleTheme from "../TogleTheme/ToggleTheme";
@@ -19,6 +19,31 @@ const AuthorSignature: React.FC = () => {
         </div>
     );
 };
+
+const ReloadButton: React.FC = () => {
+    const [isPWA, setIsPWA] = useState(false);
+
+    useEffect(() => {
+        const isStandalone =
+            window.matchMedia("(display-mode: standalone)").matches ||
+            (window.navigator as any).standalone === true;
+
+        setIsPWA(isStandalone);
+    }, []);
+
+    const handleReload = () => {
+        window.location.reload();
+    };
+
+    if (!isPWA) return null
+
+    return (
+        <div className={styles.item}>
+            <button onClick={handleReload}>Обновить</button>
+        </div>
+    );
+};
+
 
 
 const Settings: FC = () => {
@@ -48,13 +73,13 @@ const Settings: FC = () => {
                         </div>
                     </div>
                 </div>
+                <ReloadButton />
             </div>
             <hr className={styles.hr} />
             <div className={styles.group}>
                 <BlackList />
             </div>
             <hr className={styles.hr} />
-
             <div className={styles.group} style={{ flexDirection: 'row' }}>
                 <SignOutButton />
                 <DeleteUserButton />
