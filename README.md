@@ -56,7 +56,7 @@
 **EasyMessenger** is a modern web application for real-time messaging and voice calls. The project is built with a focus on performance, strict typing, and custom build configurations.
 
 ## 🔗 Links
-* **[Live Demo](https://easymessenger.web.app)** — *Try the app in action!*
+* **[Live Demo](https://easymessenger-app.web.app/)** — *Try the app in action!*
 > **Test Account Credentials:**
 > * **Email:** `test@test.com`
 > * **Password:** `qwerty12`
