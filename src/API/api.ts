@@ -4,7 +4,7 @@ import { deleteUser, EmailAuthProvider, getAuth, reauthenticateWithCredential, s
 import { CallMessageOptionsType, Chat, CurrentUser, MessageType, Reaction, SetReactionOptions, TypeChannel, TypeCreateChannel } from "../types/types";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
-import { createChatList, createObjectChannel, createObjectUser, getChatType, getFakeChat, makeChatId } from "../utils/utils";
+import { createChatList, createObjectChannel, createObjectUser, generateShortId, getChatType, getFakeChat, makeChatId } from "../utils/utils";
 import { ADD_TO_LIST_SUBSCRIBERS, BLACKLIST, CHANNELS, CHANNELS_INFO, CHATLIST, CHATS, CONTACTS, REMOVE_FROM_LIST_SUBSCRIBERS, USERS } from "../constants/constants";
 import pLimit from "p-limit";
 import { FirebaseError } from "firebase/app";
@@ -73,12 +73,21 @@ type ChannelAPI = {
 export const profileAPI: ProfileApi = {
 
     async createNewUserInDB(user) {
+        const baseName = user.email.slice(0, user.email.indexOf('@')).toLowerCase()
+        const isFreeName = await profileAPI.checkDisplayName(baseName)
+
+        let displayName = baseName;
+        if (!isFreeName) {
+            displayName = `${baseName}_${generateShortId(6)}`;
+        }
+
         const userObj: CurrentUser = {
             email: user.email,
-            displayName: user.email.slice(0, user.email.indexOf('@')),
+            displayName,
             uid: user.uid,
             registrationDate: new Date().toLocaleDateString()
         }
+        
         await setDoc(doc(db, USERS, user.uid), userObj);
         return userObj
     },
@@ -157,9 +166,12 @@ export const profileAPI: ProfileApi = {
             throw error
         }
     },
-    async checkDisplayName(value) {
-        return true
+    async checkDisplayName(value: string) {
+        const q = query(collection(db, USERS), where("displayName", "==", value.toLowerCase()));
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.empty;
     }
+
 }
 
 

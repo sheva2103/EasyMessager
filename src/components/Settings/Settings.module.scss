@@ -164,9 +164,9 @@
         gap: 8px;
         align-items: center;
 
-        font-size: 1rem;
+        //font-size: 0.85rem;
         @media (max-width: 468px) {
-            font-size: 1.2rem;
+            font-size: 1rem;
         }
     }
 }

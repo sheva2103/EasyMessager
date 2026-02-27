@@ -368,10 +368,10 @@ export function insertPipeBetweenLinks(str: string): string {
     return str;
 }
 
-export function createShareChatObj (options : {sender: CurrentUser, shareChat: Chat}): MessageType {
+export function createShareChatObj(options: { sender: CurrentUser, shareChat: Chat }): MessageType {
     const messageID = uuidv4()
     const date = JSON.stringify(new Date())
-    const {sender, shareChat} = options
+    const { sender, shareChat } = options
     const message: MessageType = {
         shareChat: {
             displayName: shareChat.displayName,
@@ -380,11 +380,19 @@ export function createShareChatObj (options : {sender: CurrentUser, shareChat: C
             photoURL: shareChat.photoURL || ""
         },
         message: 'Контакт',
-        messageID, 
-        date, 
+        messageID,
+        date,
         sender
     }
-    if(shareChat?.channel) message.shareChat.channel = shareChat?.channel
+    if (shareChat?.channel) message.shareChat.channel = shareChat?.channel
     return message
 }
+
+export function generateShortId(length: number = 6): string {
+    const array = new Uint8Array(length);
+    window.crypto.getRandomValues(array);
+
+    return Array.from(array, byte => (byte % 36).toString(36)).join('');
+}
+
 

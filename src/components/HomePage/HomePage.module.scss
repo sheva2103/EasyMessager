@@ -427,6 +427,8 @@
                 display: flex;
                 flex-direction: column;
                 box-shadow: 12px 8px 20px -10px rgba(15, 15, 15, 0.87);
+                // backdrop-filter: blur(12px) saturate(150%);
+                // -webkit-backdrop-filter: blur(12px) saturate(150%);
 
                 .messageData__list {
                     display: flex;
@@ -598,7 +600,7 @@
                 border-radius: 16px;
                 border-bottom-left-radius: 0;
                 background-color: rgb(123 118 147 / 88%);
-                padding: 4px 12px 6px 12px;
+                padding: 6px 12px 6px 12px;
                 color: #ffffff;
                 a {
                     color: rgb(27, 27, 27);
@@ -610,7 +612,7 @@
                 color: var(--color-guest-message);
                 border-radius: 16px;
                 border-bottom-left-radius: 0;
-                padding: 4px 12px 6px 12px;
+                padding: 6px 12px 6px 12px;
                 @media (max-width: 468px) {
                     box-shadow: -12px 8px 20px -10px rgba(15, 15, 15, 0.87);
                     margin-left: auto;

@@ -22,12 +22,12 @@ const URL_REGEXP = /^((ftp|http|https):\/\/)?(www\.)?([A-Za-zА-Яа-я0-9]{1}[A
 
 const ChangeUserInfoForm: FC<Props> = ({ changeInfo, setChangeInfo, currentUserInfo }) => {
 
-    const {t} = useTypedTranslation()
+    const { t } = useTypedTranslation()
     const isChannel = !!currentUserInfo?.channel
     const displayName = isChannel ? currentUserInfo.channel.displayName : currentUserInfo.displayName
     const photoURL = isChannel ? currentUserInfo.channel?.photoURL : currentUserInfo.photoURL
 
-    const { handleSubmit, register, formState: { errors, isSubmitting } } = useForm<CurrentUserData>({
+    const { handleSubmit, register, formState: { errors, isSubmitting, isValidating } } = useForm<CurrentUserData>({
         mode: 'onBlur',
         defaultValues: {
             displayName: displayName,
@@ -35,9 +35,15 @@ const ChangeUserInfoForm: FC<Props> = ({ changeInfo, setChangeInfo, currentUserI
         }
     })
 
+    const validateDisplayName = async (value: string) => {
+        if (value === displayName) return true
+        const isValid = await profileAPI.checkDisplayName(value)
+        return isValid || t('form.userAlreadyExists')
+    }
+
     const submit = async (data: CurrentUserData) => {
         if (isChannel) {
-            channelAPI.changeCannelInfo({...currentUserInfo.channel, displayName: data.displayName, photoURL: data.photoURL})
+            channelAPI.changeCannelInfo({ ...currentUserInfo.channel, displayName: data.displayName, photoURL: data.photoURL })
                 .then(() => setChangeInfo(false))
                 .catch(err => console.log('ошибка изменения канала', err))
         } else {
@@ -61,15 +67,12 @@ const ChangeUserInfoForm: FC<Props> = ({ changeInfo, setChangeInfo, currentUserI
                         <input type="text"
                             className={classNames({ [styles.error]: errors.displayName })}
                             placeholder={t('form.userName') + '. ' + t('form.min')}
-                            {...register('displayName', { 
+                            {...register('displayName', {
                                 maxLength: 20,
                                 minLength: 4,
                                 pattern: isChannel ? NAME_CHANNEL_REGEXP : LOGIN_REGEXP,
-                                required: {value: true, message: t('form.required')},
-                                // validate: async(value) => {
-                                //     const isValid = await profileAPI.checkDisplayName(value); // добавить и дописать функцию
-                                //     return isValid || t('form.error.alreadyTaken')
-                                // }
+                                required: { value: true, message: t('form.required') },
+                                validate: validateDisplayName
                             })}
                         />
                     </div>
@@ -81,7 +84,10 @@ const ChangeUserInfoForm: FC<Props> = ({ changeInfo, setChangeInfo, currentUserI
                         />
                     </div>
                     <div className={styles.changeUserInfo__item}>
-                        <button disabled={isSubmitting}>
+                        <span className={styles.errorMessage}>{errors.displayName?.message}</span>
+                    </div>
+                    <div className={styles.changeUserInfo__item}>
+                        <button disabled={isSubmitting || isValidating}>
                             {isSubmitting ? <Preloader /> : t('save')}
                         </button>
                     </div>

@@ -111,7 +111,7 @@
     opacity: 0;
 
     &_show {
-        height: 110px;
+        height: 130px;
         opacity: 1;
     }
 
@@ -147,6 +147,10 @@
 
     .error {
         border-color: rgba(252, 3, 3, 0.753);
+    }
+    .errorMessage {
+        color: rgba(226, 36, 36, 0.959);
+        font-size: 0.8rem;
     }
 }
 
