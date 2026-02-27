@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { channelAPI, contactsAPI, messagesAPI } from "../../API/api";
 import { closeBar, setLoadChat, setSearchMessages } from "../../store/slices/appSlice";
 import { setChat } from "../../store/slices/setChatIDSlice";
-import { SHOW_CHANNEL_INFO } from "../../constants/constants";
+import { RESERVED_CHANNEL_ID, SHOW_CHANNEL_INFO } from "../../constants/constants";
 import { Badge } from "@mui/material";
 import { createSelector } from "@reduxjs/toolkit";
 import { RootState } from "../../store/store";
@@ -21,7 +21,6 @@ type Props = {
     chatInfo: Chat
 }
 
-const RESERVED_CHANNEL = '2c67b2bf-06bb-423b-a26d-041eda2d0ffc'
 
 const ListItem: FC<{ user: CurrentUser }> = ({ user }) => {
 
@@ -90,7 +89,7 @@ const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
     const isFavorites = useAppSelector(state => state.app.isFavorites)
     const quantity = useAppSelector(selectApplyForMembership)
     const {t} = useTypedTranslation()
-    const isReservedChannel = RESERVED_CHANNEL === chatInfo?.channel?.channelID
+    const isReservedChannel = RESERVED_CHANNEL_ID === chatInfo?.channel?.channelID
 
     const dispatch = useAppDispatch()
     const [animationOpen, setAnimationOpen] = useState(false)

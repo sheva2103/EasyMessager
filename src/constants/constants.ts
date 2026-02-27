@@ -21,3 +21,5 @@ export const CHANNELS = "channels"
 export const ADD_TO_LIST_SUBSCRIBERS = 'ADD_TO_LIST_SUBSCRIBERS'
 export const REMOVE_FROM_LIST_SUBSCRIBERS = 'REMOVE_FROM_LIST_SUBSCRIBERS'
 export const CHANNELS_INFO = "channelsInfo"
+
+export const RESERVED_CHANNEL_ID = "893db3bc-0f4a-44f1-a201-18d54424c310"

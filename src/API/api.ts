@@ -20,7 +20,8 @@ type ProfileApi = {
     updateUserInMyChatList: (email: string, user: CurrentUser) => Promise<void>,
     deleteUserAndData: (password: string) => Promise<void>,
     deletUserInMyChatlist: (id: { myEmail: string, deleteId: string }) => Promise<void>,
-    resetPassword: (email: string) => Promise<void>
+    resetPassword: (email: string) => Promise<void>,
+    checkDisplayName: (value: string) => Promise<boolean>
 }
 
 type SearchAPI = {
@@ -155,15 +156,18 @@ export const profileAPI: ProfileApi = {
             console.error(error);
             throw error
         }
+    },
+    async checkDisplayName(value) {
+        return true
     }
 }
 
 
 /**
  * @author sheva2103
- * @project EasyMessager
+ * @project EasyMessenger
  * @license MIT
- * @link https://github.com/sheva2103/EasyMessager
+ * @link https://github.com/sheva2103/EasyMessenger
  * @email 2103sheva@gmail.com
  * @copyright (c) 2025 Aleksandr (GitHub: sheva2103)
  */

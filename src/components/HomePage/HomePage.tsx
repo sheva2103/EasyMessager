@@ -78,7 +78,7 @@ const HomaPage = () => {
                             tabIndex={2}
                         />
                         <div className={styles.title}>
-                            <span>EasyMessager</span>
+                            <span>EasyMessenger</span>
                         </div>
                     </div>
                     <ChatList />

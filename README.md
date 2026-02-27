@@ -51,14 +51,14 @@
 
 
 
-# 💬 EasyMessager
+# 💬 EasyMessenger
 
-**EasyMessager** is a modern web application for real-time messaging and voice calls. The project is built with a focus on performance, strict typing, and custom build configurations.
+**EasyMessenger** is a modern web application for real-time messaging and voice calls. The project is built with a focus on performance, strict typing, and custom build configurations.
 
 ## 🔗 Links
-* **[Live Demo](https://eazymessager.web.app)** — *Try the app in action!*
+* **[Live Demo](https://easymessenger.web.app)** — *Try the app in action!*
 > **Test Account Credentials:**
-> * **Email:** `t@test.com`
+> * **Email:** `test@test.com`
 > * **Password:** `qwerty12`
 
 ## 🚀 Key Features
@@ -101,7 +101,7 @@ The project follows a clear separation of concerns:
 1. **Clone the repository:**
    Clone the repository
    ```bash
-   git clone https://github.com/sheva2103/EasyMessager.git
+   git clone https://github.com/sheva2103/easy-messenger.git
 
 2. **Install dependencies:**
    Run the following command to download all necessary packages:

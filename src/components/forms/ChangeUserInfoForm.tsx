@@ -65,7 +65,11 @@ const ChangeUserInfoForm: FC<Props> = ({ changeInfo, setChangeInfo, currentUserI
                                 maxLength: 20,
                                 minLength: 4,
                                 pattern: isChannel ? NAME_CHANNEL_REGEXP : LOGIN_REGEXP,
-                                required: {value: true, message: t('form.required')}
+                                required: {value: true, message: t('form.required')},
+                                // validate: async(value) => {
+                                //     const isValid = await profileAPI.checkDisplayName(value); // добавить и дописать функцию
+                                //     return isValid || t('form.error.alreadyTaken')
+                                // }
                             })}
                         />
                     </div>

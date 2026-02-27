@@ -11,6 +11,7 @@ import EmailInput from './EmailInput';
 import { channelAPI, messagesAPI, profileAPI } from '../../API/api';
 import { createObjectChannel } from '../../utils/utils';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
+import { RESERVED_CHANNEL_ID } from '../../constants/constants';
 
 const ERROR_NEW_EMAIL = 'auth/email-already-in-use'
 
@@ -34,7 +35,7 @@ const SignUp: FC = () => {
             if (!data.rememberMe) {
                 await setPersistence(auth, browserSessionPersistence)
             }
-            const reservedСhannel = await channelAPI.getCurrentInfo('2c67b2bf-06bb-423b-a26d-041eda2d0ffc')
+            const reservedСhannel = await channelAPI.getCurrentInfo(RESERVED_CHANNEL_ID)
             await messagesAPI.addChat(userObj, createObjectChannel(reservedСhannel), reservedСhannel.channelID)
         } catch(error: any) {
             const errorCode = error.code;

@@ -7,10 +7,12 @@ const firebaseConfig = {
     projectId: process.env.PROJECT_ID,
     storageBucket: process.env.STORAGE_BUCKET,
     messagingSenderId: process.env.MESSAGING_SENDER_ID,
-    appId: process.env.APP_ID
+    appId: process.env.APP_ID,
+    measurementId: process.env.MEASUREMENTID
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+//const analytics = getAnalytics(app);
 
 export {db}
