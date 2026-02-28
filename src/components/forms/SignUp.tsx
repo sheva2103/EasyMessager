@@ -29,20 +29,23 @@ const SignUp: FC = () => {
         const auth = getAuth();
 
         try {
-            const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password)
-            const user = userCredential.user
-            const userObj = await profileAPI.createNewUserInDB(user)
             if (!data.rememberMe) {
                 await setPersistence(auth, browserSessionPersistence)
             }
+            const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password)
+            await new Promise(resolve => setTimeout(resolve, 500))
+            const user = userCredential.user
+            const userObj = await profileAPI.createNewUserInDB(user)
             const reservedСhannel = await channelAPI.getCurrentInfo(RESERVED_CHANNEL_ID)
             await messagesAPI.addChat(userObj, createObjectChannel(reservedСhannel), reservedСhannel.channelID)
+
         } catch(error: any) {
             const errorCode = error.code;
             const errorMessage = error.message;
             console.error('Ошибка при регистрации:', error);
             console.log(errorCode, '>>>>', errorMessage)
             if (errorCode === ERROR_NEW_EMAIL) setError('email', { message: t('form.userAlreadyExists') })
+            else console.log(error.message)
         }
 
     }

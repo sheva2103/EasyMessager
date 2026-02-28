@@ -1,6 +1,6 @@
 {
     "short_name": "EM",
-    "name": "Easy Messager",
+    "name": "Easy Messenger",
     "description": "Звонки и обмен сообщениями в реальном времени",
     "start_url": "/",
     "display": "standalone",

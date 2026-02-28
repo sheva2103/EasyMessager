@@ -8,10 +8,10 @@ import { setUser, setUserData } from '../store/slices/appSlice';
 import { CurrentUser, CurrentUserData } from '../types/types';
 import { useTheme } from '../hooks/useTheme';
 import { useEffect, useLayoutEffect, useState } from 'react';
-import { DocumentSnapshot, doc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 console.log("%cEasyMessenger by sheva2103, GitHub: https://github.com/sheva2103/easy-messenger, email: 2103sheva@gmail.com", "color: #8774e1; font-size: 16px;");
-import { profileAPI } from '../API/api';
+
 import { PWAInstallPrompt } from './PWA/PWAInstall';
 
 export const App = () => {
@@ -21,42 +21,61 @@ export const App = () => {
 
     const currentUser = useAppSelector(state => state.app.currentUser)
     const dispatch = useAppDispatch()
+
     useLayoutEffect(() => {
         const auth = getAuth();
-        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+
+        const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
             if (user) {
-                const currentInfo = await profileAPI.getCurrentInfo(user.uid)
-                const userData: CurrentUser = { email: currentInfo.email, photoURL: currentInfo.photoURL, displayName: currentInfo.displayName, uid: currentInfo.uid }
-                dispatch(setUser(userData))
-                setLoad(false)
+                let unsubscribeSnapshot: () => void;
+
+                unsubscribeSnapshot = onSnapshot(doc(db, "users", user.uid), (docSnap) => {
+                    if (docSnap.exists()) {
+                        const currentInfo = docSnap.data()
+                        const userData: CurrentUser = {
+                            email: currentInfo.email,
+                            photoURL: currentInfo.photoURL,
+                            displayName: currentInfo.displayName,
+                            uid: currentInfo.uid
+                        }
+
+                        dispatch(setUser(userData));
+                        setLoad(false);
+
+                        if (unsubscribeSnapshot) {
+                            unsubscribeSnapshot()
+                        }
+                    }
+                }, (error) => {
+                    console.error("Snapshot error:", error);
+                    setLoad(false);
+                });
+
             } else {
-                console.log('никого нет')
-                dispatch(setUser(null))
-                setLoad(false)
+                dispatch(setUser(null));
+                setLoad(false);
             }
         });
-        return () => unsubscribe()
-    }, []);
+
+        return () => unsubscribeAuth();
+    }, [dispatch]);
 
     useEffect(() => {
-        if (currentUser?.email) {
-            const userData = onSnapshot(doc(db, "users", currentUser.uid), (doc: DocumentSnapshot<CurrentUserData>) => {
-                const data: CurrentUserData = doc.data()
-                if (!data) {
-                    dispatch(setUser(null))
-                    return
+        if (currentUser?.uid) {
+            const unsub = onSnapshot(doc(db, "users", currentUser.uid), (docSnapshot) => {
+                if (docSnapshot.exists()) {
+                    const data = docSnapshot.data() as CurrentUserData
+                    dispatch(setUserData(data))
+                } else {
+                    console.log("Документ пользователя создается...")
                 }
-                dispatch(setUserData(data))
             });
-            return () => userData()
+            return () => unsub()
         }
-    }, [currentUser?.email]);
+    }, [currentUser?.uid]);
 
     return (
         <div className='appContainer'>
-            {/* <StartPage /> */}
-            {/* <LoadingApp /> */}
-            {/* <HomaPage /> */}
             {currentUser ? <HomaPage /> : load ? <LoadingApp /> : <StartPage />}
             <PWAInstallPrompt />
         </div>
