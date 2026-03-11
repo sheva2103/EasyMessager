@@ -50,7 +50,7 @@ const ForwardedFrom: FC<ForwardedFromProps> = ({ user }) => {
     const name = user?.channel ? user.channel.displayName : user.displayName
 
     const handleClick = (event: React.MouseEvent) => {
-        if (user.uid !== currentUser.uid && user.uid !== selectedChat.uid) dispatch(setTempChat(user))
+        if (user?.channel || (user.uid !== currentUser.uid && user.uid !== selectedChat.uid)) dispatch(setTempChat(user))
     }
 
     return (

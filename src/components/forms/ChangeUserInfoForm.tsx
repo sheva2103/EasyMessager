@@ -43,7 +43,7 @@ const ChangeUserInfoForm: FC<Props> = ({ changeInfo, setChangeInfo, currentUserI
 
     const submit = async (data: CurrentUserData) => {
         if (isChannel) {
-            channelAPI.changeCannelInfo({ ...currentUserInfo.channel, displayName: data.displayName, photoURL: data.photoURL })
+            channelAPI.changeCannelInfo({channel: { ...currentUserInfo.channel, displayName: data.displayName, photoURL: data.photoURL }})
                 .then(() => setChangeInfo(false))
                 .catch(err => console.log('ошибка изменения канала', err))
         } else {

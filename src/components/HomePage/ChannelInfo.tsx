@@ -2,22 +2,21 @@ import { FC, memo, useEffect, useState } from "react";
 import styles from './HomePage.module.scss'
 import Avatar from "../Avatar/Avatar";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
-import { Chat, MessageType, NoReadMessagesType, TypeChannel } from "../../types/types";
+import { Chat, MessageType, TypeChannel, TypeChannelBackend } from "../../types/types";
 import { channelAPI, messagesAPI } from "../../API/api";
 import classNames from "classnames";
-import { createObjectChannel, getChatType } from "../../utils/utils";
-import { doc, DocumentSnapshot, onSnapshot, QuerySnapshot } from "firebase/firestore";
+import { convertBackChannelToClient, createObjectChannel, getChatType } from "../../utils/utils";
+import { doc, DocumentSnapshot, onSnapshot, orderBy, query, QuerySnapshot } from "firebase/firestore";
 import { setMessages } from "../../store/slices/messagesSlice";
-import { Alert, Badge, Snackbar } from "@mui/material";
+import { Alert, Snackbar } from "@mui/material";
 import { updateSelectedChannel } from "../../store/slices/appSlice";
 import { db } from "../../firebase";
 import { CHANNELS_INFO } from "../../constants/constants";
 import ShowNameChat from "./ShowNameChat";
 import DialogComponent, { ConfirmComponent, NotFoundChat } from "../Settings/DialogComponent";
-import { setChat } from "../../store/slices/setChatIDSlice";
+import { outChat, setChat } from "../../store/slices/setChatIDSlice";
 import { useChannelClickHandler } from "../../hooks/useHandleClickToChannel";
 import { PreviewLastMessage } from "./ChatInfo";
-import { postTask, subscribe } from "../../utils/workerSingleton";
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 
 
@@ -40,17 +39,15 @@ const Skeleton: FC = () => {
 const ChannelInfo: FC<Props> = (channel) => {
 
     const [updateChannel, setUpdateChannel] = useState<TypeChannel>({ ...channel.channel })
-    const [messages, setMessagesList] = useState<{ messages: MessageType[], noRead: NoReadMessagesType }>({ messages: [], noRead: { quantity: 0, targetIndex: 0 } })
     const [notFoundChannel, setNotFoundChannel] = useState(false)
     const [fetchingCurrentInfo, setFetchingCurrentInfo] = useState(true)
     const [isNotAccess, setIsNotAccess] = useState(false)
     const [errorConnection, setErrorConnection] = useState(false)
     const selectedChat = useAppSelector(state => state.app.selectedChat)
     const currentUser = useAppSelector(state => state.app.currentUser)
-    const {t} = useTypedTranslation()
+    const { t } = useTypedTranslation()
     const dispatch = useAppDispatch()
     const isSelected = selectedChat?.channel?.channelID === updateChannel.channelID
-    const lastMessage = messages.messages[messages.messages.length - 1]
     const { handleClickToChannel } = useChannelClickHandler({ isSelected, channel: updateChannel, currentUserID: currentUser.uid, setIsNotAccess, setNotFoundChannel });
 
     const unsubscribe = () => {
@@ -73,105 +70,53 @@ const ChannelInfo: FC<Props> = (channel) => {
     }
 
     useEffect(() => {
-        const getInfo = async () => {
-            try {
-                const currentInfo = await channelAPI.getCurrentInfo(channel.channel.channelID)
-                if (currentInfo) {
-                    setUpdateChannel(currentInfo)
-                }
-            } catch (error) {
-                console.error('Error fetching current info:', error);
-            } finally {
-                setFetchingCurrentInfo(false);
-            }
-        }
-        getInfo()
-
-    }, []);
-
-    useEffect(() => {
-        let listenerChannelInfo: () => void
-        if(isSelected) {
-            listenerChannelInfo = onSnapshot(doc(db, CHANNELS_INFO, updateChannel.channelID), async (doc: DocumentSnapshot<TypeChannel>) => {
+        let listenerChannelInfo = onSnapshot(doc(db, CHANNELS_INFO, channel.channel.channelID), async (doc: DocumentSnapshot<TypeChannelBackend>) => {
             if (doc.data()) {
-                const currentInfoChannel = doc.data()
+                const currentInfoChannel = convertBackChannelToClient(doc.data())
                 const isSubscriber = currentInfoChannel.listOfSubscribers.some(item => item.uid === currentUser.uid)
+
+                if(!isSubscriber && !currentInfoChannel.isOpen && isSelected) {
+                    dispatch(outChat())
+                    return
+                }
                 if (isSubscriber && currentInfoChannel.dateOfChange !== channel.dateOfChange) {
                     const toChat = createObjectChannel(currentInfoChannel)
                     await channelAPI.updateChannelInMyChatList(currentUser.email, toChat)
                 }
-                dispatch(updateSelectedChannel({ ...currentInfoChannel, owner: updateChannel.owner }))
-            } else (
-                setNotFoundChannel(true)
-            )
+                if (isSelected) dispatch(updateSelectedChannel({ ...currentInfoChannel, owner: updateChannel.owner }))
+                setUpdateChannel(currentInfoChannel)
+            }
+            if (fetchingCurrentInfo) setFetchingCurrentInfo(false)
         })
-        }
-        return () => {
-            if (listenerChannelInfo) listenerChannelInfo()
-        }
-    }, [isSelected, channel, updateChannel]);
 
-    // useEffect(() => {
-    //     const channelObj: Chat = createObjectChannel(updateChannel);
-    //     const messagesCollectionRef = getChatType(false, channelObj)
-    //     const unsubscribe = onSnapshot(messagesCollectionRef, (querySnapshot: QuerySnapshot<Message1>) => {
-    //         const tempList = querySnapshot.docs.map(doc => doc.data())
-    //         const list = createMessageList(tempList)
-    //         setMessagesList({
-    //             messages: list,
-    //             noRead: { quantity: 0, targetIndex: list.length }
-    //         });
-    //     },
-    //         (error) => {
-    //             console.log('error connection', error);
-    //             setErrorConnection(true)
-    //         }
-    //     );
-
-    //     return () => unsubscribe();
-
-    // }, [updateChannel]); вариант без воркера !!!!!!!!!!!!!!!!!!!!!
+        return () => listenerChannelInfo()
+    }, [isSelected, channel]);
 
     useEffect(() => {
-        const channelObj: Chat = createObjectChannel(updateChannel);
-        const messagesCollectionRef = getChatType(false, channelObj);
-        const unsubscribeWorker = subscribe(channelObj.chatID, (data) => {
-            if ('error' in data) {
-                console.error('Ошибка воркера:', data.error);
-                setErrorConnection(true);
-            } else {
-                setMessagesList({
-                    messages: data.list as MessageType[],
-                    //noRead: data.noRead,
-                    noRead: { quantity: 0, targetIndex: data.list.length }
-                });
-            }
-        });
+        if (!isSelected) return
 
-        const unsubscribeFirestore = onSnapshot(
-            messagesCollectionRef,
-            (querySnapshot: QuerySnapshot<MessageType>) => {
-                const tempList = querySnapshot.docs.map((doc) => doc.data())
-                postTask(channelObj.chatID, {
-                    rawMessagesArray: tempList,
-                    currentUserUid: updateChannel.channelID,
-                });
-            },
+        const channelObj: Chat = createObjectChannel(updateChannel)
+        const messagesCollectionRef = getChatType(false, channelObj)
+        const q = query(messagesCollectionRef, orderBy("date", "asc"))
+
+        const unsubscribe = onSnapshot(q, (querySnapshot: QuerySnapshot<MessageType>) => {
+            const list = querySnapshot.docs.map(doc => doc.data());
+            dispatch(setMessages({
+                messages: list,
+                noRead: { quantity: 0, targetIndex: list.length }
+            }))
+
+        },
             (error) => {
-                console.log('error connection', error);
+                console.error('Ошибка в выбранном чате:', error);
                 setErrorConnection(true);
-            }
-        );
+            })
 
         return () => {
-            unsubscribeFirestore();
-            unsubscribeWorker();
+            if (unsubscribe) unsubscribe();
         };
-    }, [updateChannel, currentUser.uid]);
 
-    useEffect(() => {
-        if (isSelected) dispatch(setMessages(messages))
-    }, [isSelected, messages]);
+    }, [isSelected, updateChannel.channelID]);
 
     if (fetchingCurrentInfo) return <Skeleton />
 
@@ -213,12 +158,11 @@ const ChannelInfo: FC<Props> = (channel) => {
                 <div className={styles.name}>
                     <span className={styles.name}>{isSelected ? <ShowNameChat /> : updateChannel.displayName}</span>
                 </div>
-                <PreviewLastMessage message={lastMessage} currentUserId={currentUser.uid} />
+                <PreviewLastMessage message={updateChannel?.lastMessage} currentUserId={currentUser.uid} />
             </div>
-            <div className={styles.chatInfo__noRead}>
+            {/* <div className={styles.chatInfo__noRead}>
                 <Badge badgeContent={messages.noRead.quantity} color="primary" />
-            </div>
-
+            </div> */}
         </li>
     );
 }

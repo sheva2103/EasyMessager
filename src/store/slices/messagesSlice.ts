@@ -16,9 +16,14 @@ const messagesSlice = createSlice({
     name: 'messages',
     initialState,
     reducers: {
-        setMessages(state, action: PayloadAction<{messages: MessageType[], noRead: NoReadMessagesType}>) {
-            state.messages = action.payload.messages
-            state.noRead = action.payload.noRead
+        setMessages(state, action: PayloadAction<{messages: MessageType[], noRead: NoReadMessagesType} | null>) {
+            if(action.payload) {
+                state.messages = action.payload.messages
+                state.noRead = action.payload.noRead
+            } else {
+                state.messages = []
+                state.noRead = {quantity: 0, targetIndex: 0}
+            }
         }
     }
 })

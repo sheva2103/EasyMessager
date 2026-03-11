@@ -2,23 +2,33 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { Chat, UsersData } from "../../types/types";
 import { messagesAPI } from "../../API/api";
 import { makeChatId } from "../../utils/utils";
+import { setMessages } from "./messagesSlice";
 
 
 
 
-export const setChat = createAsyncThunk<Chat, UsersData | null, {rejectValue: UsersData}>(
+export const setChat = createAsyncThunk<Chat, UsersData | null, { rejectValue: UsersData }>(
     'app/getChatId',
-    async (users, {rejectWithValue}) => {
+    async (users, { rejectWithValue }) => {
 
-        if(users === null) return null
-        
-        if(users.guestInfo?.chatID) return users.guestInfo
+        if (users === null) return null
+
+        if (users.guestInfo?.chatID) return users.guestInfo
 
         const getID = makeChatId(users)
-        const id = await messagesAPI.getChatID(getID) 
+        const id = await messagesAPI.getChatID(getID)
         console.log(id)
 
-        if(!getID) return rejectWithValue(users)
-        return ({...users.guestInfo, chatID: getID})
+        if (!getID) return rejectWithValue(users)
+        return ({ ...users.guestInfo, chatID: getID })
     }
 )
+
+export const outChat = createAsyncThunk(
+    'app/OutChat',
+    async (_, { dispatch }) => {
+        await dispatch(setChat(null)).unwrap();
+        dispatch(setMessages(null));
+        return { cleared: true }
+    }
+);

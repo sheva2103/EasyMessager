@@ -8,8 +8,6 @@ const ShowNameChat: FC = () => {
         return state.app.selectedChat?.nameWasGiven || state.app.selectedChat.displayName
     })
 
-    console.log(name)
-
     return ( 
         <span>{name}</span>
     );

@@ -15,7 +15,8 @@ export function buildDevServer(options: BuildOPtions): DevServerConfiguration {
         },
         https: {
             key: fs.readFileSync(path.resolve(__dirname, '..', '..','ssl', 'key.pem')),
-            cert: fs.readFileSync(path.resolve(__dirname, '..', '..','ssl', 'cert.pem'))
+            // cert: fs.readFileSync(path.resolve(__dirname, '..', '..','ssl', 'cert.pem'))
+            cert: fs.readFileSync(path.resolve(options.paths.ssl, 'cert.pem.cer'))
         },
 
     }

@@ -35,8 +35,8 @@ const BlockControl: FC = () => {
         if (!selectedMessage.length) return
         setDeleting(true)
 
-        const limitedPromises = selectedMessage.map(item =>
-            limit(() => messagesAPI.deleteMessage(chat, item, isFavorites))
+        const limitedPromises = selectedMessage.map(message =>
+            limit(() => messagesAPI.deleteMessage({chat, message, isFavorites}))
         )
 
         Promise.all(limitedPromises)

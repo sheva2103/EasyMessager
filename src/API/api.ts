@@ -1,10 +1,10 @@
 import { QueryDocumentSnapshot, deleteDoc, deleteField, doc, getDoc, setDoc, updateDoc, arrayRemove, arrayUnion, CollectionReference, runTransaction } from "firebase/firestore";
 import { db } from "../firebase";
 import { deleteUser, EmailAuthProvider, getAuth, reauthenticateWithCredential, sendPasswordResetEmail, UserInfo } from "firebase/auth";
-import { CallMessageOptionsType, Chat, CurrentUser, MessageType, Reaction, SetReactionOptions, TypeChannel, TypeCreateChannel } from "../types/types";
+import { CallMessageOptionsType, Chat, CurrentUser, MessageType, Reaction, SetReactionOptions, TypeChannel, TypeChannelBackend, TypeCreateChannel } from "../types/types";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
-import { createChatList, createObjectChannel, createObjectUser, generateShortId, getChatType, getFakeChat, makeChatId } from "../utils/utils";
+import { convertBackChannelToClient, createBaseMessageObject, createBaseObjectChannel, createChatList, createObjectChannel, createObjectUser, generateShortId, getChatType, getFakeChat, makeChatId } from "../utils/utils";
 import { ADD_TO_LIST_SUBSCRIBERS, BLACKLIST, CHANNELS, CHANNELS_INFO, CHATLIST, CHATS, CONTACTS, REMOVE_FROM_LIST_SUBSCRIBERS, USERS } from "../constants/constants";
 import pLimit from "p-limit";
 import { FirebaseError } from "firebase/app";
@@ -36,7 +36,7 @@ type MessagesAPI = {
     sendMessage: (chat: Chat, sender: CurrentUser, message: string, isFavorites: boolean, replyToMessage?: MessageType) => Promise<void>,
     getChatID: (id: string) => Promise<string | null>,
     sendEditMessage: (chat: Chat, message: MessageType, isFavorites: boolean) => Promise<void>,
-    deleteMessage: (chat: Chat, message: MessageType, isFavorites: boolean) => Promise<void>,
+    deleteMessage: (options: {chat: Chat, message: MessageType, isFavorites: boolean, isChangeLastMessageInChannel?: boolean}) => Promise<void>,
     forwardedMessageFrom: (sender: CurrentUser, recipient: Chat, message: MessageType) => Promise<void>,
     readMessage: (chat: Chat, message: MessageType) => Promise<void>,
     clearChat: (chat: Chat, isFavorites: boolean) => Promise<void[]>,
@@ -59,7 +59,7 @@ type ChannelAPI = {
     checkName(name: string): Promise<boolean>,
     getCurrentInfo: (uid: string) => Promise<TypeChannel | null>,
     changeListSubscribers: (typeChange: string, channelId: string, user: CurrentUser) => Promise<void>,
-    changeCannelInfo: (channel: TypeChannel, updateDateOfChange?: boolean) => Promise<void>,
+    changeCannelInfo: (options: {channel: TypeChannel, updateDateOfChange?: boolean, updateLastMessage?: boolean, lastMessage?: MessageType}) => Promise<void>,
     deleteChannel: (id: string) => Promise<[void, void]>,
     applyForMembership: (user: CurrentUser, channelID: string) => Promise<void>,
     getApplyForMembership: (channelID: string) => Promise<CurrentUser[]>,
@@ -233,11 +233,11 @@ export const messagesAPI: MessagesAPI = {
         const id = uuidv4()
         const messageObj: MessageType = { message: message, messageID: id, date: date, sender: { ...sender } }
         if (!isFavorites && !chat?.channel) messageObj.read = false
-        if (chat?.channel) messageObj.sender.channel = chat.channel
+        if (chat?.channel) messageObj.sender.channel = createBaseObjectChannel(chat.channel)
         if (replyToMessage) messageObj.replyToMessage = replyToMessage
 
         if (chat.channel) {
-            await channelAPI.changeCannelInfo(chat.channel, true)
+            await channelAPI.changeCannelInfo({channel: chat.channel, updateDateOfChange: true, lastMessage: messageObj, updateLastMessage: true})
         }
         const newDocRef = doc(reference, id);
         return await setDoc(newDocRef, messageObj, { merge: true });
@@ -262,10 +262,23 @@ export const messagesAPI: MessagesAPI = {
         });
     },
 
-    async deleteMessage(chat, message, isFavorites) {
+    async deleteMessage(options) {
+        const {chat, message, isFavorites, isChangeLastMessageInChannel} = options
         const messageRef = getChatType(isFavorites, chat)
         const docToDeleteRef = doc(messageRef, message.messageID);
         await deleteDoc(docToDeleteRef)
+        if(isFavorites || !Boolean(chat?.channel)) return
+        if(isChangeLastMessageInChannel) {
+            const channelRef = doc(db, CHANNELS_INFO, options.chat.channel.channelID)
+            await updateDoc(channelRef, {
+                lastMessage: createBaseMessageObject(message)
+            });
+        } else {
+            const channelRef = doc(db, CHANNELS_INFO, options.chat.channel.channelID)
+            await updateDoc(channelRef, {
+                lastMessage: deleteField()
+            });
+        }
     },
 
     async forwardedMessageFrom(sender, recipient, message) {
@@ -292,7 +305,6 @@ export const messagesAPI: MessagesAPI = {
         else {
             const reference = getChatType(false, getFakeChat(getID))
             const newDocRef = doc(reference, id)
-            console.log(newDocRef.path)
             await Promise.all([messagesAPI.addChat(sender, recipient, getID), messagesAPI.addChat(recipient, sender, getID)])
             await setDoc(newDocRef, messageObj, { merge: true })
         }
@@ -311,7 +323,7 @@ export const messagesAPI: MessagesAPI = {
         const querySnapshot = await getDocs(collectionRef);
         const messagesToDelete = querySnapshot.docs.map(doc => ({ ...doc.data() })) as MessageType[]
         const limitedPromises = messagesToDelete.map(message =>
-            limit(() => messagesAPI.deleteMessage(chat, message, isFavorites))
+            limit(() => messagesAPI.deleteMessage({chat, message, isFavorites}))
         )
         return Promise.all(limitedPromises);
     },
@@ -335,16 +347,27 @@ export const messagesAPI: MessagesAPI = {
     async addToFavorites(currentUser, message) {
         const favoritesCollectionRef = getChatType(true, currentUser)
         const date = JSON.stringify(new Date());
-        let modMessage = { ...message };
-        delete modMessage.read;
-        if (modMessage?.reactions) delete modMessage.reactions;
-        const documentData = {
-            ...modMessage,
+        const id = uuidv4()
+
+        const messageObj: MessageType = {
+            sender: currentUser,
+            message: message.message,
+            messageID: id,
             date,
-            forwardedFrom: message.sender
+            forwardedFrom: message.sender?.channel ?  createObjectChannel(message.sender.channel) : message.sender
         }
-        const messageDocRef = doc(favoritesCollectionRef, message.messageID);
-        await setDoc(messageDocRef, documentData, { merge: true });
+        
+        if(message?.forwardedFrom) {
+            messageObj.forwardedFrom = message.forwardedFrom.channel ? 
+                createObjectChannel(message.forwardedFrom.channel)
+                :
+                createObjectUser(message.forwardedFrom)
+        }
+
+        if(message?.shareChat) messageObj.shareChat = message.shareChat
+
+        const messageDocRef = doc(favoritesCollectionRef, id);
+        await setDoc(messageDocRef, messageObj, { merge: true });
     },
 
     async sendCallInfoMessage(options) {
@@ -459,7 +482,6 @@ export const channelAPI: ChannelAPI = {
             isOpen: data.isOpen,
             channelID,
             registrationDate: new Date().toLocaleDateString(),
-            listOfSubscribers: [],
             dateOfChange
         }
         await setDoc(doc(db, CHANNELS, channelID), {})
@@ -480,7 +502,7 @@ export const channelAPI: ChannelAPI = {
         const docSnap = await getDoc(channelRef);
 
         if (docSnap.exists()) {
-            const info: TypeChannel = docSnap.data() as TypeChannel
+            const info: TypeChannel = convertBackChannelToClient(docSnap.data() as TypeChannelBackend)
             const owner = await profileAPI.getCurrentInfo(info.owner.uid)
             return ({ ...info, owner })
         } else {
@@ -495,14 +517,14 @@ export const channelAPI: ChannelAPI = {
 
         if (typeChange === ADD_TO_LIST_SUBSCRIBERS) {
             await updateDoc(ref, {
-                listOfSubscribers: arrayUnion(toObjSubscriber)
+                [`listOfSubscribers.${user.uid}`]: toObjSubscriber
             });
         }
 
         if (typeChange === REMOVE_FROM_LIST_SUBSCRIBERS) {
             const channelRef = doc(db, toObjSubscriber.email, CHATLIST);
             await updateDoc(ref, {
-                listOfSubscribers: arrayRemove(toObjSubscriber)
+                [`listOfSubscribers.${user.uid}`]: deleteField()
             });
             await updateDoc(channelRef, {
                 [channelID]: deleteField()
@@ -510,14 +532,19 @@ export const channelAPI: ChannelAPI = {
         }
     },
 
-    async changeCannelInfo(channel, updateDateOfChange) {
-        const channelRef = doc(db, CHANNELS_INFO, channel.channelID)
+    async changeCannelInfo(options) {
+        const channelRef = doc(db, CHANNELS_INFO, options.channel.channelID)
         const dateOfChange = JSON.stringify(new Date())
         const obj: any = {}
-        if (updateDateOfChange) obj.dateOfChange = dateOfChange
+        if (options.updateLastMessage) {
+            obj.lastMessage = createBaseMessageObject(options.lastMessage)
+        }
+        if (options.updateDateOfChange) {
+            obj.dateOfChange = dateOfChange
+        }
         else {
-            obj.photoURL = channel.photoURL
-            obj.displayName = channel.displayName
+            obj.photoURL = options.channel.photoURL
+            obj.displayName = options.channel.displayName
         }
 
         await updateDoc(channelRef, obj);

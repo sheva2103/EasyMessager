@@ -6,7 +6,7 @@ import { Chat, CurrentUser } from "../../types/types";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { channelAPI, contactsAPI, messagesAPI } from "../../API/api";
 import { closeBar, setLoadChat, setSearchMessages } from "../../store/slices/appSlice";
-import { setChat } from "../../store/slices/setChatIDSlice";
+import { outChat, setChat } from "../../store/slices/setChatIDSlice";
 import { RESERVED_CHANNEL_ID, SHOW_CHANNEL_INFO } from "../../constants/constants";
 import { Badge } from "@mui/material";
 import { createSelector } from "@reduxjs/toolkit";
@@ -148,7 +148,7 @@ const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
         messagesAPI.deleteChat(currentUser, selectedChat)
             .then(() => {
                 setOpen(false)
-                dispatch(setChat(null))
+                dispatch(outChat())
             })
             .catch((err) => console.log('Произошла ошибка отписки', err))
     }

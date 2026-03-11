@@ -1,5 +1,5 @@
 import { collection, CollectionReference } from "firebase/firestore"
-import { Chat, CheckMessageType, CurrentUser, MessageType, NoReadMessagesType, OnlineStatusUserType, Reaction, TypeChannel, UsersData } from "../types/types"
+import { Chat, CheckMessageType, CurrentUser, MessageType, NoReadMessagesType, OnlineStatusUserType, Reaction, TypeChannel, TypeChannelBackend, UsersData } from "../types/types"
 import { format } from "@formkit/tempo"
 import { db } from "../firebase"
 import { searchAPI } from "../API/api";
@@ -208,6 +208,32 @@ export function getFakeChat(id: string): Chat {
     })
 }
 
+export function createBaseMessageObject(message: MessageType): MessageType {
+    return ({
+        message: message.message,
+        messageID: message.messageID,
+        date: message.date,
+        sender: {
+            displayName: message.sender.displayName,
+            email: message.sender.email,
+            uid: message.sender.uid
+        }
+    })
+}
+
+export function createBaseObjectChannel(channel: TypeChannel): TypeChannel {
+    return ({
+        displayName: channel.displayName,
+        channelID: channel.channelID,
+        isOpen: channel.isOpen,
+        owner: {
+            displayName: channel.owner.displayName,
+            email: channel.owner.email,
+            uid: channel.owner.uid
+        }
+    })
+}
+
 
 export async function globalSearch(name: string, currentUserID: string) {
 
@@ -218,8 +244,31 @@ export async function globalSearch(name: string, currentUserID: string) {
     return [...chats, ...channelToChat].sort((a, b) => String(a.displayName).localeCompare(String(b.displayName)))
 }
 
+function removeUndefinedDeep<T>(obj: T): T {
+    if (obj !== Object(obj)) {
+        return obj;
+    }
+
+    const entries = Object.entries(obj as Record<string, unknown>)
+        .filter(([_, value]) => value !== undefined)
+        .map(([key, value]) => [key, removeUndefinedDeep(value)]);
+
+    return Object.fromEntries(entries) as T;
+}
+
+// export function createObjectChannel(chat: TypeChannel): Chat {
+//     return ({
+//         displayName: chat.displayName,
+//         email: chat.owner.email,
+//         chatID: chat.channelID,
+//         uid: chat.channelID,
+//         dateOfChange: chat.dateOfChange,
+//         channel: chat
+//     })
+// }
+
 export function createObjectChannel(chat: TypeChannel): Chat {
-    return ({
+    return removeUndefinedDeep({
         displayName: chat.displayName,
         email: chat.owner.email,
         chatID: chat.channelID,
@@ -233,6 +282,13 @@ export function createOnlineStatusUser(date: number): OnlineStatusUserType {
     const currentDate = Date.now()
     const isOnline = currentDate - date < 60000 ? true : false
     return ({ isOnline, last_seen: date })
+}
+
+export function convertBackChannelToClient(data: TypeChannelBackend): TypeChannel {
+    const listOfSubscribers = Object.values(data?.listOfSubscribers ?? {});
+    return({
+        ...data, listOfSubscribers
+    })
 }
 
 type Position = { top: number; left: number };
@@ -384,7 +440,7 @@ export function createShareChatObj(options: { sender: CurrentUser, shareChat: Ch
         date,
         sender
     }
-    if (shareChat?.channel) message.shareChat.channel = shareChat?.channel
+    if (shareChat?.channel) message.shareChat.channel = createBaseObjectChannel(shareChat?.channel)
     return message
 }
 

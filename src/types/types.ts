@@ -101,8 +101,14 @@ export interface TypeChannel extends TypeCreateChannel  {
     listOfSubscribers?: CurrentUser[],
     photoURL?: string,
     dateOfChange?: string,
-    applyForMembership?: CurrentUser[]
+    applyForMembership?: CurrentUser[],
+    lastMessage?: MessageType
 }
+
+export type TypeChannelBackend = Omit<TypeChannel, "listOfSubscribers"> & {
+    listOfSubscribers?: Record<string, CurrentUser>;
+};
+
 
 export type OnlineStatusUserType = {isOnline: boolean, last_seen: number}
 
