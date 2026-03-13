@@ -86,7 +86,7 @@ const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, isForwarde
     const dispatch = useAppDispatch()
     const chat = useAppSelector(state => state.app.selectedChat)
     const isFavorites = useAppSelector(state => state.app.isFavorites)
-    const previousMessageInChannel = useAppSelector(state => state.messages.messages[state.messages.messages.length - 2])
+    const lastMessageInChannel = useAppSelector(state => state.app.selectedChannel?.lastMessage)
     const [openListReaction, setOpenListReaction] = useState(false)
     const isCallMessage = !!message?.callStatus
     const isChannel = !!chat?.channel
@@ -122,8 +122,8 @@ const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, isForwarde
         messagesAPI.deleteMessage({
             chat,
             message,
-            isFavorites, 
-            isChangeLastMessageInChannel: previousMessageInChannel?.messageID === message.messageID
+            isFavorites,
+            updateLastMessage: lastMessageInChannel?.messageID === message.messageID
         })
             .catch((error) => console.error("Ошибка при удалении сообщения:", error))
     }
