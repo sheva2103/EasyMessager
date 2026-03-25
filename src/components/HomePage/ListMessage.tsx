@@ -8,6 +8,8 @@ import { useAppDispatch, useAppSelector } from '../../hooks/hook';
 import AdvancedContent from './AdvancedContent';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { setIsAtBottomScroll } from '../../store/slices/appSlice';
+import { useChatMessages } from '../../hooks/useChatMessages';
+import { ErrorConnectionComponent } from '../feedback/FeedbackComponets';
 
 
 
@@ -29,18 +31,40 @@ const VariableHeightList: FC<VariableHeightListProps> = ({
     const setAtBottomScroll = (isBottom: boolean) => {
         dispatch(setIsAtBottomScroll(isBottom))
     }
+    const hasInitialScrolled = useRef(false)
+    const currentChatId = useAppSelector(state => state.app.selectedChat?.chatID);
+
+    // useLayoutEffect(() => {
+    //     if (virtuosoRef.current && items.length) {
+    //         setTimeout(() => {
+    //             virtuosoRef.current?.scrollToIndex({
+    //                 index: noRead.targetIndex,
+    //                 align: 'center', 
+    //                 behavior: 'auto' 
+    //             });
+    //         }, 100);
+    //     }
+    // }, [items.length]); 
 
     useLayoutEffect(() => {
-        if (virtuosoRef.current && items.length) {
-            setTimeout(() => {
+        if (virtuosoRef.current && items.length > 0 && !hasInitialScrolled.current) {
+            const timeoutId = setTimeout(() => {
                 virtuosoRef.current?.scrollToIndex({
                     index: noRead.targetIndex,
                     align: 'center', 
                     behavior: 'auto' 
                 });
-            }, 100);
+                hasInitialScrolled.current = true;
+            }, 50)
+
+            return () => clearTimeout(timeoutId);
         }
-    }, [items.length]); 
+    }, [items.length, noRead.targetIndex]);
+
+
+    useLayoutEffect(() => {
+        hasInitialScrolled.current = false;
+    }, [currentChatId]);
 
     useEffect(() => {
         assignElementToScroll(virtuosoRef.current)
@@ -79,6 +103,10 @@ const VariableHeightList: FC<VariableHeightListProps> = ({
             overscan={800}
             increaseViewportBy={300}
             atBottomStateChange={setAtBottomScroll} 
+            followOutput={(isAtBottom) => {
+                if (isAtBottom) return 'smooth';
+                return false;
+            }}
         />
     );
 }
@@ -86,12 +114,20 @@ const VariableHeightList: FC<VariableHeightListProps> = ({
 const ListMessages: FC = () => {
 
     const list = useAppSelector(state => state.messages)
+    const selectedChat = useAppSelector(state => state.app.selectedChat)
     const scrollElementRef = useRef<VirtuosoHandle | null>(null) 
     const assignElementToScroll = (element: VirtuosoHandle | null) => {
         scrollElementRef.current = element 
     }
 
+    const {errorConnection} = useChatMessages(selectedChat)
+
+
     console.log('render list messages')
+
+    if(errorConnection) return (
+        <ErrorConnectionComponent errorConnection={errorConnection} />
+    )
 
     return (
         <div className={styles.contentWrapper}>

@@ -42,7 +42,6 @@ const ChannelInfo: FC<Props> = (channel) => {
     const [notFoundChannel, setNotFoundChannel] = useState(false)
     const [fetchingCurrentInfo, setFetchingCurrentInfo] = useState(true)
     const [isNotAccess, setIsNotAccess] = useState(false)
-    const [errorConnection, setErrorConnection] = useState(false)
     const selectedChat = useAppSelector(state => state.app.selectedChat)
     const currentUser = useAppSelector(state => state.app.currentUser)
     const { t } = useTypedTranslation()
@@ -60,13 +59,8 @@ const ChannelInfo: FC<Props> = (channel) => {
     }
 
     const sendRequest = async () => {
-        console.log('send a request')
         await channelAPI.applyForMembership(currentUser, updateChannel.channelID)
         setIsNotAccess(false)
-    }
-
-    const closeErrorConnection = () => {
-        setErrorConnection(false)
     }
 
     useEffect(() => {
@@ -75,7 +69,7 @@ const ChannelInfo: FC<Props> = (channel) => {
                 const currentInfoChannel = convertBackChannelToClient(doc.data())
                 const isSubscriber = currentInfoChannel.listOfSubscribers.some(item => item.uid === currentUser.uid)
 
-                if(!isSubscriber && !currentInfoChannel.isOpen && isSelected) {
+                if (!isSubscriber && !currentInfoChannel.isOpen && isSelected) {
                     dispatch(outChat())
                     return
                 }
@@ -92,31 +86,6 @@ const ChannelInfo: FC<Props> = (channel) => {
         return () => listenerChannelInfo()
     }, [isSelected, channel]);
 
-    useEffect(() => {
-        if (!isSelected) return
-
-        const channelObj: Chat = createObjectChannel(updateChannel)
-        const messagesCollectionRef = getChatType(false, channelObj)
-        const q = query(messagesCollectionRef, orderBy("date", "asc"))
-
-        const unsubscribe = onSnapshot(q, (querySnapshot: QuerySnapshot<MessageType>) => {
-            const list = querySnapshot.docs.map(doc => doc.data());
-            dispatch(setMessages({
-                messages: list,
-                noRead: { quantity: 0, targetIndex: list.length }
-            }))
-
-        },
-            (error) => {
-                console.error('Ошибка в выбранном чате:', error);
-                setErrorConnection(true);
-            })
-
-        return () => {
-            if (unsubscribe) unsubscribe();
-        };
-
-    }, [isSelected, updateChannel.channelID]);
 
     if (fetchingCurrentInfo) return <Skeleton />
 
@@ -133,19 +102,6 @@ const ChannelInfo: FC<Props> = (channel) => {
         <DialogComponent isOpen={notFoundChannel} onClose={unsubscribe}>
             <NotFoundChat confirmFunc={unsubscribe} />
         </DialogComponent>
-    )
-
-    if (isSelected && errorConnection) return (
-        <Snackbar open={errorConnection} autoHideDuration={6000} onClose={closeErrorConnection}>
-            <Alert
-                onClose={closeErrorConnection}
-                severity='error'
-                variant="filled"
-                sx={{ width: '100%' }}
-            >
-                Ошибка подключения. Попробуйте позже.
-            </Alert>
-        </Snackbar>
     )
 
     return (
