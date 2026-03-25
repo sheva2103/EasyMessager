@@ -2,21 +2,19 @@ import { FC, memo, useEffect, useState } from "react";
 import styles from './HomePage.module.scss'
 import Avatar from "../Avatar/Avatar";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
-import { Chat, MessageType, NoReadMessagesType } from "../../types/types";
+import { Chat, MessageType } from "../../types/types";
 import { setChat } from "../../store/slices/setChatIDSlice";
 import { profileAPI } from "../../API/api";
 import classNames from "classnames";
-import { getChatType, makeChatId } from "../../utils/utils";
-import { onSnapshot, QuerySnapshot } from "firebase/firestore";
-import { setMessages } from "../../store/slices/messagesSlice";
-import { Alert, Badge, Snackbar } from "@mui/material";
+import { makeChatId } from "../../utils/utils";
+import { Badge } from "@mui/material";
 import soundFile from '../../assets/sound.mp3';
 import usePresenceStatus from "../../hooks/useCheckOnlineStatus";
 import { setOnlineStatusSelectedUser } from "../../store/slices/appSlice";
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 import CallIcon from '../../assets/telephone-fill.svg'
 import DialogComponent, { NotFoundChat } from "../Settings/DialogComponent";
-import { postTask, subscribe } from "../../utils/workerSingleton";
+import { useChatPreview } from "../../hooks/useChatPreview";
 
 
 
@@ -73,10 +71,8 @@ export const PreviewLastMessage: FC<{ message: MessageType, currentUserId: strin
 const ChatInfo: FC<Chat> = (user) => {
 
     const [updateUser, setUpdateUser] = useState<Chat>({ ...user })
-    const [messages, setMessagesList] = useState<{ messages: MessageType[], noRead: NoReadMessagesType }>({ messages: [], noRead: { quantity: 0, targetIndex: 0 } })
     const [fetchingCurrentInfo, setFetchingCurrentInfo] = useState(true)
     const [notFoundUser, setNotFoundUser] = useState(false)
-    const [errorConnection, setErrorConnection] = useState(false)
     const dispatch = useAppDispatch()
     const selectedChat = useAppSelector(state => state.app.selectedChat)
     const currentUser = useAppSelector(state => state.app.currentUser)
@@ -86,8 +82,9 @@ const ChatInfo: FC<Chat> = (user) => {
         dispatch(setChat({ currentUser: currentUser, guestInfo: updateUser }))
     }
     const isSelected = selectedChat?.uid === user.uid
-    const lastMessage = messages.messages[messages.messages.length - 1]
     const presence = usePresenceStatus(updateUser.uid)
+
+    const { lastMessage, unreadCount } = useChatPreview(user, currentUser.uid)
 
     const unsubscribe = () => {
         profileAPI.deletUserInMyChatlist({ myEmail: currentUser.email, deleteId: user.uid })
@@ -95,10 +92,6 @@ const ChatInfo: FC<Chat> = (user) => {
                 setNotFoundUser(false)
                 dispatch(setChat(null))
             })
-    }
-
-    const closeErrorConnection = () => {
-        setErrorConnection(false)
     }
 
     useEffect(() => {
@@ -133,77 +126,6 @@ const ChatInfo: FC<Chat> = (user) => {
         getInfo()
     }, []);
 
-    // useEffect(() => {
-    //     let unsubscribe: () => void;
-
-    //     if (updateUser.chatID) {
-    //         const messagesCollectionRef = getChatType(false, { ...updateUser } as Chat)
-    //         unsubscribe = onSnapshot(messagesCollectionRef, (querySnapshot: QuerySnapshot<Message1>) => {
-    //             const rawMessagesArray = querySnapshot.docs.map(doc => ({
-    //                 ...doc.data()
-    //             }))
-    //             const list = createMessageList(rawMessagesArray);
-    //             const noRead = getQuantityNoReadMessages(list, currentUser.uid);
-    //             //handleAudioPlay()
-    //             setMessagesList({ messages: list, noRead });
-    //         },
-    //             (error) => {
-    //                 console.log('error connection', error)
-    //                 setErrorConnection(true)
-    //             }
-    //         )
-    //     }
-
-    //     return () => {
-    //         if (unsubscribe) {
-    //             unsubscribe()
-    //         }
-    //     };
-
-    // }, [updateUser.chatID]); // вариант без воркера !!!!!!!!!!!!!!!!!!!!!
-
-    useEffect(() => {
-        let unsubscribeFirestore: (() => void) | undefined;
-        let unsubscribeWorker: (() => void) | undefined;
-        if (updateUser.chatID) {
-            unsubscribeWorker = subscribe(updateUser.chatID, (data) => {
-                if ('error' in data) {
-                    console.error('Ошибка воркера:', data.error);
-                    setErrorConnection(true);
-                } else {
-                    setMessagesList({ messages: data.list, noRead: data.noRead });
-                }
-            });
-
-            const messagesCollectionRef = getChatType(false, { ...updateUser } as Chat);
-            unsubscribeFirestore = onSnapshot(
-                messagesCollectionRef,
-                (querySnapshot: QuerySnapshot<MessageType>) => {
-                    const rawMessagesArray = querySnapshot.docs.map((doc) => doc.data() )
-                    postTask(updateUser.chatID!, {
-                        rawMessagesArray,
-                        currentUserUid: currentUser.uid,
-                    });
-                },
-                (error) => {
-                    console.log('error connection', error);
-                    setErrorConnection(true);
-                }
-            );
-        }
-
-        return () => {
-            if (unsubscribeFirestore) unsubscribeFirestore();
-            if (unsubscribeWorker) unsubscribeWorker();
-        };
-    }, [updateUser.chatID, currentUser.uid])
-
-    useEffect(() => {
-        if (isSelected) {
-            dispatch(setMessages(messages))
-        }
-    }, [messages, selectedChat]);
-
     useEffect(() => {
         if (isSelected && !updateUser?.chatID) {
             setUpdateUser((prev) => ({ ...prev, chatID: selectedChat.chatID }))
@@ -216,19 +138,6 @@ const ChatInfo: FC<Chat> = (user) => {
         <DialogComponent isOpen={notFoundUser} onClose={unsubscribe}>
             <NotFoundChat confirmFunc={unsubscribe} user />
         </DialogComponent>
-    )
-
-    if (isSelected && errorConnection) return (
-        <Snackbar open={errorConnection} autoHideDuration={6000} onClose={closeErrorConnection}>
-            <Alert
-                onClose={closeErrorConnection}
-                severity='error'
-                variant="filled"
-                sx={{ width: '100%' }}
-            >
-                Ошибка подключения. Попробуйте позже.
-            </Alert>
-        </Snackbar>
     )
 
     return (
@@ -244,7 +153,7 @@ const ChatInfo: FC<Chat> = (user) => {
                 <PreviewLastMessage message={lastMessage} currentUserId={currentUser.uid} />
             </div>
             <div className={styles.chatInfo__noRead}>
-                <Badge badgeContent={messages.noRead.quantity} color="primary" />
+                <Badge badgeContent={unreadCount} color="primary" />
             </div>
 
         </li>

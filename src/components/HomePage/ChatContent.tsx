@@ -4,7 +4,7 @@ import styles from './HomePage.module.scss'
 import classNames from "classnames";
 import ArrowLeftIcon from '../../assets/box-arrow-left.svg'
 import ListMessages from "./ListMessage";
-import { setChat } from "../../store/slices/setChatIDSlice";
+import { outChat, setChat } from "../../store/slices/setChatIDSlice";
 import ChatMenu from "./ChatMenu";
 import MessageInputField from "./MessageInputField";
 import Preloader from '../../assets/preloader.svg'
@@ -86,7 +86,7 @@ const HeaderChat: FC<{ selectedChat: Chat }> = ({ selectedChat }) => {
     const dispatch = useAppDispatch()
     const { t } = useTypedTranslation()
     const closeChat = () => {
-        dispatch(setChat(null))
+        dispatch(outChat())
     }
     const isChannel = !!selectedChat?.channel
     const menuIsOpen = useAppSelector(state => !!state.app.menu.menuChild)

@@ -1,5 +1,5 @@
 import styles from './HomePage.module.scss'
-import { FC, memo, useEffect, useLayoutEffect, useRef } from 'react';
+import { FC, memo, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import Message from './Messgae';
 import { MessageType, NoReadMessagesType } from '../../types/types';
 import { createNewDate, getDatefromDate } from '../../utils/utils';
@@ -8,6 +8,8 @@ import { useAppDispatch, useAppSelector } from '../../hooks/hook';
 import AdvancedContent from './AdvancedContent';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { setIsAtBottomScroll } from '../../store/slices/appSlice';
+import { useChatMessages } from '../../hooks/useChatMessages';
+import { ErrorConnectionComponent } from '../feedback/FeedbackComponets';
 
 
 
@@ -29,18 +31,29 @@ const VariableHeightList: FC<VariableHeightListProps> = ({
     const setAtBottomScroll = (isBottom: boolean) => {
         dispatch(setIsAtBottomScroll(isBottom))
     }
+    const hasInitialScrolled = useRef(false)
+    const currentChatId = useAppSelector(state => state.app.selectedChat?.chatID);
+    const searchSet = useMemo(() => new Set(searchIndexes), [searchIndexes]);
 
     useLayoutEffect(() => {
-        if (virtuosoRef.current && items.length) {
-            setTimeout(() => {
+        if (virtuosoRef.current && items.length > 0 && !hasInitialScrolled.current) {
+            const timeoutId = setTimeout(() => {
                 virtuosoRef.current?.scrollToIndex({
                     index: noRead.targetIndex,
                     align: 'center', 
                     behavior: 'auto' 
                 });
-            }, 100);
+                hasInitialScrolled.current = true;
+            }, 50)
+
+            return () => clearTimeout(timeoutId);
         }
-    }, [items.length]); 
+    }, [items.length, noRead.targetIndex]);
+
+
+    useLayoutEffect(() => {
+        hasInitialScrolled.current = false;
+    }, [currentChatId]);
 
     useEffect(() => {
         assignElementToScroll(virtuosoRef.current)
@@ -48,7 +61,7 @@ const VariableHeightList: FC<VariableHeightListProps> = ({
     }, [assignElementToScroll]);
 
     const renderRow = (index: number, item: MessageType) => {
-        const isHighlighted = new Set(searchIndexes).has(index);
+        const isHighlighted = searchSet.has(index);
         const rowStyle: React.CSSProperties = {
             borderRadius: '16px',
             backgroundColor: isHighlighted ? "#53525270" : "transparent",
@@ -71,14 +84,21 @@ const VariableHeightList: FC<VariableHeightListProps> = ({
         );
     };
 
+    if(items.length < 1) return null
+
     return (
         <Virtuoso
+            initialTopMostItemIndex={noRead.targetIndex}
             ref={virtuosoRef}
             data={items}
             itemContent={renderRow}
             overscan={800}
             increaseViewportBy={300}
             atBottomStateChange={setAtBottomScroll} 
+            followOutput={(isAtBottom) => {
+                if (isAtBottom) return 'smooth';
+                return false;
+            }}
         />
     );
 }
@@ -86,23 +106,31 @@ const VariableHeightList: FC<VariableHeightListProps> = ({
 const ListMessages: FC = () => {
 
     const list = useAppSelector(state => state.messages)
+    const selectedChat = useAppSelector(state => state.app.selectedChat)
     const scrollElementRef = useRef<VirtuosoHandle | null>(null) 
     const assignElementToScroll = (element: VirtuosoHandle | null) => {
         scrollElementRef.current = element 
     }
 
+    const {errorConnection} = useChatMessages(selectedChat)
+
+
     console.log('render list messages')
+
+    if(errorConnection) return (
+        <ErrorConnectionComponent errorConnection={errorConnection} />
+    )
 
     return (
         <div className={styles.contentWrapper}>
             <div className={styles.listMessages}>
-                <ul id='listForMessages'>
+                <div id='listForMessages' className={styles.listMessages_container}>
                     <VariableHeightList 
                         items={list.messages}
                         noRead={list.noRead} 
                         assignElementToScroll={assignElementToScroll} 
                     />
-                </ul>
+                </div>
             </div>
             <AdvancedContent 
                 noRead={list.noRead} 
