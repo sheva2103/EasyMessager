@@ -34,7 +34,6 @@ const VariableHeightList: FC<VariableHeightListProps> = ({
     const hasInitialScrolled = useRef(false)
     const currentChatId = useAppSelector(state => state.app.selectedChat?.chatID);
     const searchSet = useMemo(() => new Set(searchIndexes), [searchIndexes]);
-
     useLayoutEffect(() => {
         if (virtuosoRef.current && items.length > 0 && !hasInitialScrolled.current) {
             const timeoutId = setTimeout(() => {
