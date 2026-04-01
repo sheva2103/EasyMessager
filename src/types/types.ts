@@ -27,8 +27,8 @@ export type CurrentUserData = {
 }
 
 export interface CurrentUser extends CurrentUserData {
-    uid: string,
-    email: string,
+    readonly uid: string,
+    readonly email: string,
     registrationDate?: string,
     onlineStatus?: number
 }

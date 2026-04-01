@@ -3,10 +3,10 @@ import { Chat, CheckMessageType, CurrentUser, MessageType, NoReadMessagesType, O
 import { format } from "@formkit/tempo"
 import { db } from "../firebase"
 import { searchAPI } from "../API/api";
-import { CHANNELS, CHATS, FAVOTITES } from "../constants/constants";
 import { TranslationKeys } from "../types/locales";
 import { i18n } from "i18next";
 import { v4 as uuidv4 } from 'uuid';
+import { firebasePath } from "../constants/constants";
 
 
 export function createChatList(data: Chat[]) {
@@ -190,9 +190,9 @@ export function searchMessagesInList(array: MessageType[], substring: string): S
 
 export function getChatType(isFavorites: boolean, selectedChat: Chat | null): CollectionReference {
 
-    if (isFavorites) return collection(db, selectedChat.email, FAVOTITES, 'message')
-    if (selectedChat?.channel) return collection(db, CHANNELS, selectedChat.channel.channelID, 'messages')
-    return collection(db, CHATS, selectedChat.chatID, 'messages')
+    if (isFavorites) return collection(db, selectedChat.email, firebasePath.FAVORITES, 'message')
+    if (selectedChat?.channel) return collection(db, firebasePath.CHANNELS, selectedChat.channel.channelID, 'messages')
+    return collection(db, firebasePath.CHATS, selectedChat.chatID, 'messages')
 }
 
 export function makeChatId(users: UsersData) {

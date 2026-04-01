@@ -11,13 +11,13 @@ import { setMessages } from "../../store/slices/messagesSlice";
 import { Alert, Snackbar } from "@mui/material";
 import { updateSelectedChannel } from "../../store/slices/appSlice";
 import { db } from "../../firebase";
-import { CHANNELS_INFO } from "../../constants/constants";
 import ShowNameChat from "./ShowNameChat";
 import DialogComponent, { ConfirmComponent, NotFoundChat } from "../Settings/DialogComponent";
 import { outChat, setChat } from "../../store/slices/setChatIDSlice";
 import { useChannelClickHandler } from "../../hooks/useHandleClickToChannel";
 import { PreviewLastMessage } from "./ChatInfo";
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
+import { firebasePath } from "../../constants/constants";
 
 
 
@@ -64,7 +64,7 @@ const ChannelInfo: FC<Props> = (channel) => {
     }
 
     useEffect(() => {
-        let listenerChannelInfo = onSnapshot(doc(db, CHANNELS_INFO, channel.channel.channelID), async (doc: DocumentSnapshot<TypeChannelBackend>) => {
+        let listenerChannelInfo = onSnapshot(doc(db, firebasePath.CHANNELS_INFO, channel.channel.channelID), async (doc: DocumentSnapshot<TypeChannelBackend>) => {
             if (doc.data()) {
                 const currentInfoChannel = convertBackChannelToClient(doc.data())
                 const isSubscriber = currentInfoChannel.listOfSubscribers.some(item => item.uid === currentUser.uid)

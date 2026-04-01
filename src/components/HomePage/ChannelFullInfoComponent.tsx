@@ -16,7 +16,7 @@ import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 import { Virtuoso } from "react-virtuoso";
 import Preloader from '../../assets/preloader.svg'
 import ShareChatButton from "./ShareChatButton";
-import { REMOVE_FROM_LIST_SUBSCRIBERS } from "../../constants/constants";
+import { clickType } from "../../constants/constants";
 
 
 enum ModalAction {
@@ -98,7 +98,7 @@ const ListSubscribers: FC<{ channel: TypeChannel, currentUser: CurrentUser, isOw
 
     const removeFromChannel = (e: React.MouseEvent, subscriber: CurrentUser) => {
         e.stopPropagation()
-        channelAPI.changeListSubscribers(REMOVE_FROM_LIST_SUBSCRIBERS, channel.channelID, subscriber)
+        channelAPI.changeListSubscribers(clickType.REMOVE_FROM_LIST_SUBSCRIBERS, channel.channelID, subscriber)
     }
 
     return (

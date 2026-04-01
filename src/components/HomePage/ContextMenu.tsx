@@ -14,13 +14,13 @@ import { useAppDispatch, useAppSelector } from '../../hooks/hook';
 import { CurrentUser, MessageType, Reaction } from '../../types/types';
 import { addSelectedMessage, changeMessage, closeBar, closeMenu, isSendMessage, setReplyToMessage, setShowCheckbox, setTempChat } from '../../store/slices/appSlice';
 import { messagesAPI } from '../../API/api';
-import { CONTACTS } from '../../constants/constants';
 import { useTypedTranslation } from '../../hooks/useTypedTranslation';
 import { createPortal } from 'react-dom';
 import { openModalCalls } from '../../store/slices/callsSlice';
 import { getContextMenuPosition } from '../../utils/utils';
 import DialogComponent, { LayoutDialogList } from '../Settings/DialogComponent';
 import { Virtuoso } from 'react-virtuoso';
+import { firebasePath } from '../../constants/constants';
 
 const ANIMATION_DURATION = 190
 
@@ -131,7 +131,7 @@ const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, isForwarde
     const forwardMessage = () => {
         dispatch(addSelectedMessage(message))
         dispatch(isSendMessage(true))
-        dispatch(closeBar(CONTACTS))
+        dispatch(closeBar(firebasePath.CONTACTS))
     }
 
     const close = (e: React.MouseEvent) => {

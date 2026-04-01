@@ -4,11 +4,11 @@ import SendMessage from '../../assets/send-fill.svg'
 import Delete from '../../assets/delete.svg'
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { clearSelectedMessage, closeBar, isSendMessage } from "../../store/slices/appSlice";
-import { CONTACTS } from "../../constants/constants";
 import { messagesAPI } from "../../API/api";
 import Preloader from '../../assets/preloader.svg'
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 import pLimit from "p-limit";
+import { firebasePath } from "../../constants/constants";
 
 const CONCURRENCY_LIMIT = 3;
 const limit = pLimit(CONCURRENCY_LIMIT)
@@ -26,7 +26,7 @@ const BlockControl: FC = () => {
     const handleClickSendMessages = () => {
         if (selectedMessage.length && !error) {
             dispatch(isSendMessage(true))
-            dispatch(closeBar(CONTACTS))
+            dispatch(closeBar(firebasePath.CONTACTS))
             console.log('send')
         }
     }

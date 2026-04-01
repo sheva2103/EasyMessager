@@ -15,7 +15,7 @@ import { setMessages } from '../../store/slices/messagesSlice';
 import useUserPresence from '../../hooks/useUserPresence';
 import CallsListenerComponent from '../CallRoom/CallsListenerComponent';
 import AudioUnlocker from '../CallRoom/AudioUnlocker';
-import { FAVOTITES } from '../../constants/constants';
+import { firebasePath } from '../../constants/constants';
 
 const HomaPage = () => {
 
@@ -51,7 +51,7 @@ const HomaPage = () => {
     useEffect(() => {
         let getFavorites: () => void
         if (isFavorites) {
-            const refFavorites = collection(db, currentUserEmail, FAVOTITES, 'message')
+            const refFavorites = collection(db, currentUserEmail, firebasePath.FAVORITES, 'message')
             getFavorites = onSnapshot(refFavorites, (querySnapshot: QuerySnapshot<MessageType>) => {
                 const rawMessagesArray = querySnapshot.docs.map(doc => ({
                     ...doc.data()

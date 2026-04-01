@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { channelAPI, contactsAPI, messagesAPI } from "../../API/api";
 import { closeBar, setLoadChat, setSearchMessages } from "../../store/slices/appSlice";
 import { outChat, setChat } from "../../store/slices/setChatIDSlice";
-import { RESERVED_CHANNEL_ID, SHOW_CHANNEL_INFO } from "../../constants/constants";
+import { clickType, RESERVED_CHANNEL_ID } from "../../constants/constants";
 import { Badge } from "@mui/material";
 import { createSelector } from "@reduxjs/toolkit";
 import { RootState } from "../../store/store";
@@ -160,7 +160,7 @@ const UserManagementMenu: FC<Props> = ({ chatInfo }) => {
 
     const showInformation = () => {
         setOpen(false)
-        dispatch(closeBar(SHOW_CHANNEL_INFO))
+        dispatch(closeBar(clickType.SHOW_CHANNEL_INFO))
     }
 
     const isContact = useMemo(() => contactsList.some(item => item.email === chatInfo.email), [selectedChat, contactsList.length])

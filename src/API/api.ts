@@ -5,7 +5,7 @@ import { CallMessageOptionsType, Chat, CurrentUser, MessageType, Reaction, SetRe
 import { collection, getDocs, query, where, limit as limitFS } from "firebase/firestore";
 import { v4 as uuidv4 } from 'uuid';
 import { convertBackChannelToClient, createBaseMessageObject, createBaseObjectChannel, createChatList, createObjectChannel, createObjectUser, generateShortId, getChatType, getFakeChat, makeChatId } from "../utils/utils";
-import { ADD_TO_LIST_SUBSCRIBERS, BLACKLIST, CHANNELS, CHANNELS_INFO, CHATLIST, CHATS, CONTACTS, REMOVE_FROM_LIST_SUBSCRIBERS, USERS } from "../constants/constants";
+import { firebasePath, clickType } from "../constants/constants";
 import pLimit from "p-limit";
 import { FirebaseError } from "firebase/app";
 
@@ -88,12 +88,12 @@ export const profileAPI: ProfileApi = {
             registrationDate: new Date().toLocaleDateString()
         }
 
-        await setDoc(doc(db, USERS, user.uid), userObj);
+        await setDoc(doc(db, firebasePath.USERS, user.uid), userObj);
         return userObj
     },
 
     async changeUserInfo(data) {
-        const userRef = doc(db, USERS, data.uid);
+        const userRef = doc(db, firebasePath.USERS, data.uid);
         await updateDoc(userRef, {
             photoURL: data.photoURL,
             displayName: data.displayName
@@ -101,7 +101,7 @@ export const profileAPI: ProfileApi = {
     },
 
     async getCurrentInfo(uid) {
-        const userRef = doc(db, USERS, uid);
+        const userRef = doc(db, firebasePath.USERS, uid);
         const docSnap = await getDoc(userRef);
 
         if (docSnap.exists()) {
@@ -113,7 +113,7 @@ export const profileAPI: ProfileApi = {
     },
 
     async updateUserInMyChatList(email, user) {
-        const ref = doc(db, email, CHATLIST)
+        const ref = doc(db, email, firebasePath.CHATLIST)
         await setDoc(ref, { [user.uid]: user }, { merge: true });
     },
 
@@ -141,7 +141,7 @@ export const profileAPI: ProfileApi = {
             await Promise.all(snapshot.docs.map((d) => deleteDoc(d.ref)));
             console.log(`Коллекция "${user.email}" очищена.`);
 
-            await deleteDoc(doc(db, USERS, user.uid));
+            await deleteDoc(doc(db, firebasePath.USERS, user.uid));
             console.log('Документ пользователя удалён');
 
             await deleteUser(user);
@@ -152,7 +152,7 @@ export const profileAPI: ProfileApi = {
     },
 
     async deletUserInMyChatlist(options) {
-        const chatCurrentRef = doc(db, options.myEmail, CHATLIST);
+        const chatCurrentRef = doc(db, options.myEmail, firebasePath.CHATLIST);
         await updateDoc(chatCurrentRef, {
             [options.deleteId]: deleteField()
         });
@@ -167,7 +167,7 @@ export const profileAPI: ProfileApi = {
         }
     },
     async checkDisplayName(value: string) {
-        const q = query(collection(db, USERS), where("displayName", "==", value.toLowerCase()));
+        const q = query(collection(db, firebasePath.USERS), where("displayName", "==", value.toLowerCase()));
         const querySnapshot = await getDocs(q);
         return querySnapshot.empty;
     }
@@ -187,7 +187,7 @@ export const profileAPI: ProfileApi = {
 export const searchAPI: SearchAPI = {
     async searchUser(name) {
         const chats: CurrentUser[] = []
-        const q = query(collection(db, USERS));
+        const q = query(collection(db, firebasePath.USERS));
         const querySnapshot = await getDocs(q);
         querySnapshot.forEach((doc: QueryDocumentSnapshot<CurrentUser>) => {
             const displayName = doc.data().displayName.toLowerCase()
@@ -198,7 +198,7 @@ export const searchAPI: SearchAPI = {
 
     async searchChannel(name) {
         const channels: TypeChannel[] = []
-        const querySnapshot = await getDocs(collection(db, CHANNELS_INFO));
+        const querySnapshot = await getDocs(collection(db, firebasePath.CHANNELS_INFO));
         querySnapshot.forEach((doc: QueryDocumentSnapshot<TypeChannel>) => {
             const displayName = doc.data().displayName.toLowerCase()
             if (displayName.includes(name.toLowerCase())) channels.push(doc.data())
@@ -220,9 +220,9 @@ export const messagesAPI: MessagesAPI = {
             chat.channel = { owner: recipient.channel.owner, channelID: recipient.channel.channelID, displayName: recipient.channel.displayName, isOpen: recipient.channel.isOpen }
             chat.chatID = recipient.channel.channelID
         }
-        await setDoc(doc(db, user.email, CHATLIST), { [recipient.uid]: chat }, { merge: true });
+        await setDoc(doc(db, user.email, firebasePath.CHATLIST), { [recipient.uid]: chat }, { merge: true });
         if (recipient?.channel) {
-            await channelAPI.changeListSubscribers(ADD_TO_LIST_SUBSCRIBERS, chat.chatID, user)
+            await channelAPI.changeListSubscribers(clickType.ADD_TO_LIST_SUBSCRIBERS, chat.chatID, user)
         }
     },
 
@@ -244,7 +244,7 @@ export const messagesAPI: MessagesAPI = {
     },
 
     async getChatID(id) {
-        const docRef = doc(db, CHATS, id);
+        const docRef = doc(db, firebasePath.CHATS, id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
             return id
@@ -273,7 +273,7 @@ export const messagesAPI: MessagesAPI = {
         if (isFavorites || !channel) return
 
         if (updateLastMessage) {
-            const channelRef = doc(db, CHANNELS_INFO, channel.channelID)
+            const channelRef = doc(db, firebasePath.CHANNELS_INFO, channel.channelID)
             const q = query(messagesRef, orderBy("date", "desc"), limitFS(1));
             const querySnapshot = await getDocs(q);
 
@@ -365,18 +365,18 @@ export const messagesAPI: MessagesAPI = {
     },
 
     async deleteChat(currentUser, selectedChat) {
-        const chatCurrentRef = doc(db, currentUser.email, CHATLIST);
-        const chatGuestRef = doc(db, selectedChat.email, CHATLIST);
+        const chatCurrentRef = doc(db, currentUser.email, firebasePath.CHATLIST);
+        const chatGuestRef = doc(db, selectedChat.email, firebasePath.CHATLIST);
         const chatGuestSnap: any = await getDoc(chatGuestRef);
 
         await updateDoc(chatCurrentRef, {
             [selectedChat.uid]: deleteField()
         });
         if (!selectedChat?.channel && chatGuestSnap.exists() && !createChatList(chatGuestSnap.data()).some(item => item.chatID === selectedChat.chatID)) {
-            await deleteDoc(doc(db, CHATS, selectedChat.chatID));
+            await deleteDoc(doc(db, firebasePath.CHATS, selectedChat.chatID));
         }
         if (selectedChat?.channel) {
-            await channelAPI.changeListSubscribers(REMOVE_FROM_LIST_SUBSCRIBERS, selectedChat.channel.channelID, currentUser)
+            await channelAPI.changeListSubscribers(clickType.REMOVE_FROM_LIST_SUBSCRIBERS, selectedChat.channel.channelID, currentUser)
         }
     },
 
@@ -475,11 +475,11 @@ export const messagesAPI: MessagesAPI = {
 
 export const contactsAPI: ContactsAPI = {
     async addToContacts(currentUser, newContact) {
-        await setDoc(doc(db, currentUser, CONTACTS), { [newContact.uid]: newContact }, { merge: true });
+        await setDoc(doc(db, currentUser, firebasePath.CONTACTS), { [newContact.uid]: newContact }, { merge: true });
     },
 
     async removeFromContacts(currentUser, contact) {
-        const contactsRef = doc(db, currentUser, CONTACTS);
+        const contactsRef = doc(db, currentUser, firebasePath.CONTACTS);
 
         await updateDoc(contactsRef, {
             [contact.uid]: deleteField()
@@ -487,11 +487,11 @@ export const contactsAPI: ContactsAPI = {
     },
 
     async addToBlacklist(currentUser, contact) {
-        await setDoc(doc(db, currentUser, BLACKLIST), { [contact.uid]: contact }, { merge: true });
+        await setDoc(doc(db, currentUser, firebasePath.BLACKLIST), { [contact.uid]: contact }, { merge: true });
     },
 
     async removeFromBlacklist(currentUser, contact) {
-        const contactsRef = doc(db, currentUser, BLACKLIST);
+        const contactsRef = doc(db, currentUser, firebasePath.BLACKLIST);
 
         await updateDoc(contactsRef, {
             [contact.uid]: deleteField()
@@ -500,7 +500,7 @@ export const contactsAPI: ContactsAPI = {
 
     async changeContact(options) {
         const { myEmail, contact } = options
-        const ref = doc(db, myEmail, CONTACTS)
+        const ref = doc(db, myEmail, firebasePath.CONTACTS)
         await updateDoc(ref, {
             [contact.uid]: contact
         });
@@ -520,21 +520,21 @@ export const channelAPI: ChannelAPI = {
             registrationDate: new Date().toLocaleDateString(),
             dateOfChange
         }
-        await setDoc(doc(db, CHANNELS, channelID), {})
-        await setDoc(doc(db, CHANNELS_INFO, channelID), info)
+        await setDoc(doc(db, firebasePath.CHANNELS, channelID), {})
+        await setDoc(doc(db, firebasePath.CHANNELS_INFO, channelID), info)
         await messagesAPI.addChat(owner, createObjectChannel(info))
         return info
     },
 
     async checkName(name: string) {
-        const q = query(collection(db, CHANNELS_INFO), where("displayName", "==", name));
+        const q = query(collection(db, firebasePath.CHANNELS_INFO), where("displayName", "==", name));
         const querySnapshot = await getDocs(q);
         const isFree = !Boolean(querySnapshot.size)
         return isFree
     },
 
     async getCurrentInfo(channelID) {
-        const channelRef = doc(db, CHANNELS_INFO, channelID);
+        const channelRef = doc(db, firebasePath.CHANNELS_INFO, channelID);
         const docSnap = await getDoc(channelRef);
 
         if (docSnap.exists()) {
@@ -547,18 +547,18 @@ export const channelAPI: ChannelAPI = {
     },
 
     async changeListSubscribers(typeChange, channelID, user) {
-        const ref = doc(db, CHANNELS_INFO, channelID)
+        const ref = doc(db, firebasePath.CHANNELS_INFO, channelID)
 
         const toObjSubscriber = createObjectUser(user)
 
-        if (typeChange === ADD_TO_LIST_SUBSCRIBERS) {
+        if (typeChange === clickType.ADD_TO_LIST_SUBSCRIBERS) {
             await updateDoc(ref, {
                 [`listOfSubscribers.${user.uid}`]: toObjSubscriber
             });
         }
 
-        if (typeChange === REMOVE_FROM_LIST_SUBSCRIBERS) {
-            const channelRef = doc(db, toObjSubscriber.email, CHATLIST);
+        if (typeChange === clickType.REMOVE_FROM_LIST_SUBSCRIBERS) {
+            const channelRef = doc(db, toObjSubscriber.email, firebasePath.CHATLIST);
             await updateDoc(ref, {
                 [`listOfSubscribers.${user.uid}`]: deleteField()
             });
@@ -569,7 +569,7 @@ export const channelAPI: ChannelAPI = {
     },
 
     async changeCannelInfo(options) {
-        const channelRef = doc(db, CHANNELS_INFO, options.channel.channelID)
+        const channelRef = doc(db, firebasePath.CHANNELS_INFO, options.channel.channelID)
         const dateOfChange = JSON.stringify(new Date())
         const obj: any = {}
         if (options.updateLastMessage) {
@@ -587,13 +587,13 @@ export const channelAPI: ChannelAPI = {
     },
 
     async deleteChannel(id) {
-        const infoChannelRef = doc(db, CHANNELS_INFO, id)
-        const channelRef = doc(db, CHANNELS, id)
+        const infoChannelRef = doc(db, firebasePath.CHANNELS_INFO, id)
+        const channelRef = doc(db, firebasePath.CHANNELS, id)
         return Promise.all([deleteDoc(infoChannelRef), deleteDoc(channelRef)])
     },
 
     async applyForMembership(user, channelID) {
-        const ref = doc(db, CHANNELS_INFO, channelID)
+        const ref = doc(db, firebasePath.CHANNELS_INFO, channelID)
         const list = await getDoc(ref);
 
         if (list.exists()) {
@@ -609,7 +609,7 @@ export const channelAPI: ChannelAPI = {
     },
 
     async getApplyForMembership(channelID) {
-        const ref = doc(db, CHANNELS_INFO, channelID)
+        const ref = doc(db, firebasePath.CHANNELS_INFO, channelID)
         const list = await getDoc(ref);
         if (list.exists()) {
             const info: TypeChannel = list.data() as TypeChannel
@@ -618,21 +618,21 @@ export const channelAPI: ChannelAPI = {
     },
 
     async deleteApplication(channelID, user) {
-        const ref = doc(db, CHANNELS_INFO, channelID)
+        const ref = doc(db, firebasePath.CHANNELS_INFO, channelID)
         await updateDoc(ref, {
             applyForMembership: arrayRemove(user)
         });
     },
 
     async changeAccessChannel(channelID, action) {
-        const ref = doc(db, CHANNELS_INFO, channelID)
+        const ref = doc(db, firebasePath.CHANNELS_INFO, channelID)
         await updateDoc(ref, {
             isOpen: action
         })
     },
 
     async updateChannelInMyChatList(email, channel) {
-        const ref = doc(db, email, CHATLIST)
+        const ref = doc(db, email, firebasePath.CHATLIST)
         await setDoc(ref, { [channel.channel.channelID]: channel }, { merge: true });
     }
 }

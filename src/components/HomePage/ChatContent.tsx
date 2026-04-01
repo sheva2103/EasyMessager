@@ -1,20 +1,19 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import styles from './HomePage.module.scss'
 import classNames from "classnames";
 import ArrowLeftIcon from '../../assets/box-arrow-left.svg'
 import ListMessages from "./ListMessage";
-import { outChat, setChat } from "../../store/slices/setChatIDSlice";
+import { outChat } from "../../store/slices/setChatIDSlice";
 import ChatMenu from "./ChatMenu";
 import MessageInputField from "./MessageInputField";
-import Preloader from '../../assets/preloader.svg'
 import { Chat } from "../../types/types";
-import { SHOW_CHANNEL_INFO, SHOW_USER_INFO } from "../../constants/constants";
 import ShowNameChat from "./ShowNameChat";
 import { closeBar } from "../../store/slices/appSlice";
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
 import CallIcon from '../../assets/telephone-fill.svg'
 import { openModalCalls } from "../../store/slices/callsSlice";
+import { clickType } from "../../constants/constants";
 
 const SubscribersComponent: FC = () => {
 
@@ -91,9 +90,9 @@ const HeaderChat: FC<{ selectedChat: Chat }> = ({ selectedChat }) => {
     const isChannel = !!selectedChat?.channel
     const menuIsOpen = useAppSelector(state => !!state.app.menu.menuChild)
     const handleClick = () => {
-        if (isChannel) dispatch(closeBar(SHOW_CHANNEL_INFO))
+        if (isChannel) dispatch(closeBar(clickType.SHOW_CHANNEL_INFO))
         else if (isFavorites) return
-        else dispatch(closeBar(SHOW_USER_INFO))
+        else dispatch(closeBar(clickType.SHOW_USER_INFO))
     }
 
     useEffect(() => {

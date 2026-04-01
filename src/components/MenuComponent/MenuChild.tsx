@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { useAppSelector } from "../../hooks/hook";
-import { CONTACTS, CREATE_CHANNEL, SETTINGS, SHOW_CHANNEL_INFO, SHOW_USER_INFO } from "../../constants/constants";
+import { firebasePath, clickType } from "../../constants/constants";
 import CreateChannel from "../forms/CreateChannel";
 import Settings from "../Settings/Settings";
 import Contacts from "../Contacts/Contacts";
@@ -19,11 +19,11 @@ const MenuChild: FC = () => {
             <div>
                 <CloseMenu left/>
             </div>
-            {content === CREATE_CHANNEL && <CreateChannel />}
-            {content === SETTINGS && <Settings />}
-            {content === CONTACTS && <Contacts />}
-            {content === SHOW_CHANNEL_INFO && <ChannelFullInfoComponent />}
-            {content === SHOW_USER_INFO && <UserFullInfoComponent />}
+            {content === clickType.CREATE_CHANNEL && <CreateChannel />}
+            {content === clickType.SETTINGS && <Settings />}
+            {content === firebasePath.CONTACTS && <Contacts />}
+            {content === clickType.SHOW_CHANNEL_INFO && <ChannelFullInfoComponent />}
+            {content === clickType.SHOW_USER_INFO && <UserFullInfoComponent />}
         </div>
     );
 }

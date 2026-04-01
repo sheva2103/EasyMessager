@@ -7,7 +7,7 @@ import ContactsIcon from '../../assets/contacts.svg'
 import FavoritesIcon from '../../assets/favorites.svg'
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { closeBar, closeMenu, setIsFavorites } from "../../store/slices/appSlice";
-import { CONTACTS, CREATE_CHANNEL, SETTINGS } from "../../constants/constants";
+import { firebasePath, clickType } from "../../constants/constants";
 import MenuChild from "./MenuChild";
 import UserInfo from "./UserInfo";
 import CloseMenu from "./CloseMenu";
@@ -39,13 +39,13 @@ const MenuComponent: FC = () => {
                 <UserInfo currentInfo={currentUser}/>
                 <div>
                     <ul className={styles.list}>
-                        <li onClick={() => dispatch(closeBar(CREATE_CHANNEL))}>
+                        <li onClick={() => dispatch(closeBar(clickType.CREATE_CHANNEL))}>
                             <CreateChannelIcon /><span>{t('createChannel')}</span>
                         </li>
-                        <li onClick={() => dispatch(closeBar(SETTINGS))}>
+                        <li onClick={() => dispatch(closeBar(clickType.SETTINGS))}>
                             <SettingsIcon /><span>{t('settings')}</span>
                         </li>
-                        <li onClick={() => dispatch(closeBar(CONTACTS))}>
+                        <li onClick={() => dispatch(closeBar(clickType.SHOW_CHANNEL_INFO))}>
                             <ContactsIcon /><span>{t('contacts')}</span>
                         </li>
                         <li onClick={toFavorites}>
