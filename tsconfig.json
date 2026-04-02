@@ -18,3 +18,25 @@
         }
     },
 }
+
+// {
+//     "compilerOptions": {
+//         "outDir": "./dist/",
+//         "noImplicitAny": false,
+//         "strictNullChecks": false,   
+//         "module": "ESNext",
+//         "target": "es6",
+//         "jsx": "react-jsx",
+//         "allowJs": true,
+//         "moduleResolution": "bundler",     
+//         "allowSyntheticDefaultImports": true,
+//         "resolveJsonModule": true,
+//         "esModuleInterop": true,
+//         "ignoreDeprecations": "6.0"        
+//     },
+//     "ts-node": {
+//         "compilerOptions": {
+//             "module": "CommonJS"
+//         }
+//     }
+// }

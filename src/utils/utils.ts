@@ -188,7 +188,7 @@ export function searchMessagesInList(array: MessageType[], substring: string): S
     }, new Set<number>());
 }
 
-export function getChatType(isFavorites: boolean, selectedChat: Chat | null): CollectionReference {
+export function getChatType(isFavorites: boolean, selectedChat: Chat): CollectionReference {
 
     if (isFavorites) return collection(db, selectedChat.email, firebasePath.FAVORITES, 'message')
     if (selectedChat?.channel) return collection(db, firebasePath.CHANNELS, selectedChat.channel.channelID, 'messages')

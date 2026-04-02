@@ -96,6 +96,21 @@ The project follows a clear separation of concerns:
 * `src/hooks` — Custom hooks for API interaction and business logic.
 * `config/build` — Build configurations for different environments (Dev/Prod).
 
+## Environment Requirements
+
+To ensure types work correctly and avoid errors in VS Code, the project uses a specific version of TypeScript.
+
+* **TypeScript:** `^5.3.2`
+
+### Configuring VS Code
+After installing the dependencies (`npm install`), ensure that VS Code is using the **Workspace Version** of TypeScript:
+1. Open any `.ts` or `.tsx` file in the project.
+2. Press `Ctrl + Shift + P`.
+3. Enter `TypeScript: Select TypeScript Version...`.
+4. Select **Use Workspace Version (5.3.2)**.
+
+This will prevent spurious typing errors related to updating the built-in TS in the editor.
+
 ## 🔧 Installation & Setup
 
 1. **Clone the repository:**

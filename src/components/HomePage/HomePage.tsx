@@ -35,13 +35,13 @@ const HomaPage = () => {
 
     useEffect(() => {
         const unsubscribers = [
-            onSnapshot(doc(db, currentUserEmail, "contacts"), (doc: DocumentSnapshot<CurrentUser[]>) => {
+            onSnapshot(doc(db, currentUserEmail, firebasePath.CONTACTS), (doc: DocumentSnapshot<CurrentUser[]>) => {
                 if (doc.data()) dispatch(setContacts(createChatList(doc.data())))
             }),
-            onSnapshot(doc(db, currentUserEmail, "chatList"), (doc: DocumentSnapshot<CurrentUser[]>) => {
+            onSnapshot(doc(db, currentUserEmail, firebasePath.CHATLIST), (doc: DocumentSnapshot<CurrentUser[]>) => {
                 if (doc.data()) dispatch(setChatList(createChatList(doc.data())))
             }),
-            onSnapshot(doc(db, currentUserEmail, "blacklist"), (doc: DocumentSnapshot<CurrentUser[]>) => {
+            onSnapshot(doc(db, currentUserEmail, firebasePath.BLACKLIST), (doc: DocumentSnapshot<CurrentUser[]>) => {
                 if (doc.data()) dispatch(setBlacklist(createChatList(doc.data())))
             })
         ]

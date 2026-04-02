@@ -18,7 +18,8 @@ export enum firebasePath {
     BLACKLIST = "blacklist",
     CONTACTS = "contacts",
     CHANNELS = "channels",
-    CHANNELS_INFO = "channelsInfo"
+    CHANNELS_INFO = "channelsInfo",
+    MESSAGE = "messages"
 }
 
 export enum clickType {
