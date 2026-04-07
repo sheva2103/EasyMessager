@@ -26,12 +26,6 @@ import { openModalCalls } from "../../store/slices/callsSlice";
 import ImageDialog from "../Settings/ShowFullImages";
 
 
-const HEIGHT_MENU_FOR_OWNER = 256
-const HEIGHT_MENU_FOR_GUEST = 104
-const HEIGHT_MENU_FOR_GUEST_CHANNEL = 162
-const WIDTH_MENU = 233
-const HEIGHT_ROW = 42
-
 interface IMessagesContent {
     onEnterViewport: () => void,
     message: MessageType,

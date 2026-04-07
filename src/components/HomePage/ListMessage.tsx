@@ -92,7 +92,8 @@ const VariableHeightList: FC<VariableHeightListProps> = ({
             data={items}
             itemContent={renderRow}
             overscan={800}
-            increaseViewportBy={300}
+            //increaseViewportBy={1000}
+            //alignToBottom={true}
             atBottomStateChange={setAtBottomScroll} 
             followOutput={(isAtBottom) => {
                 if (isAtBottom) return 'smooth';
