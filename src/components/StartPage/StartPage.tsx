@@ -6,8 +6,8 @@ import SignUp from "../forms/SignUp";
 import { TypeValueStartPage } from "../../types/types";
 import classNames from "classnames";
 import { BUTTONGROUP, FORM, SIGNIN } from "../../constants/constants";
-import Layout from "../Layout/Layout";
 import ArrowBackLeft from '../../assets/box-arrow-left.svg'
+import BubbleBackground from "./Layout";
 
 
 
@@ -20,24 +20,27 @@ const StartPage: FC = () => {
     }
 
     return (
-        <div className={style.wrapper}>
-            <ButtonGroup value={valuePage} setValue={setValuePage} />
-            <div className={classNames(style.contentForm, { [style.show]: valuePage.typePage === FORM })}>
-                <ArrowBackLeft fill="#8774e1"
-                    fontSize={'32px'}
-                    style={{ position: 'absolute', top: '24px', left: '24px' }}
-                    cursor={'pointer'}
-                    onClick={handleClickBack}
-                />
-                <Layout>
-                    {valuePage.typeClick === SIGNIN ?
-                        <SignIn />
-                        :
-                        <SignUp />
-                    }
-                </Layout>
+        <BubbleBackground>
+            <div className={style.wrapper} >
+                <ButtonGroup value={valuePage} setValue={setValuePage} />
+                <div className={classNames(style.contentForm, { [style.show]: valuePage.typePage === FORM })}>
+                    <ArrowBackLeft fill="#d3d3d3"
+                        fontSize={'32px'}
+                        style={{ position: 'absolute', top: '24px', left: '24px' }}
+                        cursor={'pointer'}
+                        onClick={handleClickBack}
+                    />
+                    <div className="layoutStartPage">
+                        {valuePage.typeClick === SIGNIN ?
+                            <SignIn />
+                            :
+                            <SignUp />
+                        }
+                    </div>
+                </div>
             </div>
-        </div>
+        </BubbleBackground>
+
     );
 }
 

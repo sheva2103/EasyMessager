@@ -152,6 +152,7 @@ const InputNewMessage: FC<Props> = ({ chatInfo }) => {
                         onChange={handleChange}
                         ref={refTextarea}
                         className={styles.textarea}
+                        placeholder={t('message')}
                     />
                     :
                     <TextareaAutosize

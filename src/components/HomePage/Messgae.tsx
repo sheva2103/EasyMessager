@@ -56,23 +56,15 @@ const ForwardedFrom: FC<ForwardedFromProps> = ({ user }) => {
     );
 }
 
+
 const ImageLoader: FC<{ src: string | null, onClick: (e: React.MouseEvent) => void }> = ({ src, onClick }) => {
     const [loaded, setLoaded] = useState(false);
 
     if (!src) return null;
 
     return (
-        // <div className={styles.messageData__img} >
-        //     <img
-        //         src={src}
-        //         alt="Загруженное изображение"
-        //         onLoad={() => setLoaded(true)}
-        //         onError={() => setLoaded(false)}
-        //         style={{ display: loaded ? 'block' : 'none' }} //для изображения выставить заданную высоту (200px) и групировать их в ряд
-        //     />
-        // </div>
-
         <div className={styles.messageItem} onClick={onClick}>
+            {!loaded && <div className={styles.messageItem_skeleton} />}
             <img
                 src={src}
                 alt="Загруженное изображение"
@@ -84,6 +76,7 @@ const ImageLoader: FC<{ src: string | null, onClick: (e: React.MouseEvent) => vo
         </div>
     );
 };
+
 
 const YTPlayer: FC<{ src: string }> = ({ src }) => {
 

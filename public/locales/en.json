@@ -65,6 +65,7 @@
     "closedCommunityMessage": "This is a closed community. Would you like to apply ?",
     "send": "Send",
     "emptyList": "The list is empty",
+    "message": "Message",
     "form": {
         "chars": "Numbers, letters and symbols (_*-@)",
         "max": "Maximum 20 characters",

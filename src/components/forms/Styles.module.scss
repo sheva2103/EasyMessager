@@ -4,12 +4,13 @@
     border-radius: 8px;
     transition: all 0.2s;
 
-    &:hover {
-        background-color: var(--background-color-input);
-    }
+    // &:hover {
+    //     background-color: var(--background-color-input);
+    // }
 
     & span {
         margin-left: 12px;
+        color: #d3d3d3;
     }
 
     & input {
@@ -59,6 +60,7 @@
 
     & span {
         cursor: pointer;
+        color: #d3d3d3;
     }
 }
 

@@ -7,12 +7,14 @@ import { useAppDispatch, useAppSelector } from '../hooks/hook';
 import { setUser, setUserData } from '../store/slices/appSlice';
 import { CurrentUser, CurrentUserData } from '../types/types';
 import { useTheme } from '../hooks/useTheme';
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useLayoutEffect, useState } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 console.log("%cEasyMessenger by sheva2103, GitHub: https://github.com/sheva2103/easy-messenger, email: 2103sheva@gmail.com", "color: #8774e1; font-size: 16px;");
 
 import { PWAInstallPrompt } from './PWA/PWAInstall';
+
+const StartPageLazy = lazy(() => import('./StartPage/StartPage'))
 
 export const App = () => {
 
@@ -76,7 +78,13 @@ export const App = () => {
 
     return (
         <div className='appContainer'>
-            {currentUser ? <HomaPage /> : load ? <LoadingApp /> : <StartPage />}
+            {currentUser ? <HomaPage /> : load ? 
+                <LoadingApp /> 
+                :
+                <Suspense fallback={<div>loading...</div>}>
+                    <StartPageLazy />
+                </Suspense>    
+            }
             <PWAInstallPrompt />
         </div>
     );

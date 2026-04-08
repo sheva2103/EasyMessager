@@ -65,6 +65,7 @@ export type TranslationKeys =
     | "closedCommunityMessage"
     | 'send'
     | 'emptyList'
+    | 'message'
     | 'form.chars' 
     | 'form.userName'
     | 'form.max' 
