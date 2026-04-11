@@ -57,6 +57,26 @@ const ForwardedFrom: FC<ForwardedFromProps> = ({ user }) => {
 }
 
 
+// const ImageLoader: FC<{ src: string | null, onClick: (e: React.MouseEvent) => void }> = ({ src, onClick }) => {
+//     const [loaded, setLoaded] = useState(false);
+
+//     if (!src) return null;
+
+//     return (
+//         <div className={styles.messageItem} onClick={onClick}>
+//             {!loaded && <div className={styles.messageItem_skeleton} />}
+//             <img
+//                 src={src}
+//                 alt="Загруженное изображение"
+//                 onLoad={() => setLoaded(true)}
+//                 onError={() => setLoaded(false)}
+//                 style={{ display: loaded ? 'block' : 'none' }}
+//                 className={styles.messageItem__image}
+//             />
+//         </div>
+//     );
+// };
+
 const ImageLoader: FC<{ src: string | null, onClick: (e: React.MouseEvent) => void }> = ({ src, onClick }) => {
     const [loaded, setLoaded] = useState(false);
 
@@ -64,18 +84,18 @@ const ImageLoader: FC<{ src: string | null, onClick: (e: React.MouseEvent) => vo
 
     return (
         <div className={styles.messageItem} onClick={onClick}>
-            {!loaded && <div className={styles.messageItem_skeleton} />}
+            <div className={`${styles.messageItem_skeleton} ${loaded ? styles.hidden : ''}`} />
             <img
                 src={src}
                 alt="Загруженное изображение"
                 onLoad={() => setLoaded(true)}
                 onError={() => setLoaded(false)}
-                style={{ display: loaded ? 'block' : 'none' }}
-                className={styles.messageItem__image}
+                className={`${styles.messageItem__image} ${loaded ? styles.visible : ''}`}
             />
         </div>
     );
 };
+
 
 
 const YTPlayer: FC<{ src: string }> = ({ src }) => {
