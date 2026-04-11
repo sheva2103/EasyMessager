@@ -9,16 +9,7 @@ import SignOutButton from "./SignOutButton";
 import { useAppSelector } from "../../hooks/hook";
 import { useTranslation } from "react-i18next";
 import DeleteUserButton from "./DeleteUserButton";
-
 import React from "react";
-
-const AuthorSignature: React.FC = () => {
-    return (
-        <div style={{ fontSize: "12px", color: "#666", textAlign: "center", marginTop: "10px" }}>
-            © 2025 sheva2103 (EMAIL: 2103sheva@gmail.com)
-        </div>
-    );
-};
 
 const ReloadButton: React.FC = () => {
     const [isPWA, setIsPWA] = useState(false);
@@ -84,7 +75,6 @@ const Settings: FC = () => {
                 <SignOutButton />
                 <DeleteUserButton />
             </div>
-            <AuthorSignature />
         </div>
     );
 }

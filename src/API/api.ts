@@ -179,7 +179,7 @@ export const profileAPI: ProfileApi = {
  * @author sheva2103
  * @project EasyMessenger
  * @license MIT
- * @link https://github.com/sheva2103/EasyMessenger
+ * @link https://github.com/sheva2103/easy-messenger
  * @email 2103sheva@gmail.com
  * @copyright (c) 2025 Aleksandr (GitHub: sheva2103)
  */
