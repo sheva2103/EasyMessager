@@ -45,7 +45,7 @@ const MenuComponent: FC = () => {
                         <li onClick={() => dispatch(closeBar(clickType.SETTINGS))}>
                             <SettingsIcon /><span>{t('settings')}</span>
                         </li>
-                        <li onClick={() => dispatch(closeBar(clickType.SHOW_CHANNEL_INFO))}>
+                        <li onClick={() => dispatch(closeBar(clickType.CONTACTS))}>
                             <ContactsIcon /><span>{t('contacts')}</span>
                         </li>
                         <li onClick={toFavorites}>
