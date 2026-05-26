@@ -21,3 +21,8 @@ declare module '*.mp3' {
     const value: string;
     export default value;
 }
+
+// interface MediaSession {
+//     setActionHandler(action: 'hangup' | 'toggle-microphone' | 'toggle-camera' | string, handler: (() => void) | null): void;
+// }
+

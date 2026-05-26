@@ -6,7 +6,7 @@ import { addSelectedMessage, closeBar, isSendMessage } from "../../store/slices/
 import { createShareChatObj } from "../../utils/utils";
 import { Chat } from "../../types/types";
 import { useTypedTranslation } from "../../hooks/useTypedTranslation";
-import { firebasePath } from "../../constants/constants";
+import { clickType, firebasePath } from "../../constants/constants";
 
 const ShareChatButton: FC<{chat: Chat}> = ({chat}) => {
 
@@ -18,7 +18,7 @@ const ShareChatButton: FC<{chat: Chat}> = ({chat}) => {
         console.log(message)
         dispatch(addSelectedMessage(message))
         dispatch(isSendMessage(true))
-        dispatch(closeBar(firebasePath.CONTACTS))
+        dispatch(closeBar(clickType.CONTACTS))
     }
 
     return ( 
