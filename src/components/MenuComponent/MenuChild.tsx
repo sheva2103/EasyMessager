@@ -21,7 +21,7 @@ const MenuChild: FC = () => {
             </div>
             {content === clickType.CREATE_CHANNEL && <CreateChannel />}
             {content === clickType.SETTINGS && <Settings />}
-            {content === firebasePath.CONTACTS && <Contacts />}
+            {content === clickType.CONTACTS && <Contacts />}
             {content === clickType.SHOW_CHANNEL_INFO && <ChannelFullInfoComponent />}
             {content === clickType.SHOW_USER_INFO && <UserFullInfoComponent />}
         </div>
