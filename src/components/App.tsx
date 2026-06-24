@@ -1,4 +1,3 @@
-import StartPage from './StartPage/StartPage';
 import './App.scss'
 import LoadingApp from './LoadingApp/LoadingApp';
 import HomaPage from './HomePage/HomePage';
