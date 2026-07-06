@@ -20,7 +20,7 @@ import { openModalCalls } from '../../store/slices/callsSlice';
 import { getContextMenuPosition } from '../../utils/utils';
 import DialogComponent, { LayoutDialogList } from '../Settings/DialogComponent';
 import { Virtuoso } from 'react-virtuoso';
-import { firebasePath } from '../../constants/constants';
+import { clickType } from '../../constants/constants';
 
 const ANIMATION_DURATION = 190
 
@@ -131,7 +131,7 @@ const ContextMenu: FC<Props> = ({ closeContextMenu, isOwner, message, isForwarde
     const forwardMessage = () => {
         dispatch(addSelectedMessage(message))
         dispatch(isSendMessage(true))
-        dispatch(closeBar(firebasePath.CONTACTS))
+        dispatch(closeBar(clickType.CONTACTS))
     }
 
     const close = (e: React.MouseEvent) => {

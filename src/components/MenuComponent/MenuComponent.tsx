@@ -7,7 +7,7 @@ import ContactsIcon from '../../assets/contacts.svg'
 import FavoritesIcon from '../../assets/favorites.svg'
 import { useAppDispatch, useAppSelector } from "../../hooks/hook";
 import { closeBar, closeMenu, setIsFavorites } from "../../store/slices/appSlice";
-import { firebasePath, clickType } from "../../constants/constants";
+import { clickType } from "../../constants/constants";
 import MenuChild from "./MenuChild";
 import UserInfo from "./UserInfo";
 import CloseMenu from "./CloseMenu";

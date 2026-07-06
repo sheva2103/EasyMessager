@@ -1,6 +1,6 @@
 import styles from './HomePage.module.scss'
 import { FC, memo, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
-import Message from './Messgae';
+import Message from './Message';
 import { MessageType, NoReadMessagesType } from '../../types/types';
 import { createNewDate, getDatefromDate } from '../../utils/utils';
 import GetDateMessage from './GetDateMessage';

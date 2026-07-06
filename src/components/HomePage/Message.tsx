@@ -51,7 +51,7 @@ const ForwardedFrom: FC<ForwardedFromProps> = ({ user }) => {
         <div className={styles.messageData__forwardedFrom}>
             <span>{`${t('forwardedFrom')}`}</span>
             <br />
-            <span style={{ fontWeight: 500 }} onClick={handleClick} id="forwardedFromName">{name}</span>
+            <span style={{ fontWeight: 500, textDecoration: 'underline' }} onClick={handleClick} id="forwardedFromName">{name}</span>
         </div>
     );
 }
@@ -136,7 +136,7 @@ const ViewportContent: FC<IMessagesContent> = ({ onEnterViewport, message, curre
 
     const clickShareChat = (e: React.MouseEvent) => {
         e.stopPropagation()
-        if(currentUser.uid !== message.shareChat.uid) dispatch(setTempChat(message.shareChat))
+        if (currentUser.uid !== message.shareChat.uid) dispatch(setTempChat(message.shareChat))
     }
 
     useEffect(() => {
@@ -161,7 +161,7 @@ const ViewportContent: FC<IMessagesContent> = ({ onEnterViewport, message, curre
         return (
             <div className={styles.messageData__replyToMessage} onClick={clickShareChat} ref={ref}>
                 <div className={classNames(styles.messageData__replyToMessage_name, styles.messageData__shareChat)}>
-                    <Avatar url={message.shareChat?.channel ? message.shareChat?.channel.photoURL : message.shareChat.photoURL} name={message.shareChat.displayName}/>
+                    <Avatar url={message.shareChat?.channel ? message.shareChat?.channel.photoURL : message.shareChat.photoURL} name={message.shareChat.displayName} />
                     <span>{message.shareChat.displayName}</span>
                 </div>
             </div>
@@ -187,12 +187,13 @@ const ViewportContent: FC<IMessagesContent> = ({ onEnterViewport, message, curre
                 className={classNames({ [styles.mobileDevice]: isMobile, [styles.hasLink]: checkMessageObj.hasLink })}
             >
             </span>
-            <div className={styles.messageData__list} >
-                {!!checkMessageObj.imgUrls.length &&
-                    checkMessageObj.imgUrls.map((item, index) => <ImageLoader src={item} key={index} onClick={(e) => openFullImage(e, index)} />)
-                }
-                <ImageDialog open={showImage} onClose={closeFullImages} images={checkMessageObj.imgUrls} startIndex={currentIndex} />
-            </div>
+            {!!checkMessageObj.imgUrls.length &&
+                <div className={styles.messageData__list} >
+                    {checkMessageObj.imgUrls.map((item, index) => <ImageLoader src={item} key={index} onClick={(e) => openFullImage(e, index)} />)}
+                    <ImageDialog open={showImage} onClose={closeFullImages} images={checkMessageObj.imgUrls} startIndex={currentIndex} />
+                </div>
+            }
+
 
 
             {!!checkMessageObj.YTUrls &&
@@ -380,7 +381,7 @@ const Message: FC<Props> = ({ messageInfo }) => {
                 >
                     {messageInfo.forwardedFrom && <ForwardedFrom user={messageInfo.forwardedFrom} />}
                     {messageInfo.replyToMessage && <ReplyToMessage {...messageInfo} />}
-                    <ViewportContent onEnterViewport={readMessage} message={messageInfo} currentUser={owner}/>
+                    <ViewportContent onEnterViewport={readMessage} message={messageInfo} currentUser={owner} />
                     <div className={styles.messageData__info}>
                         <Reactions reactions={messageInfo?.reactions} currentUser={owner} chat={chat} messageID={messageInfo.messageID} />
                         <div className={styles.infoWrapper}>
